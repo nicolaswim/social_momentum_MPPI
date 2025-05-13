@@ -1,8 +1,7 @@
 import torch
 from pytorch_mppi import MPPI
-from config import *
-from utils import dynamics, normalize_angle, save_data
-import numpy as np
+from .config import * # If it uses variables from config.py
+from .utils import dynamics, normalize_angle, save_data # Note the leading dotimport numpy as np
 from shapely.geometry import Polygon, MultiPolygon, Point
 from shapely.vectorized import contains
 

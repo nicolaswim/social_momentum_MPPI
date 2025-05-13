@@ -1,0 +1,93 @@
+source /opt/ros/humble/setup.bash
+source ~/tiago_public_ws/install/setup.bash
+source ~/Documents/social_momentum_MPPI/install/setup.bash 
+
+# Now launch your simulation
+ros2 launch sm_mppi_planner sm_mppi_simulation.launch.py
+
+ros2 run rviz2 rviz2 --ros-args -p use_sim_time:=True
+
+
+
+----------------------
+
+# 0. Ensure ROS 2 Humble base is sourced (usually in your .bashrc or do it manually)
+ source /opt/ros/humble/setup.bash 
+
+# 1. Go to your workspace root
+cd ~/Documents/social_momentum_MPPI
+
+# 2. (Re)Build your package (optional if you are sure it built correctly and no changes were made)
+colcon build --packages-select sm_mppi_planner --symlink-install
+
+# 3. Source the local setup file for THIS workspace
+source install/setup.bash
+source ~/tiago_public_ws/install/setup.bash
+
+# 4. Now try to launch
+ros2 launch sm_mppi_planner sm_mppi_simulation.launch.py
+
+----
+
+source ~/tiago_public_ws/install/setup.bash
+source ~/Documents/social_momentum_MPPI/install/setup.bash
+
+ros2 launch sm_mppi_planner sm_mppi_simulation.launch.py
+
+
+----
+old repo:
+
+source /opt/ros/humble/setup.bash
+source ~/tiago_public_ws/install/setup.bash
+source ~/Documents/social_momentum_ros2/install/setup.bash
+
+launch file
+ros2 launch my_social_nav_pkg social_nav_test.launch.py
+
+launcxh no humans
+ros2 launch my_social_nav_pkg social_nav_debug_no_humans.launch.py
+
+launching rviz
+ros2 run rviz2 rviz2 --ros-args -p use_sim_time:=True
+
+launch with logging
+ros2 launch my_social_nav_pkg social_nav_test.launch.py > launch_output.log 2>&1 &
+
+---
+
+buidling stuff
+
+# 1. Navigate to your workspace root directory
+cd ~/Documents/social_momentum_ros2
+
+# 2. Make sure ROS 2 Humble environment is sourced
+source /opt/ros/humble/setup.bash
+
+# 3. Build the workspace (or just your package)
+colcon build --symlink-install --packages-select my_social_nav_pkg my_social_nav_interfaces
+# Or build everything: colcon build --symlink-install
+
+# 4. Source your workspace's overlay setup file
+source install/setup.bash
+
+---
+
+# Terminal 1 (Source all 3 setup files)
+ros2 launch my_social_nav_pkg social_nav_test.launch.py scenario_mode:=head_on
+
+# Terminal 1 (Source all 3 setup files)
+ros2 launch my_social_nav_pkg social_nav_test.launch.py scenario_mode:=random num_random_humans:=5
+
+# Terminal 1 (Source all 3 setup files)
+ros2 launch my_social_nav_pkg social_nav_test.launch.py scenario_mode:=teleop
+
+
+----
+Potential Rviz problem :
+
+export LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0
+# Now try running rviz again
+ros2 run rviz2 rviz2 --ros-args -p use_sim_time:=True
+# IMPORTANT: Unset LD_PRELOAD afterwards so it doesn't affect other things
+# unset LD_PRELOAD

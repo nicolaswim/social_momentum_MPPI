@@ -6,9 +6,9 @@ import rclpy
 import rclpy.time
 from geometry_msgs.msg import TwistStamped
 from rclpy.node import Node
-from tf2_wrapper import TF2Wrapper
-from vis_utils import VisualizationUtils
-from config import *
+from .tf2_wrapper import TF2Wrapper # Note the leading dot
+from .vis_utils import VisualizationUtils # Added leading dot
+from .config import * # If it uses variables from config.py
 from geometry_msgs.msg import TwistStamped
 
 import numpy as np

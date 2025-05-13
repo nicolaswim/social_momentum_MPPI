@@ -22,27 +22,28 @@ import time
 # you might use explicit relative imports if these files are treated as part of the same module:
 try:
     from .tf2_wrapper import TF2Wrapper
-    from .config import * # This will import all global variables from config.py
-    from .utils import dynamics, normalize_angle, save_data # Ensure save_data is actually used or remove
+    from .config import * 
+    from .utils import dynamics, normalize_angle, save_data
     from .sm_mppi import SMMPPIController
-    # Assuming pytorch_mppi is an installed library, no relative import needed for it
-    # from pytorch_mppi import MPPI # Already imported globally if needed by SMMPPIController
-    from shapely.geometry import Polygon, MultiPolygon, Point # If used directly in this file
-    from shapely.vectorized import contains # If used directly in this file
-
+    from .vis_utils import VisualizationUtils # Make sure this is here if used
+    from shapely.geometry import Polygon, MultiPolygon, Point 
+    from shapely.vectorized import contains 
 except ImportError as e:
-    # This block helps if you run the script directly for testing vs. as part of a ROS package
-    # For ROS 2 execution, the 'from .' imports should work if files are in the same Python package
+    # This 'except' block attempting direct imports for your local modules is problematic
+    # because those direct imports won't work when run as part of a package.
+    # It's better to fix all relative imports so you don't hit this 'except' block for local modules.
     print(f"Could not import local modules with relative paths: {e}")
-    print("Attempting direct imports (ensure PYTHONPATH is set if running outside ROS build system):")
-    from tf2_wrapper import TF2Wrapper
+    print("Attempting direct imports (ensure PYTHONPATH is set if running outside ROS build system. This may fail for packaged modules.):")
+    # Re-attempting direct imports here for local modules will likely still fail.
+    # For now, let's leave it to see if fixing utils.py resolves the primary chain.
+    # Ideally, this except block should only handle truly missing external libraries if any.
+    from tf2_wrapper import TF2Wrapper # This will fail if not fixed relatively above
     from config import *
     from utils import dynamics, normalize_angle, save_data
     from sm_mppi import SMMPPIController
+    from vis_utils import VisualizationUtils # This will fail if not fixed relatively above
     from shapely.geometry import Polygon, MultiPolygon, Point
     from shapely.vectorized import contains
-    # pytorch_mppi is expected to be an installed library
-    # from pytorch_mppi import MPPI
 
 
 class MPPLocalPlannerMPPI(Node):

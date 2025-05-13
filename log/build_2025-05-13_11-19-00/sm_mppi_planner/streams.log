@@ -1,0 +1,55 @@
+[1.070s] Invoking command in '/home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner': PYTHONPATH=/home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --uninstall --editable --build-directory /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build
+[1.495s] running develop
+[1.903s] Invoked command in '/home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner' returned '0': PYTHONPATH=/home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --uninstall --editable --build-directory /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build
+[1.906s] Invoking command in '/home/wim/Documents/social_momentum_MPPI/src/sm_mppi_planner': PYTHONPATH=/home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/sm_mppi_planner build --build-base /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build install --record /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/install.log --single-version-externally-managed install_data --force
+[2.330s] running egg_info
+[2.331s] writing ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/PKG-INFO
+[2.332s] writing dependency_links to ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/dependency_links.txt
+[2.332s] writing entry points to ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/entry_points.txt
+[2.332s] writing requirements to ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/requires.txt
+[2.332s] writing top-level names to ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/top_level.txt
+[2.335s] reading manifest file '../../build/sm_mppi_planner/sm_mppi_planner.egg-info/SOURCES.txt'
+[2.336s] writing manifest file '../../build/sm_mppi_planner/sm_mppi_planner.egg-info/SOURCES.txt'
+[2.336s] running build
+[2.337s] running build_py
+[2.337s] creating /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build
+[2.337s] creating /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib
+[2.337s] creating /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[2.337s] copying sm_mppi_planner/mppi_planner_node.py -> /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[2.337s] copying sm_mppi_planner/tf2_wrapper.py -> /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[2.338s] copying sm_mppi_planner/sm_mppi.py -> /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[2.338s] copying sm_mppi_planner/utils.py -> /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[2.338s] copying sm_mppi_planner/config.py -> /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[2.338s] copying sm_mppi_planner/__init__.py -> /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[2.339s] copying sm_mppi_planner/vis_utils.py -> /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[2.339s] running install
+[2.339s] running install_lib
+[2.340s] creating /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[2.340s] copying /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/mppi_planner_node.py -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[2.340s] copying /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/tf2_wrapper.py -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[2.340s] copying /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/sm_mppi.py -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[2.341s] copying /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/utils.py -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[2.341s] copying /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/config.py -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[2.341s] copying /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/__init__.py -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[2.342s] copying /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/vis_utils.py -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[2.342s] byte-compiling /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/mppi_planner_node.py to mppi_planner_node.cpython-310.pyc
+[2.344s] byte-compiling /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/tf2_wrapper.py to tf2_wrapper.cpython-310.pyc
+[2.346s] byte-compiling /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/sm_mppi.py to sm_mppi.cpython-310.pyc
+[2.347s] byte-compiling /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/utils.py to utils.cpython-310.pyc
+[2.348s] byte-compiling /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/config.py to config.cpython-310.pyc
+[2.349s] byte-compiling /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/__init__.py to __init__.cpython-310.pyc
+[2.349s] byte-compiling /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/vis_utils.py to vis_utils.cpython-310.pyc
+[2.350s] running install_data
+[2.350s] creating /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index
+[2.350s] creating /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index
+[2.351s] creating /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index/packages
+[2.351s] copying resource/sm_mppi_planner -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index/packages
+[2.351s] copying package.xml -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner
+[2.351s] creating /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[2.351s] copying launch/sm_mppi_simulation.launch.py -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[2.351s] running install_egg_info
+[2.354s] Copying ../../build/sm_mppi_planner/sm_mppi_planner.egg-info to /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner-0.0.1-py3.10.egg-info
+[2.355s] running install_scripts
+[2.380s] Installing mppi_planner_node script to /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/bin
+[2.380s] writing list of installed files to '/home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/install.log'
+[2.404s] Invoked command in '/home/wim/Documents/social_momentum_MPPI/src/sm_mppi_planner' returned '0': PYTHONPATH=/home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/sm_mppi_planner build --build-base /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build install --record /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/install.log --single-version-externally-managed install_data --force

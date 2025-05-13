@@ -1,0 +1,3 @@
+[console_scripts]
+mppi_planner_node = sm_mppi_planner.mppi_planner_node:main
+
