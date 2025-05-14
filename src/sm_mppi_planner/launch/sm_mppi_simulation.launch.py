@@ -94,6 +94,16 @@ def generate_launch_description():
         ]
     )
 
+    goal_publisher_node = Node(
+        package='sm_mppi_planner',
+        executable='goal_publisher_node',
+        name='goal_publisher_node',
+        output='screen',
+        parameters=[
+            {'use_sim_time': LaunchConfiguration('use_sim_time')}
+        ]
+    )
+
     # --- Placeholder Static TF Broadcaster for ONE simulated human ---
     static_human_tf_node = Node(
         package='tf2_ros',
@@ -119,5 +129,6 @@ def generate_launch_description():
     ld.add_action(rviz_with_ld_preload_action)
     ld.add_action(sm_mppi_planner_node)
     ld.add_action(static_human_tf_node)
-    
+    ld.add_action(goal_publisher_node)
+
     return ld
