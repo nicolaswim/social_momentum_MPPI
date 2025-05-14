@@ -130,8 +130,12 @@ class SMMPPIController:
         print(f"[SMMPPI_DEBUG] terminal_cost: self.goal shape: {self.goal.shape}")
         print(f"[SMMPPI_DEBUG] terminal_cost: self.goal value: {self.goal}")
         # --- END DEBUGGING PRINTS ---
+
+        final_positions = final_states[:, -1, :2]  # shape [N, 2]
+        dist_to_goal = torch.linalg.norm(final_positions - self.goal, dim=1)
+
         
-        dist_to_goal = torch.linalg.norm(final_states[:, :2] - self.goal, dim=1) # This is line 153 in built file
+        # dist_to_goal = torch.linalg.norm(final_states[:, :2] - self.goal, dim=1) # This is line 153 in built file
         
         goal_cost_weight = 2.0 
         if 'GOAL_COST_WEIGHT' in globals(): goal_cost_weight = GOAL_COST_WEIGHT

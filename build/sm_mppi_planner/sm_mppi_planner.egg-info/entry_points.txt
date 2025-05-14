@@ -1,3 +1,4 @@
 [console_scripts]
+goal_publisher_node = sm_mppi_planner.goal_publisher_node:main
 mppi_planner_node = sm_mppi_planner.mppi_planner_node:main
 

@@ -1,0 +1,27 @@
+[0.723s] Invoking command in '/home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner': PYTHONPATH=/home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build --no-deps symlink_data
+[1.019s] running develop
+[1.222s] running egg_info
+[1.222s] creating sm_mppi_planner.egg-info
+[1.222s] writing sm_mppi_planner.egg-info/PKG-INFO
+[1.222s] writing dependency_links to sm_mppi_planner.egg-info/dependency_links.txt
+[1.222s] writing entry points to sm_mppi_planner.egg-info/entry_points.txt
+[1.223s] writing requirements to sm_mppi_planner.egg-info/requires.txt
+[1.223s] writing top-level names to sm_mppi_planner.egg-info/top_level.txt
+[1.223s] writing manifest file 'sm_mppi_planner.egg-info/SOURCES.txt'
+[1.225s] reading manifest file 'sm_mppi_planner.egg-info/SOURCES.txt'
+[1.226s] writing manifest file 'sm_mppi_planner.egg-info/SOURCES.txt'
+[1.228s] running build_ext
+[1.228s] Creating /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm-mppi-planner.egg-link (link to .)
+[1.229s] Installing goal_publisher_node script to /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner
+[1.229s] Installing mppi_planner_node script to /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner
+[1.229s] 
+[1.229s] Installed /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner
+[1.229s] running symlink_data
+[1.229s] creating /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index
+[1.230s] creating /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index
+[1.230s] creating /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index/packages
+[1.230s] symbolically linking /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/resource/sm_mppi_planner -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index/packages
+[1.230s] symbolically linking /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/package.xml -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner
+[1.230s] creating /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[1.230s] symbolically linking /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/launch/sm_mppi_simulation.launch.py -> /home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[1.252s] Invoked command in '/home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner' returned '0': PYTHONPATH=/home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/wim/Documents/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/wim/Documents/social_momentum_MPPI/build/sm_mppi_planner/build --no-deps symlink_data
