@@ -26,6 +26,7 @@ setup(
         'tf2_msgs',
         'visualization_msgs',
         'nav_msgs'
+        'my_social_nav_interfaces',
     ],
     zip_safe=True,
     maintainer='Your Name',
@@ -37,6 +38,7 @@ setup(
         'console_scripts': [
             'mppi_planner_node = sm_mppi_planner.mppi_planner_node:main',
             'goal_publisher_node = sm_mppi_planner.goal_publisher_node:main',
+            'fake_human_publisher = sm_mppi_planner.fake_human_publisher:main',
         ],
     },
 )

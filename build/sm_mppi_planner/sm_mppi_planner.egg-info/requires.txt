@@ -1,5 +1,5 @@
 geometry_msgs
-nav_msgs
+nav_msgsmy_social_nav_interfaces
 numpy
 pytorch_mppi
 rclpy

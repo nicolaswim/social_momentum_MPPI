@@ -1,10 +1,12 @@
 package.xml
 setup.cfg
 setup.py
+launch/headon_demo.launch.py
 launch/sm_mppi_simulation.launch.py
 resource/sm_mppi_planner
 sm_mppi_planner/__init__.py
 sm_mppi_planner/config.py
+sm_mppi_planner/fake_human_publisher.py
 sm_mppi_planner/goal_publisher_node.py
 sm_mppi_planner/mppi_planner_node.py
 sm_mppi_planner/sm_mppi.py
