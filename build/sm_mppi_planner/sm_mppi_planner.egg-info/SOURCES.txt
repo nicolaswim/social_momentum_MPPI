@@ -1,13 +1,6 @@
 package.xml
 setup.cfg
 setup.py
-../../build/sm_mppi_planner/sm_mppi_planner.egg-info/PKG-INFO
-../../build/sm_mppi_planner/sm_mppi_planner.egg-info/SOURCES.txt
-../../build/sm_mppi_planner/sm_mppi_planner.egg-info/dependency_links.txt
-../../build/sm_mppi_planner/sm_mppi_planner.egg-info/entry_points.txt
-../../build/sm_mppi_planner/sm_mppi_planner.egg-info/requires.txt
-../../build/sm_mppi_planner/sm_mppi_planner.egg-info/top_level.txt
-../../build/sm_mppi_planner/sm_mppi_planner.egg-info/zip-safe
 launch/sm_mppi_simulation.launch.py
 resource/sm_mppi_planner
 sm_mppi_planner/__init__.py

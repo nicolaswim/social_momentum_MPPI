@@ -1,243 +1,257 @@
 import torch
-from pytorch_mppi import MPPI
-from .config import * # If it uses variables from config.py
-from .utils import dynamics, normalize_angle, save_data # Note the leading dotimport numpy as np
+from pytorch_mppi import MPPI # This is an external library, so direct import is fine
+import sys # For sys.stderr
+import numpy as np
 from shapely.geometry import Polygon, MultiPolygon, Point
 from shapely.vectorized import contains
 
+# --- Relative imports for modules within the same package ---
+from .config import *
+from .utils import dynamics, normalize_angle, save_data 
+# --- End Relative Imports ---
+
+
 class SMMPPIController:
-    def __init__(self,static_obs, device):
-        # Initialize parameters from config
+    def __init__(self,static_obs_passed, device):
+        # Initialize parameters
         self.horizon = HORIZON_LENGTH 
         self.dt = DT
         self.device = device
-        self.angular_alignment_threshold = ANGULAR_THRESHOLD   # Angular error threshold in radians
+        self.angular_alignment_threshold = ANGULAR_THRESHOLD
         self.goals = torch.tensor(GOALS, dtype=torch.float32).to(self.device)
-        self.rollouts = torch.zeros((7, NUM_SAMPLES, 2))
-        self.costs = torch.zeros((7, NUM_SAMPLES, 2))
         self.max_cycles = NUM_CYCLES
         self.num_samples = NUM_SAMPLES
-        self.polygons = [Polygon(obs) for obs in static_obs]
-        self.multi_polygon = MultiPolygon(self.polygons)
-        self.bounds = self.multi_polygon.bounds
-        self.s2_ego = torch.zeros((self.num_samples, 3)).to(self.device)
+        
+        current_static_obstacles = static_obs_passed
 
+        if current_static_obstacles and isinstance(current_static_obstacles, list) and \
+           all(isinstance(obs_coords, (list, tuple)) for obs_coords in current_static_obstacles):
+            valid_obs_coords = [coords for coords in current_static_obstacles if coords]
+            if valid_obs_coords:
+                self.polygons = [Polygon(coords) for coords in valid_obs_coords]
+                self.multi_polygon = MultiPolygon(self.polygons)
+                self.bounds = self.multi_polygon.bounds
+            else: 
+                self.polygons = []
+                self.multi_polygon = MultiPolygon() 
+                self.bounds = (0.0, 0.0, 0.0, 0.0) 
+        else: 
+            self.polygons = []
+            self.multi_polygon = MultiPolygon()
+            self.bounds = (0.0, 0.0, 0.0, 0.0)
+
+        self.s2_ego = torch.zeros((self.num_samples, 3)).to(self.device)
 
         self.current_goal_index = 0
         self.cycle_count = 0
-        self.counter = 0
-        self.goal = self.goals[self.current_goal_index]
-        self.agent_weights = {i: torch.tensor([0.1, 0.1, 0.0], dtype=torch.float32).to(self.device) for i in range(ACTIVE_AGENTS)}
+        if self.goals.numel() > 0 : 
+             self.goal = self.goals[self.current_goal_index]
+        else:
+            print("[SMMPPIController] WARNING: GOALS list in config.py is empty or invalid. Setting a placeholder goal.", file=sys.stderr)
+            self.goal = torch.tensor([0.0,0.0], dtype=torch.float32).to(self.device)
 
+        self.agent_weights = {i: torch.tensor([0.1, 0.1, 0.0], dtype=torch.float32).to(self.device) for i in range(ACTIVE_AGENTS)}
         self.interacting_agents = []
 
-        # Initialize MPPI with the dynamics and cost functions
+        default_cov_val_lin = 0.5 
+        default_cov_val_ang = 0.5 
         cov = torch.eye(2, dtype=torch.float32).to(self.device)
-        cov[0, 0] = 2
-        cov[1, 1] = 2
+        cov[0, 0] = default_cov_val_lin 
+        cov[1, 1] = default_cov_val_ang 
         
-        # MPPI initialization
-        cov = torch.eye(2, dtype=torch.float32).to(self.device)
+        u_min_tensor = torch.tensor([0.0, -1.5], dtype=torch.float32).to(self.device)
+        u_max_tensor = torch.tensor([VMAX, 1.5], dtype=torch.float32).to(self.device)
+
+        dynamics_func = self.dynamics 
+
         self.mppi = MPPI(
-            self.dynamics,
-            self.cost,
-            3,  # State dimension
+            dynamics_func, 
+            self.cost,     
+            3,
             cov,
             num_samples=self.num_samples,
             horizon=self.horizon,
             device=self.device,
-            terminal_state_cost=self.terminal_cost,
-            step_dependent_dynamics=True,
-            u_min=torch.tensor([0.0, -1.5], dtype=torch.float32).to(self.device),
-            u_max=torch.tensor([0.4, 1.5], dtype=torch.float32).to(self.device),
+            terminal_state_cost=self.terminal_cost, 
+            lambda_=1.0, 
+            u_min=u_min_tensor,
+            u_max=u_max_tensor,
         )
 
-    def compute_control(self, current_state, previous_robot_state, robot_velocity, agent_states, previous_agent_states,agent_velocities): 
-        self.current_state = current_state
-        self.previous_robot_state = previous_robot_state
-        self.robot_velocity = robot_velocity
+    def compute_control(self, current_state_robot, previous_robot_state_for_sm, robot_velocity_world, 
+                        current_agent_states_world, previous_agent_states_for_sm, agent_velocities_world):
+        self.current_state_robot_for_cost = current_state_robot 
+        self.robot_velocity_world_for_cost = robot_velocity_world 
+        self.current_agent_states_world_for_cost = current_agent_states_world 
+        self.agent_velocities_world_for_cost = agent_velocities_world 
+
+        action = self.mppi.command(current_state_robot) 
         
-        self.agent_states = agent_states
-        self.previous_agent_states = previous_agent_states
-        self.agent_velocities = agent_velocities
-        action = self.mppi.command(current_state)
-        self.mppi.u_init = action
-        rollouts = self.mppi.states.squeeze(0)
-        costs = self.mppi.cost_total.squeeze(0)
+        rollouts = None 
+        costs = None
 
-        termination =  torch.linalg.norm(self.current_state[:2] - self.goal) < TERMINATION_TOLERANCE
+        distance_to_goal = torch.linalg.norm(current_state_robot[:2] - self.goal)
+        termination = distance_to_goal < TERMINATION_TOLERANCE
         
-        return action, rollouts, costs, termination
+        return action, costs, rollouts, termination
 
-    def cost(self, state: torch.Tensor, action: torch.Tensor, t) -> torch.Tensor:
-        """
-        Cost function for MPPI optimization.
-        Args:
-            state: (num_samples, horizon, 3) - States over the horizon.
-            action: (num_samples, horizon, 2) - Actions over the horizon.
+    def cost(self, states_at_t: torch.Tensor, actions_at_t: torch.Tensor) -> torch.Tensor:
+        return torch.zeros(states_at_t.shape[0], device=self.device)
 
-        Returns:
-            cost: (num_samples) - Total cost for each sample.
-        """
-        return 0
-
-    def dynamics(self, s: torch.Tensor, a: torch.Tensor, t=None) -> torch.Tensor:
-        """
-        Input:
-        s: robot global state  (shape: BS x 3)
-        a: robot action   (shape: BS x 2)
-
-
-        Output:
-        next robot global state after executing action (shape: BS x 3)
-        """
-        assert s.ndim == 2 and s.shape[-1] == 3
-        assert a.ndim == 2 and a.shape[-1] == 2
-
-        dt = self.dt
-
-        self.s2_ego.zero_()
-        s2_ego = torch.zeros_like(s).to(self.device)
-        s2_ego = self.s2_ego
-        d_theta = a[:, 1] * dt
-        turning_radius = a[:, 0] / a[:, 1]
-
-        s2_ego[:, 0] = torch.where(
-            a[:, 1] == 0, a[:, 0] * dt, turning_radius * torch.sin(d_theta)
-        )
-        s2_ego[:, 1] = torch.where(
-            a[:, 1] == 0, 0.0, turning_radius * (1.0 - torch.cos(d_theta))
-        )
-        s2_ego[:, 2] = torch.where(a[:, 1] == 0, 0.0, d_theta)
-
-        s2_global = torch.zeros_like(s)
-        s2_global[:, 0] = (
-            s[:, 0] + s2_ego[:, 0] * torch.cos(s[:, 2]) - s2_ego[:, 1] * torch.sin(s[:, 2])
-        )
-        s2_global[:, 1] = (
-            s[:, 1] + s2_ego[:, 0] * torch.sin(s[:, 2]) + s2_ego[:, 1] * torch.cos(s[:, 2])
-        )
-        s2_global[:, 2] = normalize_angle(s[:, 2] + s2_ego[:, 2])
-
+    def dynamics(self, s_batch: torch.Tensor, a_batch: torch.Tensor) -> torch.Tensor:
+        assert s_batch.ndim == 2 and s_batch.shape[-1] == 3
+        assert a_batch.ndim == 2 and a_batch.shape[-1] == 2
+        dt = self.dt 
+        linear_vel = a_batch[:, 0]
+        angular_vel = a_batch[:, 1]
+        current_theta = s_batch[:, 2]
+        is_turning = torch.abs(angular_vel) > 1e-5 
+        d_theta_turning = angular_vel * dt
+        next_theta_turning = normalize_angle(current_theta + d_theta_turning) 
+        avg_theta_turning = normalize_angle(current_theta + d_theta_turning / 2.0)
+        delta_x_turning = linear_vel * torch.cos(avg_theta_turning) * dt
+        delta_y_turning = linear_vel * torch.sin(avg_theta_turning) * dt
+        delta_x_straight = linear_vel * torch.cos(current_theta) * dt
+        delta_y_straight = linear_vel * torch.sin(current_theta) * dt
+        next_theta_straight = current_theta 
+        s2_global = torch.zeros_like(s_batch)
+        s2_global[:, 0] = s_batch[:, 0] + torch.where(is_turning, delta_x_turning, delta_x_straight)
+        s2_global[:, 1] = s_batch[:, 1] + torch.where(is_turning, delta_y_turning, delta_y_straight)
+        s2_global[:, 2] = torch.where(is_turning, next_theta_turning, next_theta_straight)
         return s2_global
 
-
-    def terminal_cost(self, state: torch.Tensor, action: torch.Tensor) -> torch.Tensor:
-        goal_expanded = self.goal[None, :]
-        state_squeezed = state.squeeze()
-        dist = torch.norm(goal_expanded-state_squeezed[:,:,:2], dim=2)# (N x T')
-        goal_cost = torch.sum(dist, dim=1)
-        dynamic_obstacle_costs = torch.zeros(self.num_samples).to(self.device)
-        sm_costs = torch.zeros(self.num_samples).to(self.device)
-
-        for i in range(ACTIVE_AGENTS):
-            next_x_states = self.agent_states[i][0] + torch.linspace(self.dt,self.horizon*self.dt,self.horizon,device=self.device)* self.agent_velocities[i][0]
-            next_y_states = self.agent_states[i][1] + torch.linspace(self.dt,self.horizon*self.dt,self.horizon,device=self.device)* self.agent_velocities[i][1]
-            human_states  = torch.stack((next_x_states,next_y_states), dim=1)
-            dist = torch.norm(state_squeezed[:,:,:2] -  human_states,dim=2)
-            # social mometum cost
-            sm_costs += self.SocialCost(state, i, human_states)
-            #dynamic obstacle cost
-            dynamic_obstacle_cost = torch.where(dist < 1.0, 1 / (1 + dist**2), torch.tensor(0.0, device=self.device))
-            dynamic_obstacle_costs += torch.sum(dynamic_obstacle_cost,dim=1)
-            #static obstacle cost
-            static_costs = self.collision_avoidance_cost(state_squeezed)
-
-        return 2*(goal_cost) + sm_costs + dynamic_obstacle_costs + 5*static_costs  #weights can be tuned for desired behaviour
+    def terminal_cost(self, states_batch: torch.Tensor, actions_batch: torch.Tensor) -> torch.Tensor:
+        final_states = states_batch[:, -1, :] 
         
-
-    def get_interacting_agents(self):
-        self.interacting_agents = []
-        robot_state = self.current_state
-        for idx, agent_state in self.agent_states.items():
-            direction_to_agent = torch.arctan2(agent_state[1] - self.current_state[1], agent_state[0] - self.current_state[0])
-            distance_to_agent = torch.norm(agent_state[:2] - self.current_state[:2])
-            relative_angle = torch.rad2deg(direction_to_agent - robot_state[2])
-            relative_angle = (relative_angle + 180) % 360 - 180  
-            
-            if -120 <= relative_angle <= 120 and distance_to_agent < 5.0:  
-                self.interacting_agents.append(idx)
-                self.agent_weights[idx] = (1/distance_to_agent)
-
-
-    def SocialCost(self, state: torch.Tensor,i,human_states, **kwargs) -> torch.Tensor:
-        sm_cost = 0.0
-        self.get_interacting_agents()
-        if i in self.interacting_agents:
-            state_squeezed = state.squeeze()
-            r_c = (state_squeezed[:,:,:2] + human_states) / 2
-            r_ac = state_squeezed[:,:,:2] - r_c
-            r_bc = human_states - r_c
-            r_ac_3d = torch.nn.functional.pad(r_ac, (0, 1), "constant", 0)  # [N, T', 3]
-            r_bc_3d = torch.nn.functional.pad(r_bc, (0, 1), "constant", 0)  # [N, T', 3]
-            robot_velocity_3d = torch.nn.functional.pad(self.robot_velocity, (0, 1), "constant", 0)  # Shape: [3]
-            agent_velocities_3d = torch.nn.functional.pad(self.agent_velocities[i], (0, 1), "constant", 0) 
-            l_ab = torch.cross(r_ac_3d, robot_velocity_3d[None,None,:], dim=2) + torch.cross(r_bc_3d, agent_velocities_3d[None,None,:], dim=2)
-            l_ab = l_ab[:, :, 2]
-            l_ab_dot_product = l_ab[:, :-1] * l_ab[:, 1:]    # Determine if dot product is positive or not
-            condition = l_ab_dot_product > 0  # Shape: [N, T'-1]
-            l_ab_conditional = torch.where(condition, -11*torch.abs(l_ab[:, :-1]), torch.tensor(10.0, device=l_ab.device))  # Shape: [N, T'-1]
-            sm_cost += torch.sum(l_ab_conditional, dim=1)
-        return sm_cost
+        # --- DEBUGGING PRINTS ---
+        # These will print to the console where your ROS 2 launch output goes
+        print(f"[SMMPPI_DEBUG] terminal_cost: final_states shape: {final_states.shape}")
+        print(f"[SMMPPI_DEBUG] terminal_cost: final_states[:10, :2]: {final_states[:10, :2]}") # Print first 10 x,y of final_states
+        print(f"[SMMPPI_DEBUG] terminal_cost: self.goal shape: {self.goal.shape}")
+        print(f"[SMMPPI_DEBUG] terminal_cost: self.goal value: {self.goal}")
+        # --- END DEBUGGING PRINTS ---
         
-    def collision_avoidance_cost(self,state):
-        xy_coords = state[..., :2].cpu().numpy()  # Shape: (N, T', 2)
-        flattened_coords = xy_coords.reshape(-1, 2)
-        x_min, y_min, x_max, y_max = self.bounds
-        within_bounds = (
-            (flattened_coords[:, 0] >= x_min) &
-            (flattened_coords[:, 0] <= x_max) &
-            (flattened_coords[:, 1] >= y_min) &
-            (flattened_coords[:, 1] <= y_max)
-        )
+        dist_to_goal = torch.linalg.norm(final_states[:, :2] - self.goal, dim=1) # This is line 153 in built file
+        
+        goal_cost_weight = 2.0 
+        if 'GOAL_COST_WEIGHT' in globals(): goal_cost_weight = GOAL_COST_WEIGHT
+        goal_cost = dist_to_goal * goal_cost_weight
 
-        # Use Shapely's vectorized `contains` for points within bounds
-        collision_flags = contains(self.multi_polygon, flattened_coords[:, 0], flattened_coords[:, 1])
-        collision_flags[~within_bounds] = False  # Points outside bounds are not collisions
+        dynamic_obstacle_costs_total = torch.zeros_like(goal_cost)
+        sm_costs_total = torch.zeros_like(goal_cost)
+        static_obstacle_costs_total = torch.zeros_like(goal_cost)
 
-        # Assign costs based on collision flags
-        costs = torch.where(
-            torch.tensor(collision_flags, dtype=torch.bool),
-            torch.tensor(10.0),  
-            torch.tensor(0.0) 
-        )
-        costs = costs.view(state.shape[0], state.shape[1]).sum(dim=1)
+        if self.polygons: 
+             static_obstacle_costs_total = self.collision_avoidance_cost(states_batch)
 
-        return costs.to(state.device)
+        if ACTIVE_AGENTS > 0 and hasattr(self, 'current_agent_states_world_for_cost') and hasattr(self, 'agent_velocities_world_for_cost'):
+            num_samples_from_batch = states_batch.shape[0]
+            for i in range(ACTIVE_AGENTS):
+                if i not in self.current_agent_states_world_for_cost or \
+                   i not in self.agent_velocities_world_for_cost or \
+                   self.current_agent_states_world_for_cost[i] is None or \
+                   self.agent_velocities_world_for_cost[i] is None:
+                    continue
+                current_agent_pos = self.current_agent_states_world_for_cost[i][:2]
+                current_agent_vel = self.agent_velocities_world_for_cost[i][:2]
+                time_steps_horizon = torch.arange(1, self.horizon + 1, device=self.device).float() * self.dt
+                agent_path_x = current_agent_pos[0] + time_steps_horizon * current_agent_vel[0]
+                agent_path_y = current_agent_pos[1] + time_steps_horizon * current_agent_vel[1]
+                agent_path_horizon = torch.stack((agent_path_x, agent_path_y), dim=1) 
+                agent_path_horizon_expanded = agent_path_horizon.unsqueeze(0).expand(num_samples_from_batch, -1, -1)
+                dist_to_agent = torch.linalg.norm(states_batch[:, :, :2] - agent_path_horizon_expanded, dim=2)
+                dynamic_obs_weight = 10.0 
+                if 'DYNAMIC_OBS_COST_WEIGHT' in globals(): dynamic_obs_weight = DYNAMIC_OBS_COST_WEIGHT
+                human_radius_for_cost = RADIUS 
+                if 'HUMAN_RADIUS' in globals(): human_radius_for_cost = HUMAN_RADIUS
+                collision_threshold = RADIUS + human_radius_for_cost
+                dynamic_obs_penalty = torch.where(dist_to_agent < collision_threshold, 
+                                                  (1.0 / (dist_to_agent + 1e-5)) * dynamic_obs_weight, 
+                                                  torch.tensor(0.0, device=self.device))
+                dynamic_obstacle_costs_total += torch.sum(dynamic_obs_penalty, dim=1)
+                sm_penalty_for_agent = torch.zeros_like(goal_cost) 
+                sm_costs_total += sm_penalty_for_agent
+        total_cost = goal_cost + sm_costs_total + dynamic_obstacle_costs_total + static_obstacle_costs_total
+        return total_cost
+    
+    def get_interacting_agents_for_cost(self, robot_state_for_cost):
+        interacting_agents_for_cost = []
+        if ACTIVE_AGENTS > 0 and hasattr(self, 'current_agent_states_world_for_cost'):
+            fov_deg_val = 180.0 
+            if 'FOV_DEG' in globals(): fov_deg_val = FOV_DEG
+            fov_rad_half = torch.deg2rad(torch.tensor(fov_deg_val, device=self.device)) / 2.0
+            interaction_dist_threshold = 5.0 
+            if 'INTERACTION_DISTANCE' in globals(): interaction_dist_threshold = INTERACTION_DISTANCE
+            for idx, agent_state_world in self.current_agent_states_world_for_cost.items():
+                if agent_state_world is None or robot_state_for_cost is None: continue
+                agent_state_world_dev = agent_state_world.to(self.device) 
+                robot_state_for_cost_dev = robot_state_for_cost.to(self.device)
+                direction_to_agent = torch.arctan2(agent_state_world_dev[1] - robot_state_for_cost_dev[1], 
+                                                 agent_state_world_dev[0] - robot_state_for_cost_dev[0])
+                distance_to_agent = torch.norm(agent_state_world_dev[:2] - robot_state_for_cost_dev[:2])
+                angle_diff = normalize_angle(direction_to_agent - robot_state_for_cost_dev[2])
+                if torch.abs(angle_diff) <= fov_rad_half and distance_to_agent < interaction_dist_threshold: 
+                    interacting_agents_for_cost.append(idx)
+        return interacting_agents_for_cost
+
+    def collision_avoidance_cost(self, states_batch: torch.Tensor) -> torch.Tensor:
+        if not self.polygons: 
+            return torch.zeros(states_batch.shape[0], device=self.device)
+        num_samples = states_batch.shape[0]
+        horizon_len = states_batch.shape[1]
+        xy_coords_batch = states_batch[..., :2]
+        flattened_xy_coords = xy_coords_batch.reshape(-1, 2).cpu().numpy()
+        collision_flags_flat = contains(self.multi_polygon, flattened_xy_coords[:, 0], flattened_xy_coords[:, 1])
+        collision_flags_batch = torch.tensor(collision_flags_flat, dtype=torch.bool, device=self.device).view(num_samples, horizon_len)
+        static_cost_weight = 5.0 
+        if 'STATIC_COST_WEIGHT' in globals():
+            static_cost_weight = STATIC_COST_WEIGHT
+        collision_penalty = torch.where(collision_flags_batch, 
+                                        torch.tensor(100.0 * static_cost_weight, device=self.device), 
+                                        torch.tensor(0.0, device=self.device))
+        total_collision_cost_per_sample = torch.sum(collision_penalty, dim=1)
+        return total_collision_cost_per_sample
 
     def move_to_next_goal(self):
+        if self.current_goal_index == -1: 
+            print("[SMMPPIController] External goal reached/processed. Waiting for new external goal.", file=sys.stderr)
+            return 
+        if self.goals.numel() == 0:
+            print("[SMMPPIController] No goals defined in config to cycle through.", file=sys.stderr)
+            return
         if self.current_goal_index < len(self.goals) - 1:
-            # Move to the next goal in the current cycle
             self.current_goal_index += 1
-        else:
-            # Finish the current cycle
-            if self.cycle_count >= self.max_cycles:
-                print(f"All {self.max_cycles} cycles completed! Stopping the robot.")
-                self.timer.cancel() 
-                rclpy.shutdown()
-                return
-            else:
+        else: 
+            if REPEAT_GOALS: 
                 self.cycle_count += 1
-                self.current_goal_index = 0
-
-        # Update the current goal
+                if self.max_cycles > 0 and self.cycle_count >= self.max_cycles: 
+                    print(f"[SMMPPIController] All {self.max_cycles} cycles completed! Will keep targeting last goal of cycle.", file=sys.stderr)
+                    return 
+                else: 
+                    self.current_goal_index = 0 
+            else: 
+                print(f"[SMMPPIController] Finished all goals in the list (REPEAT_GOALS is False). Will keep targeting last goal.", file=sys.stderr)
+                return 
         self.goal = self.goals[self.current_goal_index]
-        print(f"Moving to goal {self.current_goal_index + 1}: {self.goal} (Cycle {self.cycle_count + 1}/{self.max_cycles})")
+        max_c = self.max_cycles if self.max_cycles > 0 else "inf"
+        print(f"[SMMPPIController] Moving to goal {self.current_goal_index + 1}/{len(self.goals)}: {self.goal.cpu().numpy()} (Cycle {self.cycle_count + 1}/{max_c if REPEAT_GOALS else 1})", file=sys.stderr)
 
+    # The transform_base_action_to_world_batch and calculate_angular_momentum_z_batch 
+    # are not directly used by the simplified terminal_cost at the moment.
+    # They would be needed for a more complete SocialCost_for_MPPI implementation.
+    def transform_base_action_to_world_batch(self, base_actions_batch, a_thetas_batch):
+        vx_base = base_actions_batch[:, 0]
+        vy_base = base_actions_batch[:, 1] 
+        cos_theta = torch.cos(a_thetas_batch)
+        sin_theta = torch.sin(a_thetas_batch)
+        vx_world = vx_base * cos_theta - vy_base * sin_theta
+        vy_world = vx_base * sin_theta + vy_base * cos_theta
+        return torch.stack((vx_world, vy_world), dim=1)
 
-
-# def calculate_angle_to_goal(self, current_state, goal):
-#     """
-#     Calculate the angle difference required to face the goal.
-
-#     Args:
-#         current_state (torch.Tensor): Current robot state [x, y, yaw].
-#         goal (torch.Tensor): Goal position [x, y].
-
-#     Returns:
-#         float: Angle difference in radians.
-#     """
-#     goal_vector = goal[:2] - current_state[:2] 
-#     desired_yaw = torch.atan2(goal_vector[1], goal_vector[0]) - 0.3
-#     angle_diff = desired_yaw - current_state[2]  
-#     return torch.atan2(torch.sin(angle_diff),torch.cos(angle_diff))
+    def calculate_angular_momentum_z_batch(self, q1_batch, v1_batch, q2_batch, v2_batch):
+        com_q_batch = (q1_batch + q2_batch) / 2.0 
+        r1_com_batch = q1_batch - com_q_batch 
+        r2_com_batch = q2_batch - com_q_batch 
+        L1_z_batch = r1_com_batch[:, 0] * v1_batch[:, 1] - r1_com_batch[:, 1] * v1_batch[:, 0]
+        L2_z_batch = r2_com_batch[:, 0] * v2_batch[:, 1] - r2_com_batch[:, 1] * v2_batch[:, 0]
+        return L1_z_batch + L2_z_batch

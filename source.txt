@@ -1,3 +1,15 @@
+
+rm -rf build/sm_mppi_planner install/sm_mppi_planner
+
+colcon build --packages-select sm_mppi_planner --symlink-install
+
+source /opt/ros/humble/setup.bash
+source ~/tiago_public_ws/install/setup.bash
+source ~/Documents/social_momentum_MPPI/install/setup.bash
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp # If you are using CycloneDDS
+
+ros2 launch sm_mppi_planner sm_mppi_simulation.launch.py
+------
 source /opt/ros/humble/setup.bash
 source ~/tiago_public_ws/install/setup.bash
 source ~/Documents/social_momentum_MPPI/install/setup.bash 
@@ -29,8 +41,9 @@ ros2 launch sm_mppi_planner sm_mppi_simulation.launch.py
 
 ----
 
+source /opt/ros/humble/setup.bash
 source ~/tiago_public_ws/install/setup.bash
-source ~/Documents/social_momentum_MPPI/install/setup.bash
+source ~/Documents/social_momentum_MPPI/install/setup.bash 
 
 ros2 launch sm_mppi_planner sm_mppi_simulation.launch.py
 
