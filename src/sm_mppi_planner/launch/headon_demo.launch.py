@@ -56,6 +56,7 @@ def generate_launch_description():
     rviz_with_ld_preload_action = ExecuteProcess(
         cmd=['bash', '-c', rviz_command_str],
         output='screen',
+
         condition=IfCondition(LaunchConfiguration('launch_rviz'))
     )
 
@@ -89,8 +90,8 @@ def generate_launch_description():
             {'y_limits': [-5.0, 5.0]},
             {'world_frame_id': 'odom'},
             {'publish_frequency': 10.0},
-            {'human_max_speed': 1.0},
-            {'human_min_speed': 1.0},
+            {'human_max_speed': 0.3},
+            {'human_min_speed': 0.3},
             {'initial_delay_sec': 1.5},
             {'humans_topic': '/humans'},
             {'markers_topic': '/human_markers'}

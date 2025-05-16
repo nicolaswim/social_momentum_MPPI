@@ -120,7 +120,7 @@ class MPPLocalPlannerMPPI(Node):
         if ACTIVE_AGENTS > 0:
             for i in range(ACTIVE_AGENTS):
                 human_frame_name = HUMAN_FRAME + "_" + str(i + 1)
-                T_map_agent_transform = self.tf2_wrapper.get_latest_pose("map", human_frame_name)
+                T_map_agent_transform = self.tf2_wrapper.get_latest_pose("odom", human_frame_name)
                 
                 if T_map_agent_transform is None:
                     self.get_logger().warn(f"Can't find human pose for {human_frame_name}. Using default/last known.", throttle_duration_sec=2.0)

@@ -13,6 +13,11 @@ from geometry_msgs.msg import Point, Vector3, Twist, Quaternion
 from std_msgs.msg import Header, ColorRGBA
 from visualization_msgs.msg import Marker, MarkerArray
 
+from tf2_ros import TransformBroadcaster
+from geometry_msgs.msg import TransformStamped
+
+
+
 try:
     from my_social_nav_interfaces.msg import HumanPoseVel, HumanArray
 except ImportError:
@@ -51,6 +56,8 @@ class FakeHumanPublisher(Node):
         self.y_lim = self.get_parameter('y_limits').value
         teleop_cmd_topic = self.get_parameter('teleop_cmd_topic').value
         self.initial_delay_sec = self.get_parameter('initial_delay_sec').value
+
+        self.tf_broadcaster = TransformBroadcaster(self)
 
 
         self.get_logger().info(f"Scenario: '{self.scenario}', Frame: '{self.frame_id}'")
@@ -101,13 +108,13 @@ class FakeHumanPublisher(Node):
             start_x = 0.0              
             speed = random.uniform(self.min_speed, self.max_speed)
             human = {
-                'id': 'human_0', # String ID for the human data
-                'marker_base_id': self.next_marker_id, # Integer base ID for markers
+                'id': f'human_1',  # matches what the planner expects
+                'marker_base_id': self.next_marker_id,
                 'pos': np.array([start_x, start_y]),
                 'vel': np.array([0.0, -speed]) 
             }
             self.humans.append(human)
-            self.next_marker_id += 2 # Reserve two IDs (cylinder + arrow)
+            self.next_marker_id += 2
 
         elif self.scenario == 'random':
             for i in range(self.num_random):
@@ -152,7 +159,7 @@ class FakeHumanPublisher(Node):
         current_time = self.get_clock().now().to_msg()
 
         if not self.humans:
-             return 
+            return 
 
         for human_idx, human in enumerate(self.humans):
             human['pos'] = human['pos'] + human['vel'] * dt
@@ -164,6 +171,21 @@ class FakeHumanPublisher(Node):
                     human['vel'][1] *= -1 
                     human['pos'][1] = np.clip(human['pos'][1], self.y_lim[0]+0.1, self.y_lim[1]-0.1)
 
+            # Publish TF transform for each human
+            t = TransformStamped()
+            t.header.stamp = self.get_clock().now().to_msg()
+            t.header.frame_id = self.frame_id
+            t.child_frame_id = human['id']
+            t.transform.translation.x = float(human['pos'][0])
+            t.transform.translation.y = float(human['pos'][1])
+            t.transform.translation.z = 0.0
+            t.transform.rotation.x = 0.0
+            t.transform.rotation.y = 0.0
+            t.transform.rotation.z = 0.0
+            t.transform.rotation.w = 1.0
+            self.tf_broadcaster.sendTransform(t)
+
+            # Fill custom message
             hpv_msg = HumanPoseVel()
             hpv_msg.human_id = human['id']
             hpv_msg.position.x = human['pos'][0]
@@ -174,12 +196,12 @@ class FakeHumanPublisher(Node):
             hpv_msg.velocity.z = 0.0
             human_msgs.append(hpv_msg)
 
-            # Cylinder Marker
+            # Marker
             marker = Marker()
             marker.header.frame_id = self.frame_id
             marker.header.stamp = current_time
             marker.ns = "human_cylinders" 
-            marker.id = human['marker_base_id'] # Use assigned base ID
+            marker.id = human['marker_base_id']
             marker.type = Marker.CYLINDER
             marker.action = Marker.ADD
             marker.pose.position.x = human['pos'][0]
@@ -188,34 +210,34 @@ class FakeHumanPublisher(Node):
             marker.pose.orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
             marker.scale = Vector3(x=0.4, y=0.4, z=1.0) 
             marker.color = ColorRGBA(r=0.0, g=1.0, b=0.0, a=0.8) 
-            marker.lifetime = rclpy.duration.Duration(seconds=self.timer_period * 2.5).to_msg() # Slightly longer lifetime
+            marker.lifetime = rclpy.duration.Duration(seconds=self.timer_period * 2.5).to_msg()
             marker_array_msg.markers.append(marker)
 
-            # Velocity Arrow Marker
+            # Velocity arrow
             vel_marker = Marker()
             vel_marker.header = marker.header 
             vel_marker.ns = "human_velocities"
-            vel_marker.id = human['marker_base_id'] + 1 # Unique ID for arrow
+            vel_marker.id = human['marker_base_id'] + 1
             vel_marker.type = Marker.ARROW
             vel_marker.action = Marker.ADD
 
             start_point = Point(x=human['pos'][0], y=human['pos'][1], z=1.1) 
             vel_scale = 0.5 
             if np.linalg.norm(human['vel']) > 0.1:
-                 end_point = Point(
-                     x=start_point.x + human['vel'][0] * vel_scale,
-                     y=start_point.y + human['vel'][1] * vel_scale,
-                     z=start_point.z 
-                 )
-                 vel_marker.points = [start_point, end_point]
-                 vel_marker.scale = Vector3(x=0.05, y=0.1, z=0.15) 
-                 vel_marker.color = ColorRGBA(r=1.0, g=0.0, b=0.0, a=0.8) 
-                 vel_marker.lifetime = marker.lifetime
-                 marker_array_msg.markers.append(vel_marker)
+                end_point = Point(
+                    x=start_point.x + human['vel'][0] * vel_scale,
+                    y=start_point.y + human['vel'][1] * vel_scale,
+                    z=start_point.z 
+                )
+                vel_marker.points = [start_point, end_point]
+                vel_marker.scale = Vector3(x=0.05, y=0.1, z=0.15) 
+                vel_marker.color = ColorRGBA(r=1.0, g=0.0, b=0.0, a=0.8) 
+                vel_marker.lifetime = marker.lifetime
+                marker_array_msg.markers.append(vel_marker)
             else:
-                 vel_marker.action = Marker.DELETE 
-                 marker_array_msg.markers.append(vel_marker)
-        
+                vel_marker.action = Marker.DELETE 
+                marker_array_msg.markers.append(vel_marker)
+
         array_msg = HumanArray()
         array_msg.header = Header(stamp=current_time, frame_id=self.frame_id)
         array_msg.humans = human_msgs
@@ -223,6 +245,7 @@ class FakeHumanPublisher(Node):
 
         if marker_array_msg.markers:
             self.marker_publisher_.publish(marker_array_msg)
+
 
 def main(args=None):
     rclpy.init(args=args)
