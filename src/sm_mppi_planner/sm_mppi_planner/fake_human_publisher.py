@@ -108,7 +108,7 @@ class FakeHumanPublisher(Node):
             start_y = 0.0
             speed = -random.uniform(self.min_speed, self.max_speed)
             human = {
-                'id': 'human_1',
+                'id': 'human_0',
                 'marker_base_id': self.next_marker_id,
                 'pos': np.array([start_x, start_y]),
                 'vel': np.array([speed, 0.0])  # move along +x axis

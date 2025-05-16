@@ -119,7 +119,7 @@ class MPPLocalPlannerMPPI(Node):
 
         if ACTIVE_AGENTS > 0:
             for i in range(ACTIVE_AGENTS):
-                human_frame_name = HUMAN_FRAME + "_" + str(i + 1)
+                human_frame_name = f"{HUMAN_FRAME}_{i}"
                 T_map_agent_transform = self.tf2_wrapper.get_latest_pose("odom", human_frame_name)
                 
                 if T_map_agent_transform is None:
