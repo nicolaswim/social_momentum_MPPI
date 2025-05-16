@@ -104,17 +104,18 @@ class FakeHumanPublisher(Node):
     def _initialize_humans(self):
         self.humans = []
         if self.scenario == 'head_on':
-            start_y = self.y_lim[1] - 0.5 
-            start_x = 0.0              
-            speed = random.uniform(self.min_speed, self.max_speed)
+            start_x = -self.x_lim[0] + 0.1  # start on the left
+            start_y = 0.0
+            speed = -random.uniform(self.min_speed, self.max_speed)
             human = {
-                'id': f'human_1',  # matches what the planner expects
+                'id': 'human_1',
                 'marker_base_id': self.next_marker_id,
                 'pos': np.array([start_x, start_y]),
-                'vel': np.array([0.0, -speed]) 
+                'vel': np.array([speed, 0.0])  # move along +x axis
             }
             self.humans.append(human)
             self.next_marker_id += 2
+
 
         elif self.scenario == 'random':
             for i in range(self.num_random):

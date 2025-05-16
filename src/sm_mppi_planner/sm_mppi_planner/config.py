@@ -12,7 +12,7 @@ HORIZON_LENGTH = 15 # Default number of time steps MPPI looks into the future
 NUM_SAMPLES = 250 # Default number of trajectory samples
 
 # --- Goal Configuration (for SMMPPIController's internal goal list if no external goal) ---
-GOALS = np.array([[0.0, 5.0]]) # Default robot goal(s)
+GOALS = np.array([[5.0, 0.0]]) # Default robot goal(s)
 NUM_CYCLES = 1
 REPEAT_GOALS = False
 TERMINATION_TOLERANCE = 0.3
@@ -30,7 +30,7 @@ STATIC_OBSTACLES_YAML_DEFAULT = "[]" # Default for the YAML string parameter
 
 # --- Other Parameters ---
 HZ = 0.05 # For TF-based velocity estimation in mppi_planner_node.py
-RADIUS = 0.38 # Robot's approximate radius (used by SMMPPIController if imported)
+RADIUS = 0.28 # Robot's approximate radius (used by SMMPPIController if imported)
 
 # NOTE: GOAL_COST_WEIGHT, DYNAMIC_OBS_COST_WEIGHT, STATIC_COST_WEIGHT, HUMAN_RADIUS
 # are NOT defined here because your provided sm_mppi.py uses hardcoded weights
