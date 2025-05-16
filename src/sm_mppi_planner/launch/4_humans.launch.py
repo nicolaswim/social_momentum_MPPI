@@ -85,7 +85,7 @@ def generate_launch_description():
         parameters=[
             {'use_sim_time': LaunchConfiguration('use_sim_time')},
             {'scenario_mode': 'random'},
-            {'num_random_humans': 4},
+            {'num_random_humans': 5},
             {'x_limits': [-5.0, 5.0]},
             {'y_limits': [-5.0, 5.0]},
             {'world_frame_id': 'odom'},

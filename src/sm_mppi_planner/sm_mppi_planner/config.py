@@ -19,7 +19,7 @@ TERMINATION_TOLERANCE = 0.3
 ANGULAR_THRESHOLD = 0.3 # For goal orientation checking
 
 # --- Social/Agent Configuration (Defaults for mppi_planner_node.py) ---
-ACTIVE_AGENTS = 1 # Default if not overridden by ROS parameters
+ACTIVE_AGENTS = 2 # Default if not overridden by ROS parameters
 AGENT_GOALS = np.array([0.0, -5.0]) # Default if not overridden and ACTIVE_AGENTS is 0
 AGENT_GOALS_YAML_DEFAULT = "[]" # Default for the YAML string parameter in mppi_planner_node.py
 HUMAN_FRAME = "human" # Default human frame prefix
