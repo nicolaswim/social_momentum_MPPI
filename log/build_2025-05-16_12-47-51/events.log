@@ -1,6 +1,0 @@
-[0.000000] (-) TimerEvent: {}
-[0.000219] (-) JobUnselected: {'identifier': 'my_social_nav_interfaces'}
-[0.000414] (sm_mppi_planner) JobQueued: {'identifier': 'sm_mppi_planner', 'dependencies': OrderedDict([('my_social_nav_interfaces', '/home/wim/Documents/social_momentum_MPPI/install/my_social_nav_interfaces')])}
-[0.000444] (sm_mppi_planner) JobStarted: {'identifier': 'sm_mppi_planner'}
-[0.004348] (sm_mppi_planner) JobEnded: {'identifier': 'sm_mppi_planner', 'rc': 1}
-[0.014878] (-) EventReactorShutdown: {}

@@ -1,3 +1,4 @@
+NAVIGATE TO FOLDER!
 
 rm -rf build/sm_mppi_planner install/sm_mppi_planner
 
@@ -13,6 +14,9 @@ ros2 launch sm_mppi_planner 4_humans.launch.py
 ros2 launch sm_mppi_planner teleop_launch.launch.py
 ros2 launch sm_mppi_planner headon_demo.launch.py
 ros2 launch sm_mppi_planner sm_mppi_simulation.launch.py
+
+
+olderr stuff
 ------
 source /opt/ros/humble/setup.bash
 source ~/tiago_public_ws/install/setup.bash

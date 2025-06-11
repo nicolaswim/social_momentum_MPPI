@@ -76,7 +76,7 @@ def generate_launch_description():
         parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
     )
 
-    # Fake humans in random mode (with 4 agents)
+    # Fake humans in random mode (with 5 agents)
     human_publisher_node = Node(
         package='sm_mppi_planner',
         executable='fake_human_publisher',
