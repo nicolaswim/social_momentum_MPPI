@@ -1,7 +1,3 @@
-Of course. Based on the files and information you've provided—including your thesis context, the foundational scientific paper, and the Python source code for your ROS 2 package—I have generated a comprehensive `README.md` file for your project.
-
-This README explains the purpose of the project, its theoretical underpinnings, the system architecture, and how to install and run it.
-
 ---
 
 # SM-MPPI: A Socially-Aware Navigation Planner for ROS 2
