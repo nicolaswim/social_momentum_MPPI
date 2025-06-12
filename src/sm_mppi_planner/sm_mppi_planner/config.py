@@ -12,7 +12,7 @@ HORIZON_LENGTH = 15 # Default number of time steps MPPI looks into the future
 NUM_SAMPLES = 250 # Default number of trajectory samples
 
 # --- Goal Configuration (for SMMPPIController's internal goal list if no external goal) ---
-GOALS = np.array([[5.0, 0.0]]) # Default robot goal(s)
+GOALS = np.array([[-5.0, 0.0]]) # Default robot goal(s)
 NUM_CYCLES = 1
 REPEAT_GOALS = False
 TERMINATION_TOLERANCE = 0.3
