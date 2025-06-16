@@ -1,11 +1,30 @@
+# Go to your workspace root
+cd ~/Documents/social_momentum_venv/social_momentum_MPPI
 
-rm -rf build/sm_mppi_planner install/sm_mppi_planner
+# Activate your venv
+source .venv/bin/activate
 
-colcon build --packages-select sm_mppi_planner --symlink-install
+# Clean the workspace to ensure the new configurations are used
+rm -rf build/ install/ log/
+
+# Build. This time it will correctly generate your messages.
+colcon build
+
+# Source the new install
+source install/setup.bash
+
+# Launch your working project
+ros2 launch sm_mppi_planner sm_paramtrized_version.launch.py
+
+-------
+
+rm -rf build/ install/ log/
+
+colcon build 
 
 source /opt/ros/humble/setup.bash
 source ~/tiago_public_ws/install/setup.bash
-source ~/Documents/social_momentum_MPPI/install/setup.bash
+source ~/Documents/social_momentum_venv/social_momentum_MPPI/setup.bash
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp # If you are using CycloneDDS
 
 ros2 launch sm_mppi_planner sm_paramtrized_version.launch.py 

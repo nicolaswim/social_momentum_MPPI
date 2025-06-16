@@ -1,0 +1,22 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from my_social_nav_interfaces/msg/HumanArray.msg
+// generated code does not contain a copyright notice
+
+#include "my_social_nav_interfaces/msg/HumanPoseVel.idl"
+#include "std_msgs/msg/Header.idl"
+
+module my_social_nav_interfaces {
+  module msg {
+    @verbatim (language="comment", text=
+      "HumanArray.msg")
+    struct HumanArray {
+      @verbatim (language="comment", text=
+        "Timestamp and frame ID")
+      std_msgs::msg::Header header;
+
+      @verbatim (language="comment", text=
+        "Array of detected/simulated humans")
+      sequence<my_social_nav_interfaces::msg::HumanPoseVel> humans;
+    };
+  };
+};

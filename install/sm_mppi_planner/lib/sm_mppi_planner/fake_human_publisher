@@ -1,10 +1,10 @@
-#!/usr/bin/python3
-# EASY-INSTALL-ENTRY-SCRIPT: 'sm-mppi-planner','console_scripts','fake_human_publisher'
+#!/home/wim/Documents/social_momentum_venv/.venv/bin/python3.10
+# EASY-INSTALL-ENTRY-SCRIPT: 'sm-mppi-planner==0.0.1','console_scripts','fake_human_publisher'
 import re
 import sys
 
 # for compatibility with easy_install; see #2198
-__requires__ = 'sm-mppi-planner'
+__requires__ = 'sm-mppi-planner==0.0.1'
 
 try:
     from importlib.metadata import distribution
@@ -30,4 +30,4 @@ globals().setdefault('load_entry_point', importlib_load_entry_point)
 
 if __name__ == '__main__':
     sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
-    sys.exit(load_entry_point('sm-mppi-planner', 'console_scripts', 'fake_human_publisher')())
+    sys.exit(load_entry_point('sm-mppi-planner==0.0.1', 'console_scripts', 'fake_human_publisher')())

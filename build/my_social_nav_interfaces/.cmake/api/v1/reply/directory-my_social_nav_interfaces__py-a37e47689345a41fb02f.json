@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "my_social_nav_interfaces__py",
+		"source" : "/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/my_social_nav_interfaces/my_social_nav_interfaces__py"
+	}
+}
