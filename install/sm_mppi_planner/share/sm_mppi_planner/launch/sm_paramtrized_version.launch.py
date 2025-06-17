@@ -29,7 +29,7 @@ def generate_launch_description():
 
     # --- Human Simulation ---
     human_simulation_params = {
-        'num_random_humans': 10,
+        'num_random_humans': 5,
         'x_limits': [-5.0, 5.0],
         'y_limits': [-5.0, 5.0],
         'human_max_speed': 0.3,

@@ -20,10 +20,7 @@
       <!-- now the green cylinder you’ll actually see -->
       <visual name="human_vis">
         <geometry>
-          <cylinder>
-            <radius>0.3</radius>
-            <length>1.8</length>
-          </cylinder>
+          <mesh filename="file:///social_momentum_MPPI/src/sm_mppi_planner/models/walking_human/meshes/moonwalk.dae"/>
         </geometry>
         <material>
           <!-- RGBA: full-green, fully opaque -->

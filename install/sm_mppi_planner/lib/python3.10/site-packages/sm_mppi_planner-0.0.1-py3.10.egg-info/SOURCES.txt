@@ -26,12 +26,13 @@ sm_mppi_planner/__init__.py
 sm_mppi_planner/config.py
 sm_mppi_planner/fake_human_publisher.py
 sm_mppi_planner/goal_publisher_node.py
-sm_mppi_planner/human_aggregator_node.py
 sm_mppi_planner/mppi_planner_node.py
 sm_mppi_planner/sm_mppi.py
 sm_mppi_planner/tf2_wrapper.py
 sm_mppi_planner/utils.py
 sm_mppi_planner/vis_utils.py
+urdf/human.urdf
+worlds/human_path.world
 worlds/rafat.world
 worlds/validation.world
 worlds/wim_test.world

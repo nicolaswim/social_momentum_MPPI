@@ -17,6 +17,8 @@ setup(
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
         (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
+
+        (os.path.join('share', package_name, 'urdf'), glob('urdf/*.urdf')),
         
         # --- CORRECTED & EXPLICIT MODEL INSTALLATION ---
         # Install the model description files
@@ -53,7 +55,6 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'human_aggregator_node = sm_mppi_planner.human_aggregator_node:main',
             'mppi_planner_node = sm_mppi_planner.mppi_planner_node:main',
             'goal_publisher_node = sm_mppi_planner.goal_publisher_node:main',
             'fake_human_publisher = sm_mppi_planner.fake_human_publisher:main',

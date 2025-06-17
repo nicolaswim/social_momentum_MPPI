@@ -30,7 +30,7 @@ STATIC_OBSTACLES_YAML_DEFAULT = "[]" # Default for the YAML string parameter
 
 # --- Other Parameters ---
 HZ = 0.05 # For TF-based velocity estimation in mppi_planner_node.py
-RADIUS = 0.28 # Robot's approximate radius (used by SMMPPIController if imported)
+RADIUS = 0.5 # Robot's approximate radius (used by SMMPPIController if imported)
 
 # NOTE: GOAL_COST_WEIGHT, DYNAMIC_OBS_COST_WEIGHT, STATIC_COST_WEIGHT, HUMAN_RADIUS
 # are NOT defined here because your provided sm_mppi.py uses hardcoded weights
