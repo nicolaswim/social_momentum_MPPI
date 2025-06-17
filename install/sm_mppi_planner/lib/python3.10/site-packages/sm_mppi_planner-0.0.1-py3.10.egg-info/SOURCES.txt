@@ -17,6 +17,12 @@ launch/sm_mppi_simulation.launch.py
 launch/sm_paramtrized_version.launch.py
 launch/teleop_launch.launch.py
 launch/validation.launch.py
+models/Slampion/Slampion.dae
+models/Slampion/model.config
+models/Slampion/model.sdf
+models/Slampion/textures/7319b16a17fda36440b2da1cfb01d220.jpg
+models/Slampion/textures/d1dde46e1aa3e40a3f8c3a38b560054a.jpg
+models/Slampion/textures/ff4c81ee240b216b5338a5b02394500f.jpg
 models/walking_human/model.config
 models/walking_human/model.sdf
 models/walking_human/meshes/moonwalk.dae

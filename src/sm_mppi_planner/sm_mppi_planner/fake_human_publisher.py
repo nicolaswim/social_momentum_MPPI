@@ -35,6 +35,7 @@ class FakeHumanPublisher(Node):
         self.declare_parameter('markers_topic', '/human_markers')
         self.declare_parameter('x_limits', [-7.0, 7.0])
         self.declare_parameter('y_limits', [-7.0, 7.0])
+        self.declare_parameter('human_mesh_path', "")
 
         self.num_random = self.get_parameter('num_random_humans').value
         self.frequency = self.get_parameter('publish_frequency').value
@@ -45,6 +46,7 @@ class FakeHumanPublisher(Node):
         markers_topic = self.get_parameter('markers_topic').value
         self.x_lim = self.get_parameter('x_limits').value
         self.y_lim = self.get_parameter('y_limits').value
+        self.mesh_path = self.get_parameter('human_mesh_path').value
 
         # --- Publishers and TF Broadcaster ---
         self.tf_broadcaster = TransformBroadcaster(self)
@@ -125,7 +127,7 @@ class FakeHumanPublisher(Node):
             # Set the type to MESH_RESOURCE
             marker.type = Marker.MESH_RESOURCE
             # Point to the 3D model file
-            marker.mesh_resource = "package://sm_mppi_planner/models/walking_human/meshes/walk.dae"
+            marker.mesh_resource = self.mesh_path
             marker.mesh_use_embedded_materials = True
             
             # Set the pose of the human model

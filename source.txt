@@ -24,7 +24,7 @@ colcon build
 
 source /opt/ros/humble/setup.bash
 source ~/tiago_public_ws/install/setup.bash
-source ~/Documents/social_momentum_venv/social_momentum_MPPI/setup.bash
+source ~/Documents/social_momentum_venv/social_momentum_MPPI/install/setup.bash
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp # If you are using CycloneDDS
 
 ros2 launch sm_mppi_planner sm_paramtrized_version.launch.py 
@@ -51,7 +51,7 @@ ros2 run rviz2 rviz2 --ros-args -p use_sim_time:=True
 
 ----------------------
 
-# 0. Ensure ROS 2 Humble base is sourced (usually in your .bashrc or do it manually)
+# 0. Ensure ROS 2 Humble base is sourced (usually in your .basfind ~/tiago_public_ws -type d -name "walking_human"hrc or do it manually)
  source /opt/ros/humble/setup.bash 
 
 # 1. Go to your workspace root

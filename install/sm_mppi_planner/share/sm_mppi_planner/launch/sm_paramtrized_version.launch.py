@@ -13,7 +13,6 @@ def generate_launch_description():
     All key parameters are defined in a simple 'SETTINGS' block at the top.
     """
     
-    # Attempt to find the TIAGo Gazebo package
     tiago_gazebo_pkg_share_dir = ""
     try:
         tiago_gazebo_pkg_share_dir = get_package_share_directory('tiago_gazebo')
@@ -28,6 +27,8 @@ def generate_launch_description():
     goal = {'x': 5.0, 'y': 0.0}
 
     # --- Human Simulation ---
+    human_mesh_path = 'package://sm_mppi_planner/models/walking_human/meshes/walk.dae'
+    
     human_simulation_params = {
         'num_random_humans': 5,
         'x_limits': [-5.0, 5.0],
@@ -37,22 +38,10 @@ def generate_launch_description():
     }
 
     # --- General Simulation Settings ---
-    # These are kept as launch arguments because they are standard for ROS
-    use_sim_time_arg = DeclareLaunchArgument(
-        'use_sim_time', default_value='true',
-        description='Use simulation (Gazebo) clock if true')
-
-    world_name_arg = DeclareLaunchArgument(
-        'world_name', default_value='empty',
-        description='Gazebo world name (e.g., empty, pal_office)')
-        
-    launch_rviz_arg = DeclareLaunchArgument(
-        'launch_rviz', default_value='true',
-        description='Whether to launch RViz2')
-
-    launch_gazebo_arg = DeclareLaunchArgument(
-        'launch_gazebo', default_value='true',
-        description='Whether to launch Gazebo')
+    use_sim_time_arg = DeclareLaunchArgument('use_sim_time', default_value='true')
+    world_name_arg = DeclareLaunchArgument('world_name', default_value='empty')
+    launch_rviz_arg = DeclareLaunchArgument('launch_rviz', default_value='true')
+    launch_gazebo_arg = DeclareLaunchArgument('launch_gazebo', default_value='true')
         
     # ===================================================================================
     # ============== END OF SETTINGS - NO NEED TO EDIT BELOW THIS LINE ==================
@@ -77,10 +66,8 @@ def generate_launch_description():
     )
 
     # --- RViz ---
-    ld_preload_path = '/lib/x86_64-linux-gnu/libpthread.so.0'
-    rviz_command_str = f"LD_PRELOAD={ld_preload_path} ros2 run rviz2 rviz2 --ros-args -p use_sim_time:=true"
     rviz_with_ld_preload_action = ExecuteProcess(
-        cmd=['bash', '-c', rviz_command_str],
+        cmd=['bash', '-c', f"LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 ros2 run rviz2 rviz2 --ros-args -p use_sim_time:=true"],
         output='screen',
         condition=IfCondition(LaunchConfiguration('launch_rviz'))
     )
@@ -101,7 +88,6 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {'use_sim_time': LaunchConfiguration('use_sim_time')},
-            # Use the values from the settings block
             {'goal_x': goal['x']},
             {'goal_y': goal['y']}
         ]
@@ -112,9 +98,9 @@ def generate_launch_description():
         'use_sim_time': LaunchConfiguration('use_sim_time'),
         'world_frame_id': 'odom',
         'publish_frequency': 10.0,
-        'initial_delay_sec': 1.5,
         'humans_topic': '/humans',
         'markers_topic': '/human_markers',
+        'human_mesh_path': human_mesh_path, 
     }
     human_publisher_full_params.update(human_simulation_params)
 
@@ -123,10 +109,7 @@ def generate_launch_description():
         executable='fake_human_publisher',
         name='fake_human_publisher',
         output='screen',
-        parameters=[
-            # Pass the combined dictionary of parameters
-            human_publisher_full_params
-        ]
+        parameters=[human_publisher_full_params]
     )
 
     # --- Assemble the Launch Description ---
@@ -135,7 +118,6 @@ def generate_launch_description():
     ld.add_action(world_name_arg)
     ld.add_action(launch_rviz_arg)
     ld.add_action(launch_gazebo_arg)
-
     ld.add_action(tiago_simulation_group)
     ld.add_action(rviz_with_ld_preload_action)
     ld.add_action(sm_mppi_planner_node)

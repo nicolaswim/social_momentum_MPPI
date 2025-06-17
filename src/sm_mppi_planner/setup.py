@@ -31,6 +31,15 @@ setup(
             'models/walking_human/meshes/walk.dae',
             'models/walking_human/meshes/moonwalk.dae'
         ]),
+
+
+        (os.path.join('share', package_name, 'models/Slampion'), [
+            'models/Slampion/model.config',
+            'models/Slampion/model.sdf',
+            'models/Slampion/Slampion.dae'
+        ]),
+        (os.path.join('share', package_name, 'models/Slampion/textures'), glob('models/Slampion/textures/*')),
+        
     ],
     install_requires=[
         'setuptools',
