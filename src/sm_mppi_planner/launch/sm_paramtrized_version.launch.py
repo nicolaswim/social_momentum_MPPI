@@ -25,12 +25,11 @@ def generate_launch_description():
     # ===================================================================================
 
     # --- Navigation Goal ---
-    goal = {'x': 3.0, 'y': 0.0}
+    goal = {'x': 5.0, 'y': 0.0}
 
     # --- Human Simulation ---
     human_simulation_params = {
-        'scenario_mode': 'random',
-        'num_random_humans': 3,
+        'num_random_humans': 10,
         'x_limits': [-5.0, 5.0],
         'y_limits': [-5.0, 5.0],
         'human_max_speed': 0.3,

@@ -67,7 +67,7 @@ include CMakeFiles/ament_cmake_python_build_my_social_nav_interfaces_egg.dir/com
 include CMakeFiles/ament_cmake_python_build_my_social_nav_interfaces_egg.dir/progress.make
 
 CMakeFiles/ament_cmake_python_build_my_social_nav_interfaces_egg:
-	cd /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/my_social_nav_interfaces/ament_cmake_python/my_social_nav_interfaces && /home/wim/Documents/social_momentum_venv/.venv/bin/python3 setup.py egg_info
+	cd /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/my_social_nav_interfaces/ament_cmake_python/my_social_nav_interfaces && /usr/bin/python3 setup.py egg_info
 
 ament_cmake_python_build_my_social_nav_interfaces_egg: CMakeFiles/ament_cmake_python_build_my_social_nav_interfaces_egg
 ament_cmake_python_build_my_social_nav_interfaces_egg: CMakeFiles/ament_cmake_python_build_my_social_nav_interfaces_egg.dir/build.make

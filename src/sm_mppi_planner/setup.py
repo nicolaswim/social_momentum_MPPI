@@ -1,6 +1,6 @@
-from setuptools import setup
 import os
 from glob import glob
+from setuptools import setup
 
 package_name = 'sm_mppi_planner'
 
@@ -12,7 +12,23 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        # Install other directories as before
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
+        (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
+        (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
+        (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
+        
+        # --- CORRECTED & EXPLICIT MODEL INSTALLATION ---
+        # Install the model description files
+        (os.path.join('share', package_name, 'models/walking_human'), [
+            'models/walking_human/model.config',
+            'models/walking_human/model.sdf'
+        ]),
+        # Install the mesh files into their own subdirectory
+        (os.path.join('share', package_name, 'models/walking_human/meshes'), [
+            'models/walking_human/meshes/walk.dae',
+            'models/walking_human/meshes/moonwalk.dae'
+        ]),
     ],
     install_requires=[
         'setuptools',
@@ -25,8 +41,9 @@ setup(
         'tf2_ros',
         'tf2_msgs',
         'visualization_msgs',
-        'nav_msgs'
+        'nav_msgs',
         'my_social_nav_interfaces',
+        'gazebo_msgs',
     ],
     zip_safe=True,
     maintainer='Your Name',
@@ -36,6 +53,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'human_aggregator_node = sm_mppi_planner.human_aggregator_node:main',
             'mppi_planner_node = sm_mppi_planner.mppi_planner_node:main',
             'goal_publisher_node = sm_mppi_planner.goal_publisher_node:main',
             'fake_human_publisher = sm_mppi_planner.fake_human_publisher:main',

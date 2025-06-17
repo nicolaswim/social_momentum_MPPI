@@ -35,6 +35,16 @@ class MPPLocalPlannerMPPI(Node):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.get_logger().info(f"MPPI Local Planner Node Initializing... Device: {self.device}")
 
+        # --- ADDED: GOAL TOLERANCE PARAMETERS AND STATE ---
+        self.declare_parameter('goal_xy_tolerance', 0.15)  # 15 cm
+        self.declare_parameter('goal_yaw_tolerance', 0.15) # ~8.5 degrees
+        self.goal_xy_tol = self.get_parameter('goal_xy_tolerance').value
+        self.goal_yaw_tol = self.get_parameter('goal_yaw_tolerance').value
+
+        self.goal = None # Will store the full goal [x, y, yaw]
+        self.goal_reached = False # State flag
+        # ----------------------------------------------------
+
         self.tf2_wrapper = TF2Wrapper(self)
 
         self.cmd_vel_pub = self.create_publisher(Twist, "/mobile_base_controller/cmd_vel_unstamped", 10)
@@ -47,6 +57,8 @@ class MPPLocalPlannerMPPI(Node):
 
         self.controller = SMMPPIController(STATIC_OBSTACLES, self.device) # STATIC_OBSTACLES from config.py
         self.loop_counter = 0
+
+        self.planner_fully_ready_time = None
 
         self.current_state = torch.tensor([0.0, 0.0, 0.0], dtype=torch.float32).to(self.device)
         self.robot_velocity = torch.tensor([0.0, 0.0], dtype=torch.float32).to(self.device)
@@ -74,29 +86,59 @@ class MPPLocalPlannerMPPI(Node):
         # --- End Additions ---
 
         self.get_logger().info("MPPI Local Planner Node Initialized Successfully.")
+        
 
     def goal_callback(self, msg: PoseStamped):
-        if msg.header.frame_id != "map": # Assuming your odom frame is well-connected to map or is the planning frame
-            # If your planning frame is "odom", then check against "odom"
-            # For now, we'll assume "map" or a TF-equivalent "odom" is intended.
-            # If TFs are from "odom" to humans, and robot pose is "odom" to "base_link",
-            # then the planner operates effectively in the "odom" frame.
-            # The goal should ideally be in this common frame ("odom" or "map" if they are linked).
-            self.get_logger().warn(f"Received goal in frame '{msg.header.frame_id}', while planner expects transforms relative to 'odom'. Ensure goal is in a compatible frame.")
-            # Consider transforming the goal to 'odom' if it's not already.
-            # For this example, we assume it's compatible or will be handled by TF if map->odom exists.
+            if msg.header.frame_id != "map" and msg.header.frame_id != "odom":
+                self.get_logger().warn(f"Received goal in frame '{msg.header.frame_id}', planner works in 'odom' frame. Ensure TF is available.")
 
-        new_goal_x = msg.pose.position.x
-        new_goal_y = msg.pose.position.y
+            # --- MODIFIED TO STORE FULL GOAL AND RESET FLAG ---
+            q = msg.pose.orientation
+            yaw = math.atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y**2 + q.z**2))
+            
+            new_goal_x = msg.pose.position.x
+            new_goal_y = msg.pose.position.y
 
-        self.get_logger().info(f"Received new external goal via topic: [{new_goal_x:.2f}, {new_goal_y:.2f}]")
+            self.get_logger().info(f"Received new external goal via topic: [{new_goal_x:.2f}, {new_goal_y:.2f}]")
 
-        self.controller.goal = torch.tensor([new_goal_x, new_goal_y], dtype=torch.float32).to(self.device)
-
-        self.controller.current_goal_index = -1
-        self.controller.cycle_count = 0
+            # Store the full goal for our tolerance check
+            self.goal = torch.tensor([new_goal_x, new_goal_y, yaw], dtype=torch.float32).to(self.device)
+            
+            # Update the controller's goal (as you had before)
+            self.controller.goal = torch.tensor([new_goal_x, new_goal_y], dtype=torch.float32).to(self.device)
+            
+            # Reset the controller's internal state (as you had before)
+            self.controller.current_goal_index = -1
+            self.controller.cycle_count = 0
+            
+            # IMPORTANT: Reset our state flag
+            self.goal_reached = False
+            # ---------------------------------------------------
 
     def plan_and_publish(self):
+
+        # --- ADDED: STABLE GOAL CHECKING LOGIC AT THE TOP ---
+        if self.goal is None:
+            return # Don't do anything if no goal has been received
+
+        # Calculate position and angle errors
+        xy_error = torch.norm(self.current_state[:2] - self.goal[:2])
+        yaw_error = abs(normalize_angle(self.current_state[2] - self.goal[2]))
+
+        # Check if we are inside the tolerance zone
+        if xy_error < self.goal_xy_tol and yaw_error < self.goal_yaw_tol:
+            if not self.goal_reached:
+                self.get_logger().info(f"Goal reached! XY Error: {xy_error:.3f}m, Yaw Error: {yaw_error:.3f}rad. Halting robot.")
+                # Publish a single stop command
+                self.cmd_vel_pub.publish(Twist())
+                self.goal_reached = True # Set the flag so we don't spam logs
+            
+            # Exit the function early to do nothing else
+            return
+        
+        # If we are here, we are not at the goal yet.
+        self.goal_reached = False
+        # --- END OF NEW GOAL CHECKING LOGIC ---
         # --- Initial Planner Settling Period Check ---
         if self.planner_fully_ready_time is None:
             # Set the time when the planner considers TFs to be settled, based on ROS time
@@ -218,21 +260,19 @@ class MPPLocalPlannerMPPI(Node):
         if termination:
              self.get_logger().info(f"Termination reported by controller. Current pos: {self.current_state[:2].cpu().numpy()}, Goal: {self.controller.goal.cpu().numpy()}")
 
-        if action is not None and not termination:
+# --- ADD THIS NEW, SIMPLER BLOCK ---
+        if action is not None:
+            # If the planner gives a valid action, publish it
             twist_msg = Twist()
-            twist_msg.linear.x = min(float(action[0].item()), VMAX) # VMAX from config.py
+            twist_msg.linear.x = min(float(action[0].item()), VMAX)
             twist_msg.angular.z = float(action[1].item())
             self.cmd_vel_pub.publish(twist_msg)
             self.get_logger().info(f"Published cmd_vel: lin_x={twist_msg.linear.x:.2f}, ang_z={twist_msg.angular.z:.2f}", throttle_duration_sec=0.5)
-        elif termination:
-            self.get_logger().info("Goal reached according to MPPI controller! Publishing zero velocity.")
-            stop_cmd = Twist()
-            self.cmd_vel_pub.publish(stop_cmd)
-            self.controller.move_to_next_goal()
         else:
-            self.get_logger().warn("MPPI controller failed to compute optimal controls or action was None. Publishing zero velocity.")
-            stop_cmd = Twist()
-            self.cmd_vel_pub.publish(stop_cmd)
+            # If planner fails for any reason, stop the robot as a safety measure
+            self.get_logger().warn("MPPI controller returned None action. Publishing zero velocity.", throttle_duration_sec=1.0)
+            self.cmd_vel_pub.publish(Twist())
+        # --- END OF NEW BLOCK ---
 
 def main(args=None):
     rclpy.init(args=args)

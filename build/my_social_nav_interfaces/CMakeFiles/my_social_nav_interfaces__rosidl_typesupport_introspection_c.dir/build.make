@@ -142,7 +142,7 @@ rosidl_typesupport_introspection_c/my_social_nav_interfaces/msg/detail/human_arr
 rosidl_typesupport_introspection_c/my_social_nav_interfaces/msg/detail/human_array__rosidl_typesupport_introspection_c.h: /opt/ros/humble/share/geometry_msgs/msg/Wrench.idl
 rosidl_typesupport_introspection_c/my_social_nav_interfaces/msg/detail/human_array__rosidl_typesupport_introspection_c.h: /opt/ros/humble/share/geometry_msgs/msg/WrenchStamped.idl
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/my_social_nav_interfaces/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating C introspection for ROS interfaces"
-	/home/wim/Documents/social_momentum_venv/.venv/bin/python3 /opt/ros/humble/lib/rosidl_typesupport_introspection_c/rosidl_typesupport_introspection_c --generator-arguments-file /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/my_social_nav_interfaces/rosidl_typesupport_introspection_c__arguments.json
+	/usr/bin/python3 /opt/ros/humble/lib/rosidl_typesupport_introspection_c/rosidl_typesupport_introspection_c --generator-arguments-file /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/my_social_nav_interfaces/rosidl_typesupport_introspection_c__arguments.json
 
 rosidl_typesupport_introspection_c/my_social_nav_interfaces/msg/detail/human_pose_vel__rosidl_typesupport_introspection_c.h: rosidl_typesupport_introspection_c/my_social_nav_interfaces/msg/detail/human_array__rosidl_typesupport_introspection_c.h
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_typesupport_introspection_c/my_social_nav_interfaces/msg/detail/human_pose_vel__rosidl_typesupport_introspection_c.h

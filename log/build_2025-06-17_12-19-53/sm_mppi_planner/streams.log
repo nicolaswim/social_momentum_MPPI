@@ -1,0 +1,87 @@
+[0.889s] Invoking command in '/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/src/sm_mppi_planner': PYTHONPATH=/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/sm_mppi_planner build --build-base /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build install --record /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/install.log --single-version-externally-managed install_data
+[1.226s] running egg_info
+[1.226s] creating ../../build/sm_mppi_planner/sm_mppi_planner.egg-info
+[1.226s] writing ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/PKG-INFO
+[1.227s] writing dependency_links to ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/dependency_links.txt
+[1.227s] writing entry points to ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/entry_points.txt
+[1.227s] writing requirements to ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/requires.txt
+[1.227s] writing top-level names to ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/top_level.txt
+[1.227s] writing manifest file '../../build/sm_mppi_planner/sm_mppi_planner.egg-info/SOURCES.txt'
+[1.229s] reading manifest file '../../build/sm_mppi_planner/sm_mppi_planner.egg-info/SOURCES.txt'
+[1.230s] writing manifest file '../../build/sm_mppi_planner/sm_mppi_planner.egg-info/SOURCES.txt'
+[1.230s] running build
+[1.230s] running build_py
+[1.231s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build
+[1.231s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib
+[1.231s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[1.231s] copying sm_mppi_planner/mppi_planner_node.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[1.231s] copying sm_mppi_planner/fake_human_publisher.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[1.231s] copying sm_mppi_planner/tf2_wrapper.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[1.232s] copying sm_mppi_planner/human_aggregator_node.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[1.232s] copying sm_mppi_planner/sm_mppi.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[1.232s] copying sm_mppi_planner/goal_publisher_node.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[1.232s] copying sm_mppi_planner/utils.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[1.232s] copying sm_mppi_planner/config.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[1.232s] copying sm_mppi_planner/__init__.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[1.232s] copying sm_mppi_planner/vis_utils.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+[1.233s] running install
+[1.233s] running install_lib
+[1.234s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[1.234s] copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/mppi_planner_node.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[1.234s] copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/fake_human_publisher.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[1.235s] copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/tf2_wrapper.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[1.235s] copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/human_aggregator_node.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[1.235s] copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/sm_mppi.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[1.235s] copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/goal_publisher_node.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[1.235s] copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/utils.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[1.235s] copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/config.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[1.235s] copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/__init__.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[1.236s] copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/vis_utils.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+[1.236s] byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/mppi_planner_node.py to mppi_planner_node.cpython-310.pyc
+[1.238s] byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/fake_human_publisher.py to fake_human_publisher.cpython-310.pyc
+[1.240s] byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/tf2_wrapper.py to tf2_wrapper.cpython-310.pyc
+[1.241s] byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/human_aggregator_node.py to human_aggregator_node.cpython-310.pyc
+[1.242s] byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/sm_mppi.py to sm_mppi.cpython-310.pyc
+[1.243s] byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/goal_publisher_node.py to goal_publisher_node.cpython-310.pyc
+[1.243s] byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/utils.py to utils.cpython-310.pyc
+[1.244s] byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/config.py to config.cpython-310.pyc
+[1.244s] byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/__init__.py to __init__.cpython-310.pyc
+[1.245s] byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/vis_utils.py to vis_utils.cpython-310.pyc
+[1.245s] running install_data
+[1.245s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index
+[1.246s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index
+[1.246s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index/packages
+[1.246s] copying resource/sm_mppi_planner -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index/packages
+[1.246s] copying package.xml -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner
+[1.246s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[1.246s] copying launch/sm_mppi_simulation.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[1.246s] copying launch/sm_paramtrized_version.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[1.246s] copying launch/headon_demo.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[1.247s] copying launch/teleop_launch.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[1.247s] copying launch/chat.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[1.247s] copying launch/simple_actor_test.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[1.247s] copying launch/4_humans.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[1.247s] copying launch/validation.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+[1.247s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/worlds
+[1.248s] copying worlds/rafat.world -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/worlds
+[1.248s] copying worlds/validation.world -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/worlds
+[1.248s] copying worlds/wim_test.world -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/worlds
+[1.248s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/config
+[1.248s] copying config/human_trajectories.yaml -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/config
+[1.248s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/rviz
+[1.248s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models
+[1.248s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human
+[1.248s] copying models/walking_human/model.config -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human
+[1.249s] copying models/walking_human/model.sdf -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human
+[1.249s] creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human/meshes
+[1.249s] copying models/walking_human/meshes/walk.dae -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human/meshes
+[1.250s] copying models/walking_human/meshes/moonwalk.dae -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human/meshes
+[1.251s] running install_egg_info
+[1.253s] Copying ../../build/sm_mppi_planner/sm_mppi_planner.egg-info to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner-0.0.1-py3.10.egg-info
+[1.254s] running install_scripts
+[1.273s] Installing fake_human_publisher script to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner
+[1.273s] Installing goal_publisher_node script to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner
+[1.273s] Installing human_aggregator_node script to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner
+[1.274s] Installing mppi_planner_node script to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner
+[1.274s] writing list of installed files to '/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/install.log'
+[1.294s] Invoked command in '/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/src/sm_mppi_planner' returned '0': PYTHONPATH=/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/sm_mppi_planner build --build-base /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build install --record /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/install.log --single-version-externally-managed install_data

@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="validation_world">
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <actor name="test_actor">
+      <skin>
+        <filename>model://animated_box/meshes/animated_box.dae</filename>
+        <scale>1.0</scale>
+      </skin>
+      <animation name="move">
+        <filename>model://animated_box/meshes/animated_box.dae</filename>
+        <interpolate_x>true</interpolate_x>
+      </animation>
+      <script>
+        <loop>true</loop>
+        <auto_start>true</auto_start>
+        <trajectory id="test_trajectory" type="move">
+          <waypoint>
+            <time>0</time>
+            <pose>0 -2 0 0 0 0</pose>
+          </waypoint>
+          <waypoint>
+            <time>5</time>
+            <pose>0 2 0 0 0 0</pose>
+          </waypoint>
+          <waypoint>
+            <time>10</time>
+            <pose>0 -2 0 0 0 0</pose>
+          </waypoint>
+        </trajectory>
+      </script>
+    </actor>
+  </world>
+</sdf>

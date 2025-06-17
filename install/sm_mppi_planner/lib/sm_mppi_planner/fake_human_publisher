@@ -1,4 +1,4 @@
-#!/home/wim/Documents/social_momentum_venv/.venv/bin/python3.10
+#!/usr/bin/python3
 # EASY-INSTALL-ENTRY-SCRIPT: 'sm-mppi-planner==0.0.1','console_scripts','fake_human_publisher'
 import re
 import sys

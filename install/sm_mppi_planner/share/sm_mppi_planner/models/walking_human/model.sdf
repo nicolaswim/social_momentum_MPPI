@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <model name="walking_human_actor">
+    <static>false</static>
+
+    <!-- one link with both collision and a green visual -->
+    <link name="body">
+      <pose>0 0 0.9 0 0 0</pose>
+
+      <!-- physics collision -->
+      <collision name="collision">
+        <geometry>
+          <cylinder>
+            <radius>0.3</radius>
+            <length>1.8</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <!-- now the green cylinder you’ll actually see -->
+      <visual name="human_vis">
+        <geometry>
+          <cylinder>
+            <radius>0.3</radius>
+            <length>1.8</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <!-- RGBA: full-green, fully opaque -->
+          <ambient>0 1 0 1</ambient>
+          <diffuse>0 1 0 1</diffuse>
+        </material>
+        <!-- lift it up so it sits on the ground -->
+        <pose>0 0 0.9 0 0 0</pose>
+      </visual>
+    </link>
+  </model>
+</sdf>
