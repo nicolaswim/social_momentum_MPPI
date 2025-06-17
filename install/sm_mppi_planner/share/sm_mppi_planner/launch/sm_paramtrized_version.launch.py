@@ -27,7 +27,7 @@ def generate_launch_description():
     goal = {'x': 5.0, 'y': 0.0}
 
     # --- Human Simulation ---
-    human_mesh_path = 'package://sm_mppi_planner/models/walking_human/meshes/walk.dae'
+    human_mesh_path = 'package://sm_mppi_planner/models/Slampion/Slampion.dae'
     
     human_simulation_params = {
         'num_random_humans': 5,

@@ -104,8 +104,33 @@ class FakeHumanPublisher(Node):
             t.header.frame_id = self.frame_id
             t.child_frame_id = human['id']
             t.transform.translation = Vector3(x=human['pos'][0], y=human['pos'][1], z=0.0)
-            yaw = math.atan2(human['vel'][1], human['vel'][0])
-            q = Quaternion(z=math.sin(yaw/2.0), w=math.cos(yaw/2.0))
+
+
+            # yaw = math.atan2(human['vel'][1], human['vel'][0])
+            # q = Quaternion(z=math.sin(yaw/2.0), w=math.cos(yaw/2.0))
+
+            # Calculate the dynamic yaw rotation from velocity
+            yaw = math.atan2(human['vel'][1], human['vel'][0]) + 0.75*math.pi
+
+            # Define the static correction rotation to stand the model up
+            # This is a -90 degree roll around the X-axis to convert Y-Up to Z-Up
+            roll = math.pi / 2.0
+            pitch = 0.0
+            
+            # --- Convert Euler angles (roll, pitch, yaw) to a single Quaternion ---
+            cy = math.cos(yaw * 0.5)
+            sy = math.sin(yaw * 0.5)
+            cp = math.cos(pitch * 0.5)
+            sp = math.sin(pitch * 0.5)
+            cr = math.cos(roll * 0.5)
+            sr = math.sin(roll * 0.5)
+
+            q = Quaternion()
+            q.w = cr * cp * cy + sr * sp * sy
+            q.x = sr * cp * cy - cr * sp * sy
+            q.y = cr * sp * cy + sr * cp * sy
+            q.z = cr * cp * sy - sr * sp * cy
+
             t.transform.rotation = q
             self.tf_broadcaster.sendTransform(t)
 
@@ -133,7 +158,7 @@ class FakeHumanPublisher(Node):
             # Set the pose of the human model
             marker.pose.position.x = human['pos'][0]
             marker.pose.position.y = human['pos'][1]
-            marker.pose.position.z = 0.6 # Adjust z so feet are on the ground
+            marker.pose.position.z = 0.0 # Adjust z so feet are on the ground
             marker.pose.orientation = q
             
             # Set the scale
