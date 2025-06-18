@@ -103,96 +103,112 @@ class FakeHumanPublisher(Node):
         speed = random.uniform(self.min_speed, self.max_speed)
         angle = random.uniform(0, 2 * math.pi)
         return np.array([speed * math.cos(angle), speed * math.sin(angle)])
-
+    
     def update_and_publish(self):
-        human_msgs = []
-        marker_array = MarkerArray()
-        now = self.get_clock().now().to_msg()
-        
-        # We need to send a "delete all" marker first to clear old markers
-        delete_all_marker = Marker()
-        delete_all_marker.action = Marker.DELETEALL
-        marker_array.markers.append(delete_all_marker)
-
-        for i, human in enumerate(self.humans):
-            # --- Update State ---
-            human['pos'] += human['vel'] * self.timer_period
+            human_msgs = []
+            marker_array = MarkerArray()
+            now = self.get_clock().now().to_msg()
             
-            # Bounce in bounds logic (only affects standing humans as sitting have 0 vel)
-            if not (self.x_lim[0] < human['pos'][0] < self.x_lim[1]) or \
-               not (self.y_lim[0] < human['pos'][1] < self.y_lim[1]):
-                human['vel'] *= -1.0 
-                # Prevent getting stuck outside bounds
-                human['pos'][0] = np.clip(human['pos'][0], self.x_lim[0], self.x_lim[1])
-                human['pos'][1] = np.clip(human['pos'][1], self.y_lim[0], self.y_lim[1])
-            
-            
-            human['yaw'] = math.atan2(human['vel'][1], human['vel'][0])
+            # We need to send a "delete all" marker first to clear old markers
+            delete_all_marker = Marker()
+            delete_all_marker.action = Marker.DELETEALL
+            marker_array.markers.append(delete_all_marker)
 
-            # --- Publish TF for the planner ---
-            t = TransformStamped()
-            t.header.stamp = now
-            t.header.frame_id = self.frame_id
-            t.child_frame_id = human['id']
-            t.transform.translation = Vector3(x=human['pos'][0], y=human['pos'][1], z=0.0)
-            
-            # --- Convert Euler angles (roll, pitch, yaw) to a single Quaternion ---
-            # Static correction roll to stand the model up (Y-Up to Z-Up)
-            roll = math.pi / 2.0 
-            pitch = 0.0
-            yaw = human['yaw'] + 0.75*math.pi # Apply yaw orientation
+            for i, human in enumerate(self.humans):
+                # --- Update State ---
+                human['pos'] += human['vel'] * self.timer_period
+                
+                # Bounce in bounds logic (applies to all moving humans)
+                if not (self.x_lim[0] < human['pos'][0] < self.x_lim[1]) or \
+                not (self.y_lim[0] < human['pos'][1] < self.y_lim[1]):
+                    human['vel'] *= -1.0 
+                    # Prevent getting stuck outside bounds
+                    human['pos'][0] = np.clip(human['pos'][0], self.x_lim[0], self.x_lim[1])
+                    human['pos'][1] = np.clip(human['pos'][1], self.y_lim[0], self.y_lim[1])
 
-            cy = math.cos(yaw * 0.5)
-            sy = math.sin(yaw * 0.5)
-            cp = math.cos(pitch * 0.5)
-            sp = math.sin(pitch * 0.5)
-            cr = math.cos(roll * 0.5)
-            sr = math.sin(roll * 0.5)
+                # --- Type-Specific Pose Adjustments ---
+                
+                # Base orientation from velocity is the same for everyone
+                base_yaw = math.atan2(human['vel'][1], human['vel'][0])
+                
+                # Set default offsets for a standing person
+                z_offset = 0.0
+                visual_yaw_offset = 0.75 * math.pi 
 
-            q = Quaternion()
-            q.w = cr * cp * cy + sr * sp * sy
-            q.x = sr * cp * cy - cr * sp * sy
-            q.y = cr * sp * cy + sr * cp * sy
-            q.z = cr * cp * sy - sr * sp * cy
+                # NEW: Overwrite defaults if the human is sitting
+                if human['type'] == 'sitting':
+                    z_offset = 0.5
+                    visual_yaw_offset = math.radians(90.0) # Convert 70 degrees to radians
 
-            t.transform.rotation = q
-            self.tf_broadcaster.sendTransform(t)
+                # Combine base yaw with the visual offset
+                final_yaw = base_yaw + visual_yaw_offset
 
-            # --- Build the HumanArray message (for other nodes) ---
-            hpv_msg = HumanPoseVel()
-            hpv_msg.human_id = human['id']
-            hpv_msg.position = Point(x=human['pos'][0], y=human['pos'][1], z=0.0)
-            hpv_msg.velocity = Vector3(x=human['vel'][0], y=human['vel'][1], z=0.0)
-            human_msgs.append(hpv_msg)
+                # --- Publish TF for the planner ---
+                t = TransformStamped()
+                t.header.stamp = now
+                t.header.frame_id = self.frame_id
+                t.child_frame_id = human['id']
+                # Apply the z_offset here
+                t.transform.translation = Vector3(x=human['pos'][0], y=human['pos'][1], z=z_offset)
+                
+                # --- Convert Euler angles (roll, pitch, yaw) to a single Quaternion ---
+                # Static correction roll to stand the model up (Y-Up to Z-Up)
+                roll = math.pi / 2.0 
+                pitch = 0.0
+                # Use the final_yaw calculated above
+                cy = math.cos(final_yaw * 0.5)
+                sy = math.sin(final_yaw * 0.5)
+                cp = math.cos(pitch * 0.5)
+                sp = math.sin(pitch * 0.5)
+                cr = math.cos(roll * 0.5)
+                sr = math.sin(roll * 0.5)
 
-            # --- Create the MESH_RESOURCE Marker for RViz ---
-            marker = Marker()
-            marker.header.frame_id = self.frame_id
-            marker.header.stamp = now
-            marker.ns = "human_meshes"
-            marker.id = i # Use the index as the unique ID
-            marker.action = Marker.ADD
-            marker.type = Marker.MESH_RESOURCE
-            marker.mesh_use_embedded_materials = True
-            
-            # Set mesh based on human type
-            if human['type'] == 'standing':
-                marker.mesh_resource = self.standing_mesh_path
-            else: # 'sitting'
-                marker.mesh_resource = self.sitting_mesh_path
-            
-            # Set the pose and scale of the human model
-            marker.pose.position.x = human['pos'][0]
-            marker.pose.position.y = human['pos'][1]
-            marker.pose.position.z = 0.0 
-            marker.pose.orientation = q
-            marker.scale = Vector3(x=1., y=1., z=1.)
+                q = Quaternion()
+                q.w = cr * cp * cy + sr * sp * sy
+                q.x = sr * cp * cy - cr * sp * sy
+                q.y = cr * sp * cy + sr * cp * sy
+                q.z = cr * cp * sy - sr * sp * cy
 
-            marker_array.markers.append(marker)
+                t.transform.rotation = q
+                self.tf_broadcaster.sendTransform(t)
 
-        # Publish the topics
-        self.humans_publisher.publish(HumanArray(header=Header(stamp=now, frame_id=self.frame_id), humans=human_msgs))
-        self.marker_publisher.publish(marker_array)
+                # --- Build the HumanArray message (for other nodes) ---
+                hpv_msg = HumanPoseVel()
+                hpv_msg.human_id = human['id']
+                # Apply the z_offset here too for consistency
+                hpv_msg.position = Point(x=human['pos'][0], y=human['pos'][1], z=z_offset)
+                hpv_msg.velocity = Vector3(x=human['vel'][0], y=human['vel'][1], z=0.0)
+                human_msgs.append(hpv_msg)
+
+                # --- Create the MESH_RESOURCE Marker for RViz ---
+                marker = Marker()
+                marker.header.frame_id = self.frame_id
+                marker.header.stamp = now
+                marker.ns = "human_meshes"
+                marker.id = i # Use the index as the unique ID
+                marker.action = Marker.ADD
+                marker.type = Marker.MESH_RESOURCE
+                marker.mesh_use_embedded_materials = True
+                
+                # Set mesh based on human type
+                if human['type'] == 'standing':
+                    marker.mesh_resource = self.standing_mesh_path
+                else: # 'sitting'
+                    marker.mesh_resource = self.sitting_mesh_path
+                
+                # Set the pose and scale of the human model
+                marker.pose.position.x = human['pos'][0]
+                marker.pose.position.y = human['pos'][1]
+                # Apply the z_offset here for the visual marker
+                marker.pose.position.z = z_offset 
+                marker.pose.orientation = q
+                marker.scale = Vector3(x=1., y=1., z=1.)
+
+                marker_array.markers.append(marker)
+
+            # Publish the topics
+            self.humans_publisher.publish(HumanArray(header=Header(stamp=now, frame_id=self.frame_id), humans=human_msgs))
+            self.marker_publisher.publish(marker_array)
 
 
 def main(args=None):

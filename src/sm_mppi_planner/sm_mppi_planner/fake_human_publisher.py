@@ -138,7 +138,7 @@ class FakeHumanPublisher(Node):
                 # NEW: Overwrite defaults if the human is sitting
                 if human['type'] == 'sitting':
                     z_offset = 0.5
-                    visual_yaw_offset = math.radians(70.0) # Convert 70 degrees to radians
+                    visual_yaw_offset = math.radians(90.0) # Convert 70 degrees to radians
 
                 # Combine base yaw with the visual offset
                 final_yaw = base_yaw + visual_yaw_offset

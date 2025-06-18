@@ -33,7 +33,7 @@ def generate_launch_description():
     
     human_simulation_params = {
         'num_random_humans': 3,
-        'people_standing_up': 0, 
+        'people_standing_up': 1, 
         'x_limits': [-5.0, 5.0],
         'y_limits': [-5.0, 5.0],
         'human_max_speed': 0.3,
