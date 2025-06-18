@@ -14,6 +14,7 @@ creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_
 creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib
 creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
 copying sm_mppi_planner/mppi_planner_node.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
+copying sm_mppi_planner/hallway_publisher.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
 copying sm_mppi_planner/fake_human_publisher.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
 copying sm_mppi_planner/tf2_wrapper.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
 copying sm_mppi_planner/sm_mppi.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner
@@ -26,6 +27,7 @@ running install
 running install_lib
 creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
 copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/mppi_planner_node.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
+copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/hallway_publisher.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
 copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/fake_human_publisher.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
 copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/tf2_wrapper.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
 copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/sm_mppi.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
@@ -35,6 +37,7 @@ copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_m
 copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/__init__.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
 copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/build/lib/sm_mppi_planner/vis_utils.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner
 byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/mppi_planner_node.py to mppi_planner_node.cpython-310.pyc
+byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/hallway_publisher.py to hallway_publisher.cpython-310.pyc
 byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/fake_human_publisher.py to fake_human_publisher.cpython-310.pyc
 byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/tf2_wrapper.py to tf2_wrapper.cpython-310.pyc
 byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/sm_mppi.py to sm_mppi.cpython-310.pyc
@@ -50,15 +53,10 @@ creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/s
 copying resource/sm_mppi_planner -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index/packages
 copying package.xml -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner
 creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
-copying launch/sm_mppi_simulation.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
 copying launch/sm_paramtrized_version.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
-copying launch/headon_demo.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
-copying launch/teleop_launch.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
-copying launch/chat.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
-copying launch/simple_actor_test.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
-copying launch/4_humans.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
-copying launch/validation.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+copying launch/view_hallway.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
 creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/rviz
+copying rviz/hallway.rviz -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/rviz
 creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models
 creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human
 copying models/walking_human/model.config -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human
@@ -81,10 +79,13 @@ copying models/wheelchair/wheelchair.dae -> /home/wim/Documents/social_momentum_
 creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/wheelchair/textures
 copying models/wheelchair/textures/ad0996e0b2cb0abe5cc583773c7c0440.jpg -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/wheelchair/textures
 copying models/wheelchair/textures/fbf99c84ab654eb7163c42fa1a799e5c.jpg -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/wheelchair/textures
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/wall
+copying models/wall/wall.dae -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/wall
 running install_egg_info
 Copying ../../build/sm_mppi_planner/sm_mppi_planner.egg-info to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner-0.0.1-py3.10.egg-info
 running install_scripts
 Installing fake_human_publisher script to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner
 Installing goal_publisher_node script to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner
+Installing hallway_publisher script to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner
 Installing mppi_planner_node script to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner
 writing list of installed files to '/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/sm_mppi_planner/install.log'

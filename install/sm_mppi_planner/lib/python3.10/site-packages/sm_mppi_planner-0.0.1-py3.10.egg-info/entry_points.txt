@@ -1,5 +1,6 @@
 [console_scripts]
 fake_human_publisher = sm_mppi_planner.fake_human_publisher:main
 goal_publisher_node = sm_mppi_planner.goal_publisher_node:main
+hallway_publisher = sm_mppi_planner.hallway_publisher:main
 mppi_planner_node = sm_mppi_planner.mppi_planner_node:main
 

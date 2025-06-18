@@ -42,6 +42,8 @@ setup(
         ]),
         (os.path.join('share', package_name, 'models/wheelchair/textures'), glob('models/wheelchair/textures/*')),
 
+        (os.path.join('share', package_name, 'models/wall'), glob('models/wall/*')),
+
         
     ],
     install_requires=[
@@ -70,6 +72,7 @@ setup(
             'mppi_planner_node = sm_mppi_planner.mppi_planner_node:main',
             'goal_publisher_node = sm_mppi_planner.goal_publisher_node:main',
             'fake_human_publisher = sm_mppi_planner.fake_human_publisher:main',
+            'hallway_publisher = sm_mppi_planner.hallway_publisher:main',
         ],
     },
 )
