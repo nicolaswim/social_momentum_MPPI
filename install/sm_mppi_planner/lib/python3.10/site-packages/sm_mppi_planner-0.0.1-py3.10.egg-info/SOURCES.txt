@@ -8,6 +8,7 @@ setup.py
 ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/requires.txt
 ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/top_level.txt
 ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/zip-safe
+launch/first_scenario_test.launch.py
 launch/sm_paramtrized_version.launch.py
 launch/view_hallway.launch.py
 models/Slampion/Slampion.dae
@@ -28,6 +29,7 @@ models/wheelchair/textures/ad0996e0b2cb0abe5cc583773c7c0440.jpg
 models/wheelchair/textures/fbf99c84ab654eb7163c42fa1a799e5c.jpg
 resource/sm_mppi_planner
 rviz/hallway.rviz
+rviz/hallway_test.rviz
 sm_mppi_planner/__init__.py
 sm_mppi_planner/config.py
 sm_mppi_planner/fake_human_publisher.py

@@ -19,7 +19,7 @@ class SMMPPIController:
         self.costs = torch.zeros((7, NUM_SAMPLES, 2))
         self.max_cycles = NUM_CYCLES
         self.num_samples = NUM_SAMPLES
-        self.polygons = [Polygon(obs) for obs in static_obs if obs]
+        self.polygons = [Polygon(list(zip(obs[0::2], obs[1::2]))) for obs in static_obs if obs]
         self.multi_polygon = MultiPolygon(self.polygons) if self.polygons else MultiPolygon()
         self.bounds = self.multi_polygon.bounds
         self.s2_ego = torch.zeros((self.num_samples, 3)).to(self.device)

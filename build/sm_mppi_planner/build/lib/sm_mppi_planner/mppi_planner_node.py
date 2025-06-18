@@ -8,6 +8,7 @@ import numpy as np
 import math
 import time # time.time() is wall time, consider using self.get_clock().now() for ROS time operations
 import sys
+import yaml # <-- Make sure this import is at the top of your file
 
 # --- Relative imports for modules within this package ---
 try:
@@ -43,6 +44,26 @@ class MPPLocalPlannerMPPI(Node):
 
         self.goal = None # Will store the full goal [x, y, yaw]
         self.goal_reached = False # State flag
+
+        
+        # --- Logic to load obstacles from launch parameters ---
+        self.declare_parameter('static_obstacles_yaml', STATIC_OBSTACLES_YAML_DEFAULT)
+        static_obstacles_str = self.get_parameter('static_obstacles_yaml').value
+        
+        final_obstacles = []
+        try:
+            parsed_obstacles = yaml.safe_load(static_obstacles_str)
+            if isinstance(parsed_obstacles, list) and len(parsed_obstacles) > 0:
+                final_obstacles = parsed_obstacles
+                self.get_logger().info(f"Successfully loaded {len(final_obstacles)} static obstacles from launch file.")
+            else:
+                self.get_logger().info("No valid static obstacles in launch file, using default from config.py.")
+                final_obstacles = STATIC_OBSTACLES
+        except yaml.YAMLError as e:
+            self.get_logger().error(f"Error parsing static_obstacles_yaml: {e}. Using default from config.py.")
+            final_obstacles = STATIC_OBSTACLES
+        # --- End of obstacle loading logic ---
+
         # ----------------------------------------------------
 
         self.tf2_wrapper = TF2Wrapper(self)
@@ -55,7 +76,7 @@ class MPPLocalPlannerMPPI(Node):
 
         # self.start_time = time.time() # Wall time, consider ROS time if comparing with ROS timestamps
 
-        self.controller = SMMPPIController(STATIC_OBSTACLES, self.device) # STATIC_OBSTACLES from config.py
+        self.controller = SMMPPIController(final_obstacles, self.device) # STATIC_OBSTACLES from config.py
         self.loop_counter = 0
 
         self.planner_fully_ready_time = None

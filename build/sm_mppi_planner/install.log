@@ -21,7 +21,9 @@
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index/packages/sm_mppi_planner
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/package.xml
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/sm_paramtrized_version.launch.py
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/first_scenario_test.launch.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/view_hallway.launch.py
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/rviz/hallway_test.rviz
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/rviz/hallway.rviz
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human/model.config
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human/model.sdf

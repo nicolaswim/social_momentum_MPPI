@@ -17,4 +17,5 @@ source install/setup.bash
 
 echo "--- Launching the simulation ---"
 # ros2 launch sm_mppi_planner sm_paramtrized_version.launch.py
-ros2 launch sm_mppi_planner view_hallway.launch.py
+# ros2 launch sm_mppi_planner view_hallway.launch.py
+ros2 launch sm_mppi_planner first_scenario_test.launch.py
