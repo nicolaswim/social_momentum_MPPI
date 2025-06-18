@@ -26,7 +26,8 @@ class FakeHumanPublisher(Node):
         super().__init__('fake_human_publisher')
         
         # --- Parameters ---
-        self.declare_parameter('num_random_humans', 5)
+        self.declare_parameter('total_people', 5)
+        self.declare_parameter('people_standing_up', 3) # NEW: Number of standing/moving humans
         self.declare_parameter('publish_frequency', 10.0)
         self.declare_parameter('human_max_speed', 1.5)
         self.declare_parameter('human_min_speed', 0.5)
@@ -35,9 +36,11 @@ class FakeHumanPublisher(Node):
         self.declare_parameter('markers_topic', '/human_markers')
         self.declare_parameter('x_limits', [-7.0, 7.0])
         self.declare_parameter('y_limits', [-7.0, 7.0])
-        self.declare_parameter('human_mesh_path', "")
+        self.declare_parameter('standing_human_mesh_path', '') 
+        self.declare_parameter('sitting_human_mesh_path', '') 
 
-        self.num_random = self.get_parameter('num_random_humans').value
+        self.total_people = self.get_parameter('total_people').value
+        self.num_standing = self.get_parameter('people_standing_up').value
         self.frequency = self.get_parameter('publish_frequency').value
         self.max_speed = self.get_parameter('human_max_speed').value
         self.min_speed = self.get_parameter('human_min_speed').value
@@ -46,7 +49,14 @@ class FakeHumanPublisher(Node):
         markers_topic = self.get_parameter('markers_topic').value
         self.x_lim = self.get_parameter('x_limits').value
         self.y_lim = self.get_parameter('y_limits').value
-        self.mesh_path = self.get_parameter('human_mesh_path').value
+        self.standing_mesh_path = self.get_parameter('standing_human_mesh_path').value
+        self.sitting_mesh_path = self.get_parameter('sitting_human_mesh_path').value
+
+        # Calculate the number of sitting people
+        if self.num_standing > self.total_people:
+            self.get_logger().warn("'people_standing_up' is greater than 'total_people'. Setting all people to be standing.")
+            self.num_standing = self.total_people
+        self.num_sitting = self.total_people - self.num_standing
 
         # --- Publishers and TF Broadcaster ---
         self.tf_broadcaster = TransformBroadcaster(self)
@@ -62,15 +72,30 @@ class FakeHumanPublisher(Node):
         # --- Main Timer ---
         self.timer_period = 1.0 / self.frequency
         self.timer = self.create_timer(self.timer_period, self.update_and_publish)
-        self.get_logger().info("Fake Human Publisher has started.")
+        self.get_logger().info(f"Fake Human Publisher started: {self.num_standing} standing, {self.num_sitting} sitting.")
 
     def _initialize_humans(self):
-        for i in range(self.num_random):
+        # Initialize STANDING humans
+        for i in range(self.num_standing):
             human = {
                 'id': f'human_{i}',
+                'type': 'standing',
                 'pos': np.array([random.uniform(self.x_lim[0], self.x_lim[1]),
                                  random.uniform(self.y_lim[0], self.y_lim[1])]),
-                'vel': self.get_random_velocity()
+                'vel': self.get_random_velocity()*1.5,
+                'yaw': 0.0
+            }
+            self.humans.append(human)
+
+        # Initialize SITTING humans
+        for i in range(self.num_standing, self.total_people):
+            human = {
+                'id': f'human_{i}',
+                'type': 'sitting',
+                'pos': np.array([random.uniform(self.x_lim[0], self.x_lim[1]),
+                                 random.uniform(self.y_lim[0], self.y_lim[1])]),
+                'vel': self.get_random_velocity()*0.5,  
+                'yaw': 0.0
             }
             self.humans.append(human)
 
@@ -85,39 +110,38 @@ class FakeHumanPublisher(Node):
         now = self.get_clock().now().to_msg()
         
         # We need to send a "delete all" marker first to clear old markers
-        # This is important for a variable number of objects
         delete_all_marker = Marker()
         delete_all_marker.action = Marker.DELETEALL
         marker_array.markers.append(delete_all_marker)
 
         for i, human in enumerate(self.humans):
+            # --- Update State ---
             human['pos'] += human['vel'] * self.timer_period
             
-            # Bounce in bounds logic
+            # Bounce in bounds logic (only affects standing humans as sitting have 0 vel)
             if not (self.x_lim[0] < human['pos'][0] < self.x_lim[1]) or \
                not (self.y_lim[0] < human['pos'][1] < self.y_lim[1]):
                 human['vel'] *= -1.0 
+                # Prevent getting stuck outside bounds
+                human['pos'][0] = np.clip(human['pos'][0], self.x_lim[0], self.x_lim[1])
+                human['pos'][1] = np.clip(human['pos'][1], self.y_lim[0], self.y_lim[1])
+            
+            
+            human['yaw'] = math.atan2(human['vel'][1], human['vel'][0])
 
-            # --- Publish TF for the planner (this is still needed) ---
+            # --- Publish TF for the planner ---
             t = TransformStamped()
             t.header.stamp = now
             t.header.frame_id = self.frame_id
             t.child_frame_id = human['id']
             t.transform.translation = Vector3(x=human['pos'][0], y=human['pos'][1], z=0.0)
-
-
-            # yaw = math.atan2(human['vel'][1], human['vel'][0])
-            # q = Quaternion(z=math.sin(yaw/2.0), w=math.cos(yaw/2.0))
-
-            # Calculate the dynamic yaw rotation from velocity
-            yaw = math.atan2(human['vel'][1], human['vel'][0]) + 0.75*math.pi
-
-            # Define the static correction rotation to stand the model up
-            # This is a -90 degree roll around the X-axis to convert Y-Up to Z-Up
-            roll = math.pi / 2.0
-            pitch = 0.0
             
             # --- Convert Euler angles (roll, pitch, yaw) to a single Quaternion ---
+            # Static correction roll to stand the model up (Y-Up to Z-Up)
+            roll = math.pi / 2.0 
+            pitch = 0.0
+            yaw = human['yaw'] + 0.75*math.pi # Apply yaw orientation
+
             cy = math.cos(yaw * 0.5)
             sy = math.sin(yaw * 0.5)
             cp = math.cos(pitch * 0.5)
@@ -146,25 +170,24 @@ class FakeHumanPublisher(Node):
             marker.header.frame_id = self.frame_id
             marker.header.stamp = now
             marker.ns = "human_meshes"
-            marker.id = i # Use the index as the ID
+            marker.id = i # Use the index as the unique ID
             marker.action = Marker.ADD
-
-            # Set the type to MESH_RESOURCE
             marker.type = Marker.MESH_RESOURCE
-            # Point to the 3D model file
-            marker.mesh_resource = self.mesh_path
             marker.mesh_use_embedded_materials = True
             
-            # Set the pose of the human model
+            # Set mesh based on human type
+            if human['type'] == 'standing':
+                marker.mesh_resource = self.standing_mesh_path
+            else: # 'sitting'
+                marker.mesh_resource = self.sitting_mesh_path
+            
+            # Set the pose and scale of the human model
             marker.pose.position.x = human['pos'][0]
             marker.pose.position.y = human['pos'][1]
-            marker.pose.position.z = 0.0 # Adjust z so feet are on the ground
+            marker.pose.position.z = 0.0 
             marker.pose.orientation = q
-            
-            # Set the scale
             marker.scale = Vector3(x=1., y=1., z=1.)
 
-            # Add the marker to our array
             marker_array.markers.append(marker)
 
         # Publish the topics

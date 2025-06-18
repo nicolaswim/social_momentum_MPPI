@@ -14,19 +14,12 @@ setup(
         ('share/' + package_name, ['package.xml']),
         # Install other directories as before
         (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
-        (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
-        (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
         (os.path.join('share', package_name, 'rviz'), glob('rviz/*.rviz')),
-
-        (os.path.join('share', package_name, 'urdf'), glob('urdf/*.urdf')),
         
-        # --- CORRECTED & EXPLICIT MODEL INSTALLATION ---
-        # Install the model description files
         (os.path.join('share', package_name, 'models/walking_human'), [
             'models/walking_human/model.config',
             'models/walking_human/model.sdf'
         ]),
-        # Install the mesh files into their own subdirectory
         (os.path.join('share', package_name, 'models/walking_human/meshes'), [
             'models/walking_human/meshes/walk.dae',
             'models/walking_human/meshes/moonwalk.dae'
@@ -39,6 +32,16 @@ setup(
             'models/Slampion/Slampion.dae'
         ]),
         (os.path.join('share', package_name, 'models/Slampion/textures'), glob('models/Slampion/textures/*')),
+
+
+        # This is your Wheelchair entry (structurally the same)
+        (os.path.join('share', package_name, 'models/wheelchair'), [
+            'models/wheelchair/model.config',
+            'models/wheelchair/model.sdf',
+            'models/wheelchair/wheelchair.dae'
+        ]),
+        (os.path.join('share', package_name, 'models/wheelchair/textures'), glob('models/wheelchair/textures/*')),
+
         
     ],
     install_requires=[

@@ -26,10 +26,7 @@
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/simple_actor_test.launch.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/4_humans.launch.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/validation.launch.py
-/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/worlds
-/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/config/human_trajectories.yaml
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/rviz
-/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/urdf
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human/model.config
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human/model.sdf
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/walking_human/meshes/walk.dae
@@ -40,6 +37,11 @@
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/Slampion/textures/7319b16a17fda36440b2da1cfb01d220.jpg
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/Slampion/textures/ff4c81ee240b216b5338a5b02394500f.jpg
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/Slampion/textures/d1dde46e1aa3e40a3f8c3a38b560054a.jpg
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/wheelchair/model.config
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/wheelchair/model.sdf
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/wheelchair/wheelchair.dae
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/wheelchair/textures/ad0996e0b2cb0abe5cc583773c7c0440.jpg
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/models/wheelchair/textures/fbf99c84ab654eb7163c42fa1a799e5c.jpg
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner-0.0.1-py3.10.egg-info/entry_points.txt
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner-0.0.1-py3.10.egg-info/dependency_links.txt
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner-0.0.1-py3.10.egg-info/requires.txt

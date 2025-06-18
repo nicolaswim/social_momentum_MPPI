@@ -27,10 +27,13 @@ def generate_launch_description():
     goal = {'x': 5.0, 'y': 0.0}
 
     # --- Human Simulation ---
-    human_mesh_path = 'package://sm_mppi_planner/models/Slampion/Slampion.dae'
+    standing_human_mesh_path = 'package://sm_mppi_planner/models/Slampion/Slampion.dae'
+    sitting_human_mesh_path = 'package://sm_mppi_planner/models/wheelchair/wheelchair.dae' 
+    
     
     human_simulation_params = {
-        'num_random_humans': 5,
+        'num_random_humans': 3,
+        'people_standing_up': 0, 
         'x_limits': [-5.0, 5.0],
         'y_limits': [-5.0, 5.0],
         'human_max_speed': 0.3,
@@ -100,7 +103,8 @@ def generate_launch_description():
         'publish_frequency': 10.0,
         'humans_topic': '/humans',
         'markers_topic': '/human_markers',
-        'human_mesh_path': human_mesh_path, 
+        'standing_human_mesh_path': standing_human_mesh_path, 
+        'sitting_human_mesh_path': sitting_human_mesh_path, 
     }
     human_publisher_full_params.update(human_simulation_params)
 
