@@ -29,6 +29,8 @@ except ImportError as e:
     from shapely.vectorized import contains
 
 
+# In mppi_planner_node.py
+
 class MPPLocalPlannerMPPI(Node):
     def __init__(self):
         super().__init__('mppi_planner_node')
@@ -36,17 +38,15 @@ class MPPLocalPlannerMPPI(Node):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.get_logger().info(f"MPPI Local Planner Node Initializing... Device: {self.device}")
 
-        # --- ADDED: GOAL TOLERANCE PARAMETERS AND STATE ---
-        self.declare_parameter('goal_xy_tolerance', 0.15)  # 15 cm
-        self.declare_parameter('goal_yaw_tolerance', 0.15) # ~8.5 degrees
+        # --- PARAMETER HANDLING SECTION ---
+
+        # Declare and get goal tolerances
+        self.declare_parameter('goal_xy_tolerance', 0.15)
+        self.declare_parameter('goal_yaw_tolerance', 0.15)
         self.goal_xy_tol = self.get_parameter('goal_xy_tolerance').value
         self.goal_yaw_tol = self.get_parameter('goal_yaw_tolerance').value
-
-        self.goal = None # Will store the full goal [x, y, yaw]
-        self.goal_reached = False # State flag
-
         
-        # --- Logic to load obstacles from launch parameters ---
+        # Declare and get static obstacles YAML string
         self.declare_parameter('static_obstacles_yaml', STATIC_OBSTACLES_YAML_DEFAULT)
         static_obstacles_str = self.get_parameter('static_obstacles_yaml').value
         
@@ -57,57 +57,43 @@ class MPPLocalPlannerMPPI(Node):
                 final_obstacles = parsed_obstacles
                 self.get_logger().info(f"Successfully loaded {len(final_obstacles)} static obstacles from launch file.")
             else:
-                self.get_logger().info("No valid static obstacles in launch file, using default from config.py.")
                 final_obstacles = STATIC_OBSTACLES
         except yaml.YAMLError as e:
-            self.get_logger().error(f"Error parsing static_obstacles_yaml: {e}. Using default from config.py.")
+            self.get_logger().error(f"Error parsing static_obstacles_yaml: {e}")
             final_obstacles = STATIC_OBSTACLES
-        # --- End of obstacle loading logic ---
+        
+        # --- END OF PARAMETER HANDLING ---
 
-        # ----------------------------------------------------
+        self.goal = None
+        self.goal_reached = False
 
         self.tf2_wrapper = TF2Wrapper(self)
-
         self.cmd_vel_pub = self.create_publisher(Twist, "/mobile_base_controller/cmd_vel_unstamped", 10)
 
-        timer_period = 0.05  # seconds (for 20Hz)
-        self.get_logger().info(f"Planner timer period set to: {timer_period} seconds (20 Hz)")
+        timer_period = 0.05
         self.timer = self.create_timer(timer_period, self.plan_and_publish)
 
-        # self.start_time = time.time() # Wall time, consider ROS time if comparing with ROS timestamps
-
-        self.controller = SMMPPIController(final_obstacles, self.device) # STATIC_OBSTACLES from config.py
+        # --- CRITICAL FIX IS HERE ---
+        # Pass the loaded obstacles AND the cost weight to the controller
+        self.controller = SMMPPIController(
+            static_obs=final_obstacles,
+            device=self.device,
+        )
+        
+        # ... (rest of the __init__ method is unchanged) ...
         self.loop_counter = 0
-
         self.planner_fully_ready_time = None
-
         self.current_state = torch.tensor([0.0, 0.0, 0.0], dtype=torch.float32).to(self.device)
         self.robot_velocity = torch.tensor([0.0, 0.0], dtype=torch.float32).to(self.device)
         self.previous_robot_state = torch.zeros_like(self.current_state)
-
         self.agent_states = {i: torch.tensor([100.0, 100.0, 0.0], dtype=torch.float32).to(self.device) for i in range(ACTIVE_AGENTS)}
         self.agent_velocities = {i: torch.tensor([0.0, 0.0], dtype=torch.float32).to(self.device) for i in range(ACTIVE_AGENTS)}
         self.previous_agent_states = {i: torch.zeros_like(self.agent_states[0]) for i in range(ACTIVE_AGENTS)}
-
         self.goal_topic_name = "/goal_pose"
-        self.goal_subscriber = self.create_subscription(
-            PoseStamped,
-            self.goal_topic_name,
-            self.goal_callback,
-            10
-        )
-        self.get_logger().info(f"Subscribing to goal topic: {self.goal_topic_name}")
-
-        # --- Additions for Initial Planner Settling Period ---
-        self.planner_fully_ready_time = None
-        # Wait 1.0 seconds after planner's own init before trusting human TFs fully.
-        # This should be greater than or comparable to the fake_human_publisher's initial_delay_sec
-        # plus a little extra for TF propagation.
-        self.planner_initial_tf_wait_duration = Duration(seconds=1.0) # Adjusted from 0.5 to 1.0 for more safety
-        # --- End Additions ---
-
+        self.goal_subscriber = self.create_subscription(PoseStamped,self.goal_topic_name,self.goal_callback,10)
+        self.planner_initial_tf_wait_duration = Duration(seconds=1.0)
         self.get_logger().info("MPPI Local Planner Node Initialized Successfully.")
-        
+    
 
     def goal_callback(self, msg: PoseStamped):
             if msg.header.frame_id != "map" and msg.header.frame_id != "odom":

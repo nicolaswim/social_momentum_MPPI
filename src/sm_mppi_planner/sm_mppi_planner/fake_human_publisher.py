@@ -31,11 +31,12 @@ class FakeHumanPublisher(Node):
         self.declare_parameter('publish_frequency', 10.0)
         self.declare_parameter('human_max_speed', 1.5)
         self.declare_parameter('human_min_speed', 0.5)
+        self.declare_parameter('human_radius', 0.1) 
         self.declare_parameter('world_frame_id', 'odom')
         self.declare_parameter('humans_topic', '/humans')
         self.declare_parameter('markers_topic', '/human_markers')
-        self.declare_parameter('x_limits', [-7.0, 7.0])
-        self.declare_parameter('y_limits', [-7.0, 7.0])
+        self.declare_parameter('x_limits', [-20.0, 20.0])
+        self.declare_parameter('y_limits', [-2.5, 2.5])
         self.declare_parameter('standing_human_mesh_path', '') 
         self.declare_parameter('sitting_human_mesh_path', '') 
 
@@ -44,6 +45,7 @@ class FakeHumanPublisher(Node):
         self.frequency = self.get_parameter('publish_frequency').value
         self.max_speed = self.get_parameter('human_max_speed').value
         self.min_speed = self.get_parameter('human_min_speed').value
+        self.human_radius = self.get_parameter('human_radius').value 
         self.frame_id = self.get_parameter('world_frame_id').value
         humans_topic = self.get_parameter('humans_topic').value
         markers_topic = self.get_parameter('markers_topic').value
@@ -103,7 +105,7 @@ class FakeHumanPublisher(Node):
         speed = random.uniform(self.min_speed, self.max_speed)
         angle = random.uniform(0, 2 * math.pi)
         return np.array([speed * math.cos(angle), speed * math.sin(angle)])
-
+    
     def update_and_publish(self):
         human_msgs = []
         marker_array = MarkerArray()
@@ -113,27 +115,26 @@ class FakeHumanPublisher(Node):
         delete_all_marker.action = Marker.DELETEALL
         marker_array.markers.append(delete_all_marker)
 
-        # These limits are passed from your launch file, defining the hallway space
-        wall_y_top = self.y_lim[1]
-        wall_y_bottom = self.y_lim[0]
+        # --- CRITICAL FIX IS HERE ---
+        # Calculate the precise bounce boundary using the human's radius
+        wall_y_top = self.y_lim[1] - self.human_radius
+        wall_y_bottom = self.y_lim[0] + self.human_radius
         
         for i, human in enumerate(self.humans):
             human['pos'] += human['vel'] * self.timer_period
             
-            # --- CORRECTED BOUNCE LOGIC ---
-
-            # 1. Bounce off left/right ends of the hallway (inverts X velocity)
+            # Bounce off left/right ends
             if not (self.x_lim[0] < human['pos'][0] < self.x_lim[1]):
                 human['vel'][0] *= -1.0 
 
-            # 2. Bounce off top/bottom hallway walls (inverts Y velocity for a realistic reflection)
+            # Bounce off hallway walls using the corrected boundary
             if (human['pos'][1] > wall_y_top and human['vel'][1] > 0) or \
             (human['pos'][1] < wall_y_bottom and human['vel'][1] < 0):
-                human['vel'][1] *= -1.0 # This is the key change for realistic bounce
+                human['vel'][1] *= -1.0
 
-            # Clip position to prevent agents from getting stuck inside the visual wall
+            # Clip position to prevent getting stuck
             human['pos'][0] = np.clip(human['pos'][0], self.x_lim[0], self.x_lim[1])
-            human['pos'][1] = np.clip(human['pos'][1], wall_y_bottom, wall_y_top)
+            human['pos'][1] = np.clip(human['pos'][1], self.y_lim[0], self.y_lim[1])
 
             # --- The rest of your publishing code is unchanged ---
             base_yaw = math.atan2(human['vel'][1], human['vel'][0])

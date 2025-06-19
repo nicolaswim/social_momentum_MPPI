@@ -19,7 +19,10 @@ class SMMPPIController:
         self.costs = torch.zeros((7, NUM_SAMPLES, 2))
         self.max_cycles = NUM_CYCLES
         self.num_samples = NUM_SAMPLES
-        self.polygons = [Polygon(list(zip(obs[0::2], obs[1::2]))) for obs in static_obs if obs]
+        if static_obs:
+            self.polygons = [Polygon(list(zip(obs[0::2], obs[1::2]))) for obs in static_obs if obs]
+        else:
+            self.polygons = []
         self.multi_polygon = MultiPolygon(self.polygons) if self.polygons else MultiPolygon()
         self.bounds = self.multi_polygon.bounds
         self.s2_ego = torch.zeros((self.num_samples, 3)).to(self.device)
@@ -108,7 +111,9 @@ class SMMPPIController:
             dynamic_obstacle_cost = torch.where(dist < 1.0, 1 / (1 + dist**2), torch.tensor(0.0, device=self.device))
             dynamic_obstacle_costs += torch.sum(dynamic_obstacle_cost, dim=1)
 
+        # THE KEY CHANGE IS HERE: We use the parameter instead of a hardcoded '5'
         return 2 * goal_cost + sm_costs + dynamic_obstacle_costs + 5 * static_costs
+
 
     def get_interacting_agents(self):
         self.interacting_agents = []

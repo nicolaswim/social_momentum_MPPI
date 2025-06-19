@@ -32,13 +32,13 @@ def generate_launch_description():
     hallway_params = {
         'hallway_length': 20.0,
         'hallway_width': 5.0,
-        'wall_thickness': 0.2,
+        'wall_thickness': 0.1,
         'wall_height': 2.5,
         'wall_mesh_path': 'package://sm_mppi_planner/models/wall/wall.dae'
     }
 
     # --- Navigation Goal ---
-    goal = {'x': 18.0, 'y': 0.0} # Example goal near the end of the hallway
+    goal = {'x': 0.0, 'y': 5.0} # Example goal near the end of the hallway
 
     # --- Human Simulation ---
     standing_human_mesh_path = 'package://sm_mppi_planner/models/Slampion/Slampion.dae'
@@ -47,23 +47,26 @@ def generate_launch_description():
     human_simulation_params = {
         'total_people': 4,
         'people_standing_up': 4,
+        'human_radius': 0.3,
         # Dynamically set human limits based on hallway dimensions
-        'x_limits': [-(hallway_params['hallway_length']/2 - 1.0), (hallway_params['hallway_length']/2 - 1.0)],
-        'y_limits': [-(hallway_params['hallway_width']/2 - 1.0), (hallway_params['hallway_width']/2 - 1.0)],
+        'x_limits': [-(hallway_params['hallway_length']/2), (hallway_params['hallway_length']/2)],
+        'y_limits': [-(hallway_params['hallway_width']/2), (hallway_params['hallway_width']/2)], 
         'human_max_speed': 0.3,
         'human_min_speed': 0.1,
     }
 
-    # --- DYNAMICALLY GENERATE OBSTACLE STRING FOR PLANNER ---
-    # This ensures the planner always knows the correct wall locations
     hw = hallway_params['hallway_width'] / 2.0
     hl = hallway_params['hallway_length'] / 2.0
     wt = hallway_params['wall_thickness'] / 2.0
 
+    # NEW: Define the invisible safety boundary
+    safety_boundary = 0.2 
+
+    # The YAML string now uses the safety_boundary to create "inflated" walls for the planner
     hallway_walls_yaml_string = f"""
     [
-        [{-hl}, {hw + wt}, {hl}, {hw + wt}, {hl}, {hw - wt}, {-hl}, {hw - wt}],
-        [{-hl}, {-hw - wt}, {hl}, {-hw - wt}, {hl}, {-hw + wt}, {-hl}, {-hw + wt}]
+        [{-hl}, {hw + wt + safety_boundary}, {hl}, {hw + wt + safety_boundary}, {hl}, {hw - wt - safety_boundary}, {-hl}, {hw - wt - safety_boundary}],
+        [{-hl}, {-hw - wt - safety_boundary}, {hl}, {-hw - wt - safety_boundary}, {hl}, {-hw + wt + safety_boundary}, {-hl}, {-hw + wt + safety_boundary}]
     ]
     """
 
@@ -110,7 +113,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {'use_sim_time': LaunchConfiguration('use_sim_time')},
-            {'static_obstacles_yaml': hallway_walls_yaml_string}
+            {'static_obstacles_yaml': hallway_walls_yaml_string},
         ]
     )
 
