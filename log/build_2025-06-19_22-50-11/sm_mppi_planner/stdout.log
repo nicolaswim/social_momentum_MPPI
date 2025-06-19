@@ -53,9 +53,13 @@ creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/s
 copying resource/sm_mppi_planner -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/ament_index/resource_index/packages
 copying package.xml -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner
 creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+copying launch/scenario_3_cluster.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
 copying launch/sm_paramtrized_version.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
 copying launch/first_scenario_test.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
 copying launch/view_hallway.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+copying launch/scenario_4_emergency.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+copying launch/scenario_2_crossroads.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
+copying launch/scenario_1_gauntlet.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch
 creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/rviz
 copying rviz/hallway_test.rviz -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/rviz
 copying rviz/hallway.rviz -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/rviz

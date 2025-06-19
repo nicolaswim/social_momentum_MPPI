@@ -50,56 +50,56 @@ reading manifest file 'my_social_nav_interfaces.egg-info/SOURCES.txt'
 writing manifest file 'my_social_nav_interfaces.egg-info/SOURCES.txt'
 [  5%] Built target ament_cmake_python_build_my_social_nav_interfaces_egg
 [  5%] Built target my_social_nav_interfaces__cpp
-[  7%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
-[ 10%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[  7%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[ 10%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
 [ 12%] [34m[1mGenerating C++ introspection for ROS interfaces[0m
-[ 15%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_generator_c.dir/rosidl_generator_c/my_social_nav_interfaces/msg/detail/human_array__functions.c.o[0m
+[ 17%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_generator_c.dir/rosidl_generator_c/my_social_nav_interfaces/msg/detail/human_array__functions.c.o[0m
 [ 17%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_generator_c.dir/rosidl_generator_c/my_social_nav_interfaces/msg/detail/human_pose_vel__functions.c.o[0m
 [ 20%] [32m[1mLinking C shared library libmy_social_nav_interfaces__rosidl_generator_c.so[0m
 [ 20%] Built target my_social_nav_interfaces__rosidl_generator_c
-[ 28%] [34m[1mGenerating C introspection for ROS interfaces[0m
-[ 28%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[ 23%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[ 25%] [34m[1mGenerating C introspection for ROS interfaces[0m
 [ 28%] [34m[1mGenerating C type support dispatch for ROS interfaces[0m
-[ 33%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_array__type_support.cpp.o[0m
-[ 33%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_pose_vel__type_support.cpp.o[0m
-[ 35%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/my_social_nav_interfaces/msg/human_array__type_support.cpp.o[0m
-[ 38%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/my_social_nav_interfaces/msg/human_pose_vel__type_support.cpp.o[0m
-[ 41%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/my_social_nav_interfaces/msg/detail/human_array__type_support.cpp.o[0m
-[ 43%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/my_social_nav_interfaces/msg/detail/human_pose_vel__type_support.cpp.o[0m
-[ 46%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_c.dir/rosidl_typesupport_c/my_social_nav_interfaces/msg/human_array__type_support.cpp.o[0m
-[ 48%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_c.dir/rosidl_typesupport_c/my_social_nav_interfaces/msg/human_pose_vel__type_support.cpp.o[0m
+[ 30%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/my_social_nav_interfaces/msg/human_array__type_support.cpp.o[0m
+[ 33%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/my_social_nav_interfaces/msg/human_pose_vel__type_support.cpp.o[0m
+[ 35%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/my_social_nav_interfaces/msg/detail/human_array__type_support.cpp.o[0m
+[ 38%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/my_social_nav_interfaces/msg/detail/human_pose_vel__type_support.cpp.o[0m
+[ 41%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_array__type_support.cpp.o[0m
+[ 43%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_pose_vel__type_support.cpp.o[0m
+[ 46%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_c.dir/rosidl_typesupport_c/my_social_nav_interfaces/msg/human_pose_vel__type_support.cpp.o[0m
+[ 48%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_c.dir/rosidl_typesupport_c/my_social_nav_interfaces/msg/human_array__type_support.cpp.o[0m
+[ 51%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/my_social_nav_interfaces/msg/detail/human_pose_vel__type_support.c.o[0m
 [ 53%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/my_social_nav_interfaces/msg/detail/human_array__type_support.c.o[0m
-[ 56%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/my_social_nav_interfaces/msg/detail/human_pose_vel__type_support_c.cpp.o[0m
-[ 56%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/my_social_nav_interfaces/msg/detail/human_array__type_support_c.cpp.o[0m
-[ 58%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/my_social_nav_interfaces/msg/detail/human_pose_vel__type_support.c.o[0m
-[ 61%] [32m[1mLinking CXX shared library libmy_social_nav_interfaces__rosidl_typesupport_c.so[0m
+[ 56%] [32m[1mLinking CXX shared library libmy_social_nav_interfaces__rosidl_typesupport_c.so[0m
+[ 58%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/my_social_nav_interfaces/msg/detail/human_array__type_support_c.cpp.o[0m
+[ 61%] [32mBuilding CXX object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/my_social_nav_interfaces/msg/detail/human_pose_vel__type_support_c.cpp.o[0m
 [ 64%] [32m[1mLinking C shared library libmy_social_nav_interfaces__rosidl_typesupport_introspection_c.so[0m
 [ 64%] Built target my_social_nav_interfaces__rosidl_typesupport_c
 [ 64%] Built target my_social_nav_interfaces__rosidl_typesupport_introspection_c
 [ 66%] [32m[1mLinking CXX shared library libmy_social_nav_interfaces__rosidl_typesupport_cpp.so[0m
 [ 66%] Built target my_social_nav_interfaces__rosidl_typesupport_cpp
-[ 69%] [32m[1mLinking CXX shared library libmy_social_nav_interfaces__rosidl_typesupport_fastrtps_cpp.so[0m
-[ 71%] [32m[1mLinking CXX shared library libmy_social_nav_interfaces__rosidl_typesupport_fastrtps_c.so[0m
-[ 74%] [32m[1mLinking CXX shared library libmy_social_nav_interfaces__rosidl_typesupport_introspection_cpp.so[0m
+[ 69%] [32m[1mLinking CXX shared library libmy_social_nav_interfaces__rosidl_typesupport_introspection_cpp.so[0m
+[ 71%] [32m[1mLinking CXX shared library libmy_social_nav_interfaces__rosidl_typesupport_fastrtps_cpp.so[0m
+[ 71%] Built target my_social_nav_interfaces__rosidl_typesupport_introspection_cpp
+[ 74%] [32m[1mLinking CXX shared library libmy_social_nav_interfaces__rosidl_typesupport_fastrtps_c.so[0m
 [ 74%] Built target my_social_nav_interfaces__rosidl_typesupport_fastrtps_cpp
 [ 74%] Built target my_social_nav_interfaces__rosidl_typesupport_fastrtps_c
-[ 74%] Built target my_social_nav_interfaces__rosidl_typesupport_introspection_cpp
 [ 74%] Built target my_social_nav_interfaces
 [ 76%] [34m[1mGenerating Python code for ROS interfaces[0m
 [ 76%] Built target my_social_nav_interfaces__py
+[ 79%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_generator_py.dir/rosidl_generator_py/my_social_nav_interfaces/msg/_human_pose_vel_s.c.o[0m
 [ 82%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_generator_py.dir/rosidl_generator_py/my_social_nav_interfaces/msg/_human_array_s.c.o[0m
-[ 82%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_generator_py.dir/rosidl_generator_py/my_social_nav_interfaces/msg/_human_pose_vel_s.c.o[0m
 [ 84%] [32m[1mLinking C shared library rosidl_generator_py/my_social_nav_interfaces/libmy_social_nav_interfaces__rosidl_generator_py.so[0m
 [ 84%] Built target my_social_nav_interfaces__rosidl_generator_py
-[ 92%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_introspection_c.c.o[0m
-[ 92%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[ 89%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[ 89%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_introspection_c.c.o[0m
 [ 92%] [32mBuilding C object CMakeFiles/my_social_nav_interfaces__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_c.c.o[0m
-[ 97%] [32m[1mLinking C shared library rosidl_generator_py/my_social_nav_interfaces/my_social_nav_interfaces_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so[0m
+[ 94%] [32m[1mLinking C shared library rosidl_generator_py/my_social_nav_interfaces/my_social_nav_interfaces_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so[0m
 [ 97%] [32m[1mLinking C shared library rosidl_generator_py/my_social_nav_interfaces/my_social_nav_interfaces_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so[0m
-[100%] [32m[1mLinking C shared library rosidl_generator_py/my_social_nav_interfaces/my_social_nav_interfaces_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so[0m
-[100%] Built target my_social_nav_interfaces__rosidl_typesupport_fastrtps_c__pyext
+[100%] [32m[1mLinking C shared library rosidl_generator_py/my_social_nav_interfaces/my_social_nav_interfaces_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so[0m
 [100%] Built target my_social_nav_interfaces__rosidl_typesupport_c__pyext
 [100%] Built target my_social_nav_interfaces__rosidl_typesupport_introspection_c__pyext
+[100%] Built target my_social_nav_interfaces__rosidl_typesupport_fastrtps_c__pyext
 -- Install configuration: ""
 -- Installing: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/my_social_nav_interfaces/share/ament_index/resource_index/rosidl_interfaces/my_social_nav_interfaces
 -- Installing: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/my_social_nav_interfaces/include/my_social_nav_interfaces/my_social_nav_interfaces

@@ -2,13 +2,12 @@
 import rclpy
 from rclpy.node import Node
 import numpy as np
-import random
 import math
 import sys
-import os
+import yaml  # Added for parsing launch file parameters
 
 # --- All necessary ROS Imports ---
-from geometry_msgs.msg import Point, Pose, Twist, Quaternion, Vector3, TransformStamped
+from geometry_msgs.msg import Point, Pose, Quaternion, Vector3, TransformStamped
 from std_msgs.msg import Header
 from visualization_msgs.msg import Marker, MarkerArray
 from tf2_ros import TransformBroadcaster
@@ -17,127 +16,94 @@ try:
     from my_social_nav_interfaces.msg import HumanPoseVel, HumanArray
 except ImportError:
     print("ERROR: Cannot import custom messages from my_social_nav_interfaces.", file=sys.stderr)
-    print("Ensure the interface package is built and the current workspace is sourced.", file=sys.stderr)
     sys.exit(1)
-
 
 class FakeHumanPublisher(Node):
     def __init__(self):
         super().__init__('fake_human_publisher')
         
         # --- Parameters ---
-        self.declare_parameter('total_people', 5)
-        self.declare_parameter('people_standing_up', 3) # NEW: Number of standing/moving humans
-        self.declare_parameter('publish_frequency', 10.0)
-        self.declare_parameter('human_max_speed', 1.5)
-        self.declare_parameter('human_min_speed', 0.5)
-        self.declare_parameter('human_radius', 0.1) 
-        self.declare_parameter('world_frame_id', 'odom')
-        self.declare_parameter('humans_topic', '/humans')
-        self.declare_parameter('markers_topic', '/human_markers')
+        # All human definitions are now passed in a single YAML string
+        self.declare_parameter('humans_yaml', '[]')
+        # We still need boundaries for the bounce logic
         self.declare_parameter('x_limits', [-20.0, 20.0])
         self.declare_parameter('y_limits', [-2.5, 2.5])
-        self.declare_parameter('standing_human_mesh_path', '') 
-        self.declare_parameter('sitting_human_mesh_path', '') 
+        self.declare_parameter('human_radius', 0.3)
+        self.declare_parameter('world_frame_id', 'odom')
+        self.declare_parameter('standing_human_mesh_path', '')
+        self.declare_parameter('sitting_human_mesh_path', '')
 
-        self.total_people = self.get_parameter('total_people').value
-        self.num_standing = self.get_parameter('people_standing_up').value
-        self.frequency = self.get_parameter('publish_frequency').value
-        self.max_speed = self.get_parameter('human_max_speed').value
-        self.min_speed = self.get_parameter('human_min_speed').value
-        self.human_radius = self.get_parameter('human_radius').value 
-        self.frame_id = self.get_parameter('world_frame_id').value
-        humans_topic = self.get_parameter('humans_topic').value
-        markers_topic = self.get_parameter('markers_topic').value
+        # Get parameters
+        humans_yaml_str = self.get_parameter('humans_yaml').value
         self.x_lim = self.get_parameter('x_limits').value
         self.y_lim = self.get_parameter('y_limits').value
+        self.human_radius = self.get_parameter('human_radius').value
+        self.frame_id = self.get_parameter('world_frame_id').value
         self.standing_mesh_path = self.get_parameter('standing_human_mesh_path').value
         self.sitting_mesh_path = self.get_parameter('sitting_human_mesh_path').value
 
-        # Calculate the number of sitting people
-        if self.num_standing > self.total_people:
-            self.get_logger().warn("'people_standing_up' is greater than 'total_people'. Setting all people to be standing.")
-            self.num_standing = self.total_people
-        self.num_sitting = self.total_people - self.num_standing
-
         # --- Publishers and TF Broadcaster ---
         self.tf_broadcaster = TransformBroadcaster(self)
-        self.humans_publisher = self.create_publisher(HumanArray, humans_topic, 10)
-        self.marker_publisher = self.create_publisher(MarkerArray, markers_topic, 10)
+        self.humans_publisher = self.create_publisher(HumanArray, '/humans', 10)
+        self.marker_publisher = self.create_publisher(MarkerArray, '/human_markers', 10)
 
         # --- Internal State ---
         self.humans = []
+        self.human_definitions = []
+        try:
+            self.human_definitions = yaml.safe_load(humans_yaml_str)
+            if not isinstance(self.human_definitions, list):
+                self.human_definitions = []
+                self.get_logger().error("Could not parse 'humans_yaml' parameter, it was not a list.")
+        except yaml.YAMLError as e:
+            self.get_logger().error(f"Error parsing 'humans_yaml': {e}")
         
-        # Initialize human data
         self._initialize_humans()
 
         # --- Main Timer ---
-        self.timer_period = 1.0 / self.frequency
+        self.timer_period = 1.0 / 10.0  # Publish at 10 Hz
         self.timer = self.create_timer(self.timer_period, self.update_and_publish)
-        self.get_logger().info(f"Fake Human Publisher started: {self.num_standing} standing, {self.num_sitting} sitting.")
+        self.get_logger().info(f"Choreographed Human Publisher started with {len(self.humans)} humans.")
 
     def _initialize_humans(self):
-        # Initialize STANDING humans
-        for i in range(self.num_standing):
-            human = {
-                'id': f'human_{i}',
-                'type': 'standing',
-                'pos': np.array([random.uniform(self.x_lim[0], self.x_lim[1]),
-                                 random.uniform(self.y_lim[0], self.y_lim[1])]),
-                'vel': self.get_random_velocity()*1.5,
-                'yaw': 0.0
-            }
-            self.humans.append(human)
+        """Initializes humans from the parsed YAML data."""
+        for i, human_def in enumerate(self.human_definitions):
+            try:
+                human = {
+                    'id': f'human_{i}',
+                    'type': human_def.get('type', 'standing'),
+                    'pos': np.array([float(human_def['x']), float(human_def['y'])]),
+                    'vel': np.array([float(human_def['vx']), float(human_def['vy'])])
+                }
+                self.humans.append(human)
+            except (KeyError, TypeError) as e:
+                self.get_logger().error(f"Failed to initialize human {i} due to missing/invalid key: {e}")
 
-        # Initialize SITTING humans
-        for i in range(self.num_standing, self.total_people):
-            human = {
-                'id': f'human_{i}',
-                'type': 'sitting',
-                'pos': np.array([random.uniform(self.x_lim[0], self.x_lim[1]),
-                                 random.uniform(self.y_lim[0], self.y_lim[1])]),
-                'vel': self.get_random_velocity()*0.5,  
-                'yaw': 0.0
-            }
-            self.humans.append(human)
-
-    def get_random_velocity(self):
-        speed = random.uniform(self.min_speed, self.max_speed)
-        angle = random.uniform(0, 2 * math.pi)
-        return np.array([speed * math.cos(angle), speed * math.sin(angle)])
-    
     def update_and_publish(self):
         human_msgs = []
         marker_array = MarkerArray()
         now = self.get_clock().now().to_msg()
         
-        delete_all_marker = Marker()
-        delete_all_marker.action = Marker.DELETEALL
+        delete_all_marker = Marker(); delete_all_marker.action = Marker.DELETEALL
         marker_array.markers.append(delete_all_marker)
 
-        # --- CRITICAL FIX IS HERE ---
-        # Calculate the precise bounce boundary using the human's radius
         wall_y_top = self.y_lim[1] - self.human_radius
         wall_y_bottom = self.y_lim[0] + self.human_radius
         
         for i, human in enumerate(self.humans):
             human['pos'] += human['vel'] * self.timer_period
             
-            # Bounce off left/right ends
             if not (self.x_lim[0] < human['pos'][0] < self.x_lim[1]):
                 human['vel'][0] *= -1.0 
 
-            # Bounce off hallway walls using the corrected boundary
             if (human['pos'][1] > wall_y_top and human['vel'][1] > 0) or \
-            (human['pos'][1] < wall_y_bottom and human['vel'][1] < 0):
+               (human['pos'][1] < wall_y_bottom and human['vel'][1] < 0):
                 human['vel'][1] *= -1.0
 
-            # Clip position to prevent getting stuck
             human['pos'][0] = np.clip(human['pos'][0], self.x_lim[0], self.x_lim[1])
             human['pos'][1] = np.clip(human['pos'][1], self.y_lim[0], self.y_lim[1])
 
-            # --- The rest of your publishing code is unchanged ---
-            base_yaw = math.atan2(human['vel'][1], human['vel'][0])
+            base_yaw = math.atan2(human['vel'][1], human['vel'][0]) if np.linalg.norm(human['vel']) > 0.01 else 0.0
             z_offset = 0.0
             visual_yaw_offset = 0.75 * math.pi
             if human['type'] == 'sitting':
@@ -145,50 +111,24 @@ class FakeHumanPublisher(Node):
                 visual_yaw_offset = math.radians(90.0)
             final_yaw = base_yaw + visual_yaw_offset
             
-            # This part remains the same to publish TFs and Markers
-            t = TransformStamped()
-            t.header.stamp = now
-            t.header.frame_id = self.frame_id
-            t.child_frame_id = human['id']
+            t = TransformStamped(); t.header.stamp = now; t.header.frame_id = self.frame_id; t.child_frame_id = human['id']
             t.transform.translation = Vector3(x=human['pos'][0], y=human['pos'][1], z=z_offset)
-            
-            roll = math.pi / 2.0
-            pitch = 0.0
-            cy = math.cos(final_yaw * 0.5); sy = math.sin(final_yaw * 0.5)
-            cp = math.cos(pitch * 0.5); sp = math.sin(pitch * 0.5)
-            cr = math.cos(roll * 0.5);  sr = math.sin(roll * 0.5)
-
-            q = Quaternion()
-            q.w = cr * cp * cy + sr * sp * sy
-            q.x = sr * cp * cy - cr * sp * sy
-            q.y = cr * sp * cy + sr * cp * sy
-            q.z = cr * cp * sy - sr * sp * cy
+            roll = math.pi / 2.0; pitch = 0.0
+            cy=math.cos(final_yaw*0.5); sy=math.sin(final_yaw*0.5); cp=math.cos(pitch*0.5); sp=math.sin(pitch*0.5); cr=math.cos(roll*0.5); sr=math.sin(roll*0.5)
+            q=Quaternion(); q.w=cr*cp*cy+sr*sp*sy; q.x=sr*cp*cy-cr*sp*sy; q.y=cr*sp*cy+sr*cp*sy; q.z=cr*cp*sy-sr*sp*cy
             t.transform.rotation = q
             self.tf_broadcaster.sendTransform(t)
 
-            hpv_msg = HumanPoseVel()
-            hpv_msg.human_id = human['id']
+            hpv_msg = HumanPoseVel(); hpv_msg.human_id = human['id']
             hpv_msg.position = Point(x=human['pos'][0], y=human['pos'][1], z=z_offset)
             hpv_msg.velocity = Vector3(x=human['vel'][0], y=human['vel'][1], z=0.0)
             human_msgs.append(hpv_msg)
 
-            marker = Marker()
-            marker.header.frame_id = self.frame_id
-            marker.header.stamp = now
-            marker.ns = "human_meshes"
-            marker.id = i
-            marker.action = Marker.ADD
-            marker.type = Marker.MESH_RESOURCE
-            marker.mesh_use_embedded_materials = True
-            
+            marker = Marker(); marker.header.frame_id = self.frame_id; marker.header.stamp = now
+            marker.ns="human_meshes"; marker.id=i; marker.action=Marker.ADD; marker.type=Marker.MESH_RESOURCE; marker.mesh_use_embedded_materials=True
             if human['type'] == 'standing': marker.mesh_resource = self.standing_mesh_path
             else: marker.mesh_resource = self.sitting_mesh_path
-            
-            marker.pose.position.x = human['pos'][0]
-            marker.pose.position.y = human['pos'][1]
-            marker.pose.position.z = z_offset
-            marker.pose.orientation = q
-            marker.scale = Vector3(x=1., y=1., z=1.)
+            marker.pose.position=Point(x=human['pos'][0], y=human['pos'][1], z=z_offset); marker.pose.orientation=q; marker.scale=Vector3(x=1., y=1., z=1.)
             marker_array.markers.append(marker)
 
         self.humans_publisher.publish(HumanArray(header=Header(stamp=now, frame_id=self.frame_id), humans=human_msgs))
@@ -196,16 +136,12 @@ class FakeHumanPublisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    try:
-        node = FakeHumanPublisher()
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
+    node = FakeHumanPublisher()
+    try: rclpy.spin(node)
+    except KeyboardInterrupt: pass
     finally:
-        if 'node' in locals() and rclpy.ok():
-            node.destroy_node()
-        if rclpy.ok():
-            rclpy.shutdown()
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

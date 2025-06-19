@@ -9,6 +9,10 @@ setup.py
 ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/top_level.txt
 ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/zip-safe
 launch/first_scenario_test.launch.py
+launch/scenario_1_gauntlet.launch.py
+launch/scenario_2_crossroads.launch.py
+launch/scenario_3_cluster.launch.py
+launch/scenario_4_emergency.launch.py
 launch/sm_paramtrized_version.launch.py
 launch/view_hallway.launch.py
 models/Slampion/Slampion.dae
