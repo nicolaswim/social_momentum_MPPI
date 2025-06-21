@@ -30,15 +30,17 @@ def generate_launch_description():
 
     # --- Hallway Configuration (Centralized) ---
     hallway_params = {
-        'hallway_length': 25.0,
+        'hallway_length': 20.0,
         'hallway_width': 5.0,
         'wall_thickness': 0.1,
         'wall_height': 2.5,
         'wall_mesh_path': 'package://sm_mppi_planner/models/wall/wall.dae'
     }
 
+    startup_delay_seconds = 10.0
+
     # --- Navigation Goal ---
-    goal = {'x': 12.0, 'y': 0.0}
+    goal = {'x': 9.0, 'y': 0.0}
 
     # --- Planner Configuration ---
     planner_params = {
@@ -49,7 +51,7 @@ def generate_launch_description():
     # --- Human Choreography (YAML String) ---
     humans_yaml_string = """
 - {type: standing, x: -8.0, y: 0.2, vx: 0.6, vy: 0.0}
-- {type: standing, x: 10.0, y: -0.2, vx: -1.83, vy: 0.0}
+- {type: standing, x: 17.0, y: -0.2, vx: -1.83, vy: 0.0}
 """
     
     # --- Human Simulation Parameters ---
@@ -58,9 +60,10 @@ def generate_launch_description():
     
     human_publisher_base_params = {
         'humans_yaml': humans_yaml_string,
-        'human_radius': 0.3,
+        'human_radius': 0.4,
         'x_limits': [-(hallway_params['hallway_length']/2), (hallway_params['hallway_length']/2)],
         'y_limits': [-(hallway_params['hallway_width']/2), (hallway_params['hallway_width']/2)], 
+        'startup_delay': startup_delay_seconds # <-- PASS DELAY TO HUMANS
     }
 
     # --- General Simulation Settings ---
@@ -86,7 +89,7 @@ def generate_launch_description():
     # --- Your Nodes ---
     sm_mppi_planner_node = Node(
         package='sm_mppi_planner', executable='mppi_planner_node', name='sm_mppi_planner_node', output='screen',
-        parameters=[{'use_sim_time':LaunchConfiguration('use_sim_time'),'static_obstacles_yaml':hallway_walls_yaml_string,'static_cost_weight':planner_params['static_cost_weight']}]
+        parameters=[{'use_sim_time':LaunchConfiguration('use_sim_time'),'static_obstacles_yaml':hallway_walls_yaml_string,'static_cost_weight':planner_params['static_cost_weight'], 'startup_delay': startup_delay_seconds}]
     )
 
     goal_publisher_node = Node(
@@ -111,4 +114,4 @@ def generate_launch_description():
     ld.add_action(goal_publisher_node)
     ld.add_action(human_publisher_node)
     ld.add_action(hallway_publisher_node)
-    return ld
+    return ld 

@@ -49,12 +49,22 @@ def generate_launch_description():
         'safety_boundary': 0.2
     }
 
-    # --- Human Choreography (YAML String) ---
+    # --- Human Choreography (YAML String) for 3 Clusters ---
     humans_yaml_string = """
-- {type: standing, x: 1.0, y: 1.5, vx: 0.0, vy: 0.0}
-- {type: standing, x: 1.5, y: 1.2, vx: 0.0, vy: 0.0}
-- {type: sitting,  x: 2.0, y: -2.5,vx: 0.0, vy: 0.43}
-- {type: sitting,  x: 4.0, y: 2.5,vx: 0.0, vy: 0.43}
+    # Group 1: Slow Cluster (0.6 m/s), centered at x=1.5, y=2.0
+    - {type: standing, x: 1.5, y: 2.3, vx: 0.6, vy: 0.0}
+    - {type: standing, x: 1.2, y: 1.8, vx: 0.6, vy: 0.0}
+    - {type: standing, x: 1.2, y: 2.2, vx: 0.6, vy: 0.0}
+
+    # Group 2: Medium Cluster (1.0 m/s), centered at x=4.5, y=-1.0
+    - {type: standing, x: 4.5, y: -0.7, vx: 1.0, vy: 0.0}
+    - {type: standing, x: 4.2, y: -1.2, vx: 1.0, vy: 0.0}
+    - {type: standing, x: 4.2, y: -0.8, vx: 1.0, vy: 0.0}
+
+    # Group 3: Fast Cluster (1.3 m/s), centered at x=7.5, y=0.0
+    - {type: standing, x: 7.8, y: 0.0, vx: 1.3, vy: 0.0}
+    - {type: standing, x: 7.5, y: 0.3, vx: 1.3, vy: 0.0}
+    - {type: standing, x: 7.5, y: -0.3,vx: 1.3, vy: 0.0}
 """
     
     # --- Human Simulation Parameters ---

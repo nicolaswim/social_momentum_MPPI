@@ -9,8 +9,8 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     """
-    SCENARIO 3: The Clustered Obstacle Course (Revised)
-    Tests navigation around static groups and dynamic, complex agents.
+    SCENARIO 4: The Converging Emergency (Revised)
+    Tests behavior in a high-stakes social context with a vulnerable agent.
     """
     
     # --- Package Directories ---
@@ -25,7 +25,7 @@ def generate_launch_description():
     rviz_config_file = os.path.join(pkg_share_dir, 'rviz', 'hallway_test.rviz')
 
     # ===================================================================================
-    # ======================== SCENARIO 3 SETTINGS BLOCK ================================
+    # ======================== SCENARIO 4 SETTINGS BLOCK ================================
     # ===================================================================================
 
     # --- Hallway Configuration (Centralized) ---
@@ -39,9 +39,8 @@ def generate_launch_description():
 
     startup_delay_seconds = 10.0
 
-
     # --- Navigation Goal ---
-    goal = {'x': 7.0, 'y': 0.0}
+    goal = {'x': 9.0, 'y': 0.0}
 
     # --- Planner Configuration ---
     planner_params = {
@@ -52,20 +51,20 @@ def generate_launch_description():
     # --- Human Choreography (YAML String) for 3 Clusters ---
     humans_yaml_string = """
     # Group 1: Slow Cluster (0.6 m/s), centered at x=1.5, y=2.0
-    - {type: standing, x: 1.5, y: 2.3, vx: 0.6, vy: 0.0}
-    - {type: standing, x: 1.2, y: 1.8, vx: 0.6, vy: 0.0}
-    - {type: standing, x: 1.2, y: 2.2, vx: 0.6, vy: 0.0}
+    - {type: standing, x: 9.5, y: 1.3, vx: -0.6, vy: 0.0}
+    - {type: standing, x: 9.2, y: 0.8, vx: -0.6, vy: 0.0}
+    - {type: standing, x: 9.2, y: 1.2, vx: -0.6, vy: 0.0}
 
     # Group 2: Medium Cluster (1.0 m/s), centered at x=4.5, y=-1.0
-    - {type: standing, x: 4.5, y: -0.7, vx: 1.0, vy: 0.0}
-    - {type: standing, x: 4.2, y: -1.2, vx: 1.0, vy: 0.0}
-    - {type: standing, x: 4.2, y: -0.8, vx: 1.0, vy: 0.0}
+    - {type: standing, x: 7.5, y: -1., vx: -1.0, vy: 0.0}
+    - {type: standing, x: 7.2, y: -1.2, vx: -1.0, vy: 0.0}
+    - {type: standing, x: 7.2, y: -1.8, vx: -1.0, vy: 0.0}
 
-    # Group 3: Fast Cluster (1.3 m/s), centered at x=7.5, y=0.0
-    - {type: standing, x: 7.8, y: 0.0, vx: 1.3, vy: 0.0}
-    - {type: standing, x: 7.5, y: 0.3, vx: 1.3, vy: 0.0}
-    - {type: standing, x: 7.5, y: -0.3,vx: 1.3, vy: 0.0}
-"""
+    # # Group 3: Fast Cluster (1.3 m/s), centered at x=7.5, y=0.0
+    # - {type: standing, x: 12.8, y: 0.4, vx: -1.2, vy: 0.0}
+    # - {type: standing, x: 12.5, y: 0.7, vx: -1.2, vy: 0.0}
+    # - {type: standing, x: 12.5, y: 0.1,vx: -1.2, vy: 0.0}
+    """
     
     # --- Human Simulation Parameters ---
     standing_human_mesh_path = 'package://sm_mppi_planner/models/Slampion/Slampion.dae'
@@ -102,7 +101,7 @@ def generate_launch_description():
     # --- Your Nodes ---
     sm_mppi_planner_node = Node(
         package='sm_mppi_planner', executable='mppi_planner_node', name='sm_mppi_planner_node', output='screen',
-        parameters=[{'use_sim_time':LaunchConfiguration('use_sim_time'),'static_obstacles_yaml':hallway_walls_yaml_string,'static_cost_weight':planner_params['static_cost_weight'], 'startup_delay': startup_delay_seconds}],    
+        parameters=[{'use_sim_time':LaunchConfiguration('use_sim_time'),'static_obstacles_yaml':hallway_walls_yaml_string,'static_cost_weight':planner_params['static_cost_weight'], 'startup_delay': startup_delay_seconds}]
     )
 
     goal_publisher_node = Node(
@@ -127,4 +126,4 @@ def generate_launch_description():
     ld.add_action(goal_publisher_node)
     ld.add_action(human_publisher_node)
     ld.add_action(hallway_publisher_node)
-    return ld
+    return ld 

@@ -37,7 +37,7 @@ def generate_launch_description():
         'wall_mesh_path': 'package://sm_mppi_planner/models/wall/wall.dae'
     }
 
-    startup_delay_seconds = 5.0
+    startup_delay_seconds = 10.0
 
     # --- Navigation Goal ---
     goal = {'x': 9.0, 'y': 0.0}
