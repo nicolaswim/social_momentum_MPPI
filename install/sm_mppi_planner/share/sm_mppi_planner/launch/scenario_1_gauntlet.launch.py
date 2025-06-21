@@ -52,7 +52,7 @@ def generate_launch_description():
     humans_yaml_string = """
  - {type: standing, x: -10.0, y: 1.5, vx: 1.43, vy: 0.0}
  - {type: standing, x: -11.0, y: 0.5, vx: 0.7,  vy: 0.0}
- - {type: standing, x: -12.0, y: -1.5,vx: 0.7,  vy: 0.0}
+ - {type: standing, x: -12.0, y: -2.0,vx: 0.7,  vy: 0.0}
  - {type: standing, x: 10.0,  y: -1.5, vx: -1.43,vy: 0.0}
  - {type: standing, x: 8.0,   y: 1.0, vx: -0.6, vy: 0.0}
  - {type: sitting,  x: 9.0,   y: -1.0, vx: -0.23, vy: 0.0}
