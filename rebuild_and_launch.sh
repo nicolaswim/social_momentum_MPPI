@@ -24,6 +24,7 @@ echo "--- Launching the simulation ---"
 # ros2 launch sm_mppi_planner scenario_2_crossroads.launch.py
 # ros2 launch sm_mppi_planner scenario_3_cluster.launch.py
 # ros2 launch sm_mppi_planner scenario_4_emergency.launch.py 
-ros2 launch sm_mppi_planner scenario_5_groups.launch.py
+# ros2 launch sm_mppi_planner scenario_5_groups.launch.py
 
 # ros2 launch sm_mppi_planner testing_wheelchairs.launch.py
+ros2 launch sm_mppi_planner scenario_1_gazebo_nav.launch.py
