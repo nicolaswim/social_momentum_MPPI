@@ -40,6 +40,12 @@ class MPPLocalPlannerMPPI(Node):
 
         # --- PARAMETER HANDLING SECTION ---
 
+        # ADDED: New parameter for the startup delay
+        self.declare_parameter('startup_delay', 0.0)
+        delay_seconds = self.get_parameter('startup_delay').value
+        self.planner_initial_tf_wait_duration = Duration(seconds=delay_seconds)
+        self.get_logger().info(f"Using a startup delay of {delay_seconds} seconds.")
+
         # Declare and get goal tolerances
         self.declare_parameter('goal_xy_tolerance', 0.15)
         self.declare_parameter('goal_yaw_tolerance', 0.15)

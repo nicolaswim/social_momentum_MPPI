@@ -37,6 +37,8 @@ def generate_launch_description():
         'wall_mesh_path': 'package://sm_mppi_planner/models/wall/wall.dae'
     }
 
+    startup_delay_seconds = 5.0
+
     # --- Navigation Goal ---
     goal = {'x': 9.0, 'y': 0.0}
 
@@ -45,16 +47,18 @@ def generate_launch_description():
         'static_cost_weight': 25.0,
         'safety_boundary': 0.2
     }
-
-    # --- Human Choreography (YAML String) ---
+    
+#     # --- Human Choreography (YAML String) ---
     humans_yaml_string = """
-- {type: standing, x: -10.0, y: 1.5, vx: 1.43, vy: 0.0}
-- {type: standing, x: -11.0, y: 0.5, vx: 0.7,  vy: 0.0}
-- {type: standing, x: -12.0, y: -1.5,vx: 0.7,  vy: 0.0}
-- {type: standing, x: 10.0,  y: -1.5, vx: -1.43,vy: 0.0}
-- {type: standing, x: 8.0,   y: 1.0, vx: -0.6, vy: 0.0}
-- {type: sitting,  x: 9.0,   y: -1.0, vx: -0.43, vy: 0.0}
+ - {type: standing, x: -10.0, y: 1.5, vx: 1.43, vy: 0.0}
+ - {type: standing, x: -11.0, y: 0.5, vx: 0.7,  vy: 0.0}
+ - {type: standing, x: -12.0, y: -1.5,vx: 0.7,  vy: 0.0}
+ - {type: standing, x: 10.0,  y: -1.5, vx: -1.43,vy: 0.0}
+ - {type: standing, x: 8.0,   y: 1.0, vx: -0.6, vy: 0.0}
+ - {type: sitting,  x: 9.0,   y: -1.0, vx: -0.23, vy: 0.0}
+
 """
+    
     
     # --- Human Simulation Parameters ---
     standing_human_mesh_path = 'package://sm_mppi_planner/models/Slampion/Slampion.dae'
@@ -65,6 +69,7 @@ def generate_launch_description():
         'human_radius': 0.3,
         'x_limits': [-(hallway_params['hallway_length']/2), (hallway_params['hallway_length']/2)],
         'y_limits': [-(hallway_params['hallway_width']/2), (hallway_params['hallway_width']/2)], 
+        'startup_delay': startup_delay_seconds # <-- PASS DELAY TO HUMANS
     }
 
     # --- General Simulation Settings ---

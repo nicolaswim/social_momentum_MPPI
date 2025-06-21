@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
+from rclpy.duration import Duration
 import numpy as np
 import math
 import sys
@@ -32,6 +33,7 @@ class FakeHumanPublisher(Node):
         self.declare_parameter('world_frame_id', 'odom')
         self.declare_parameter('standing_human_mesh_path', '')
         self.declare_parameter('sitting_human_mesh_path', '')
+        self.declare_parameter('startup_delay', 0.0) # <-- ADDED
 
         # Get parameters
         humans_yaml_str = self.get_parameter('humans_yaml').value
@@ -41,7 +43,7 @@ class FakeHumanPublisher(Node):
         self.frame_id = self.get_parameter('world_frame_id').value
         self.standing_mesh_path = self.get_parameter('standing_human_mesh_path').value
         self.sitting_mesh_path = self.get_parameter('sitting_human_mesh_path').value
-
+        delay_seconds = self.get_parameter('startup_delay').value # <-- ADDED
         # --- Publishers and TF Broadcaster ---
         self.tf_broadcaster = TransformBroadcaster(self)
         self.humans_publisher = self.create_publisher(HumanArray, '/humans', 10)
@@ -49,6 +51,8 @@ class FakeHumanPublisher(Node):
 
         # --- Internal State ---
         self.humans = []
+        self.delay_duration = Duration(seconds=delay_seconds) # <-- ADDED
+        self.start_time = self.get_clock().now() # <-- ADDED
         self.human_definitions = []
         try:
             self.human_definitions = yaml.safe_load(humans_yaml_str)
@@ -80,6 +84,8 @@ class FakeHumanPublisher(Node):
                 self.get_logger().error(f"Failed to initialize human {i} due to missing/invalid key: {e}")
 
     def update_and_publish(self):
+
+        is_delay_active = self.get_clock().now() < self.start_time + self.delay_duration
         human_msgs = []
         marker_array = MarkerArray()
         now = self.get_clock().now().to_msg()

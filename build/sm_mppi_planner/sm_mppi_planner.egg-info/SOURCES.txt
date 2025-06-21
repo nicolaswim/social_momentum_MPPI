@@ -14,6 +14,7 @@ launch/scenario_2_crossroads.launch.py
 launch/scenario_3_cluster.launch.py
 launch/scenario_4_emergency.launch.py
 launch/sm_paramtrized_version.launch.py
+launch/testing_wheelchairs.launch.py
 launch/view_hallway.launch.py
 models/Slampion/Slampion.dae
 models/Slampion/model.config
