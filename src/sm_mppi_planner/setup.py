@@ -44,6 +44,12 @@ setup(
 
         (os.path.join('share', package_name, 'models/wall'), glob('models/wall/*')),
 
+        (os.path.join('share', package_name, 'models/hallway_world'), glob('models/hallway_world/*')),
+        (os.path.join('share', package_name, 'models/social_human'), glob('models/social_human/*')),
+        (os.path.join('share', package_name, 'models/social_wheelchair'), glob('models/social_wheelchair/*')),
+
+
+
         
     ],
     install_requires=[
