@@ -30,12 +30,15 @@ def generate_launch_description():
 
     # --- Hallway Configuration (Centralized) ---
     hallway_params = {
-        'hallway_length': 15.0,
+        'hallway_length': 20.0,
         'hallway_width': 5.0,
         'wall_thickness': 0.1,
         'wall_height': 2.5,
         'wall_mesh_path': 'package://sm_mppi_planner/models/wall/wall.dae'
     }
+
+    startup_delay_seconds = 10.0
+
 
     # --- Navigation Goal ---
     goal = {'x': 7.0, 'y': 0.0}
@@ -48,9 +51,10 @@ def generate_launch_description():
 
     # --- Human Choreography (YAML String) ---
     humans_yaml_string = """
-- {type: standing, x: 0.0, y: 1.5, vx: 0.0, vy: 0.0}
-- {type: standing, x: 0.5, y: 1.2, vx: 0.0, vy: 0.0}
+- {type: standing, x: 1.0, y: 1.5, vx: 0.0, vy: 0.0}
+- {type: standing, x: 1.5, y: 1.2, vx: 0.0, vy: 0.0}
 - {type: sitting,  x: 2.0, y: -2.5,vx: 0.0, vy: 0.43}
+- {type: sitting,  x: 4.0, y: 2.5,vx: 0.0, vy: 0.43}
 """
     
     # --- Human Simulation Parameters ---
@@ -59,9 +63,10 @@ def generate_launch_description():
     
     human_publisher_base_params = {
         'humans_yaml': humans_yaml_string,
-        'human_radius': 0.3,
+        'human_radius': 0.4,
         'x_limits': [-(hallway_params['hallway_length']/2), (hallway_params['hallway_length']/2)],
         'y_limits': [-(hallway_params['hallway_width']/2), (hallway_params['hallway_width']/2)], 
+        'startup_delay': startup_delay_seconds # <-- PASS DELAY TO HUMANS
     }
 
     # --- General Simulation Settings ---
@@ -87,7 +92,7 @@ def generate_launch_description():
     # --- Your Nodes ---
     sm_mppi_planner_node = Node(
         package='sm_mppi_planner', executable='mppi_planner_node', name='sm_mppi_planner_node', output='screen',
-        parameters=[{'use_sim_time':LaunchConfiguration('use_sim_time'),'static_obstacles_yaml':hallway_walls_yaml_string,'static_cost_weight':planner_params['static_cost_weight']}]
+        parameters=[{'use_sim_time':LaunchConfiguration('use_sim_time'),'static_obstacles_yaml':hallway_walls_yaml_string,'static_cost_weight':planner_params['static_cost_weight'], 'startup_delay': startup_delay_seconds}],    
     )
 
     goal_publisher_node = Node(

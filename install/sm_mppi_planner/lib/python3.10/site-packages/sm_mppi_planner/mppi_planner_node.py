@@ -43,7 +43,7 @@ class MPPLocalPlannerMPPI(Node):
         # ADDED: New parameter for the startup delay
         self.declare_parameter('startup_delay', 0.0)
         delay_seconds = self.get_parameter('startup_delay').value
-        self.planner_initial_tf_wait_duration = Duration(seconds=delay_seconds)
+        # self.planner_initial_tf_wait_duration = Duration(seconds=delay_seconds)
         self.get_logger().info(f"Using a startup delay of {delay_seconds} seconds.")
 
         # Declare and get goal tolerances
@@ -97,7 +97,7 @@ class MPPLocalPlannerMPPI(Node):
         self.previous_agent_states = {i: torch.zeros_like(self.agent_states[0]) for i in range(ACTIVE_AGENTS)}
         self.goal_topic_name = "/goal_pose"
         self.goal_subscriber = self.create_subscription(PoseStamped,self.goal_topic_name,self.goal_callback,10)
-        self.planner_initial_tf_wait_duration = Duration(seconds=1.0)
+        self.planner_initial_tf_wait_duration = Duration(seconds=delay_seconds)
         self.get_logger().info("MPPI Local Planner Node Initialized Successfully.")
     
 

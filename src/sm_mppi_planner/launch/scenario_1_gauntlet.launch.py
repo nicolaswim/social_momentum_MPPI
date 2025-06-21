@@ -52,10 +52,9 @@ def generate_launch_description():
     humans_yaml_string = """
  - {type: standing, x: -10.0, y: 1.5, vx: 1.43, vy: 0.0}
  - {type: standing, x: -11.0, y: 0.5, vx: 0.7,  vy: 0.0}
- - {type: standing, x: -12.0, y: -2.0,vx: 0.7,  vy: 0.0}
  - {type: standing, x: 10.0,  y: -1.5, vx: -1.43,vy: 0.0}
  - {type: standing, x: 8.0,   y: 1.0, vx: -0.6, vy: 0.0}
- - {type: sitting,  x: 9.0,   y: -1.0, vx: -0.23, vy: 0.0}
+ - {type: sitting,  x: 9.0,   y: -0.6, vx: -0.23, vy: 0.0}
 
 """
     
@@ -66,7 +65,7 @@ def generate_launch_description():
     
     human_publisher_base_params = {
         'humans_yaml': humans_yaml_string,
-        'human_radius': 0.3,
+        'human_radius': 0.4,
         'x_limits': [-(hallway_params['hallway_length']/2), (hallway_params['hallway_length']/2)],
         'y_limits': [-(hallway_params['hallway_width']/2), (hallway_params['hallway_width']/2)], 
         'startup_delay': startup_delay_seconds # <-- PASS DELAY TO HUMANS
@@ -95,7 +94,7 @@ def generate_launch_description():
     # --- Your Nodes ---
     sm_mppi_planner_node = Node(
         package='sm_mppi_planner', executable='mppi_planner_node', name='sm_mppi_planner_node', output='screen',
-        parameters=[{'use_sim_time':LaunchConfiguration('use_sim_time'),'static_obstacles_yaml':hallway_walls_yaml_string,'static_cost_weight':planner_params['static_cost_weight']}]
+        parameters=[{'use_sim_time':LaunchConfiguration('use_sim_time'),'static_obstacles_yaml':hallway_walls_yaml_string,'static_cost_weight':planner_params['static_cost_weight'], 'startup_delay': startup_delay_seconds}]
     )
 
     goal_publisher_node = Node(

@@ -33,19 +33,21 @@ class FakeHumanPublisher(Node):
         super().__init__('fake_human_publisher')
         
         # --- Parameters ---
+        self.declare_parameter('startup_delay', 0.0) # <-- ADDED
         self.declare_parameter('humans_yaml', '[]')
         self.declare_parameter('x_limits', [-20.0, 20.0])
         self.declare_parameter('y_limits', [-2.5, 2.5])
         self.declare_parameter('human_radius', 0.3)
         self.declare_parameter('robot_radius', 0.4)
         self.declare_parameter('collision_safety_margin', 0.1)
-        self.declare_parameter('sidestep_distance', 0.01) # <-- NEW: How far to step left (1cm)
+        self.declare_parameter('sidestep_distance', 0.01)
         self.declare_parameter('world_frame_id', 'odom')
         self.declare_parameter('robot_frame_id', 'base_link')
         self.declare_parameter('standing_human_mesh_path', '')
         self.declare_parameter('sitting_human_mesh_path', '')
 
         # Get parameters
+        delay_seconds = self.get_parameter('startup_delay').value # <-- ADDED
         humans_yaml_str = self.get_parameter('humans_yaml').value
         self.x_lim = self.get_parameter('x_limits').value
         self.y_lim = self.get_parameter('y_limits').value
@@ -70,6 +72,8 @@ class FakeHumanPublisher(Node):
 
         # --- Internal State ---
         self.humans = []
+        self.delay_duration = Duration(seconds=delay_seconds) # <-- ADDED
+        self.start_time = self.get_clock().now() # <-- ADDED
         self.human_definitions = []
         try:
             self.human_definitions = yaml.safe_load(humans_yaml_str)
@@ -82,8 +86,7 @@ class FakeHumanPublisher(Node):
         # --- Main Timer ---
         self.timer_period = 1.0 / 10.0
         self.timer = self.create_timer(self.timer_period, self.update_and_publish)
-        self.get_logger().info(f"Choreographed Human Publisher started with {len(self.humans)} humans.")
-        self.get_logger().info(f"Collision check activated with sidestepping behavior.")
+        self.get_logger().info(f"Choreographed Human Publisher started with {len(self.humans)} humans and a {delay_seconds}s delay.")
 
     def _initialize_humans(self):
         for i, human_def in enumerate(self.human_definitions):
@@ -99,6 +102,9 @@ class FakeHumanPublisher(Node):
                 self.get_logger().error(f"Failed to initialize human {i} due to missing/invalid key: {e}")
 
     def update_and_publish(self):
+        # Check if the delay period is active
+        is_delay_active = self.get_clock().now() < self.start_time + self.delay_duration
+
         # Update robot's position from TF
         try:
             transform = self.tf_buffer.lookup_transform(self.frame_id, self.robot_frame_id, rclpy.time.Time())
@@ -116,29 +122,26 @@ class FakeHumanPublisher(Node):
         
         for i, human in enumerate(self.humans):
             distance_to_robot = np.linalg.norm(human['pos'] - self.robot_pos)
-            is_colliding = distance_to_robot < self.collision_threshold
+            is_colliding_with_robot = distance_to_robot < self.collision_threshold
             
             current_tick_velocity = np.array([0.0, 0.0])
 
-            if is_colliding:
-                # --- AVOIDING BEHAVIOR ---
-                # Calculate the "left" vector relative to intended velocity
-                if np.linalg.norm(human['vel']) > 1e-5:
-                    direction_vec = human['vel'] / np.linalg.norm(human['vel'])
-                else: # If human is stationary, default "left" to world -Y
-                    direction_vec = np.array([1.0, 0.0])
-                
-                # Rotate direction by +90 degrees to get "left"
-                left_vec = np.array([-direction_vec[1], direction_vec[0]])
-                
-                # Apply a small sidestep and then stop for this tick
-                human['pos'] += left_vec * self.sidestep_dist
-            else:
-                # --- NORMAL MOVING BEHAVIOR ---
-                current_tick_velocity = human['vel']
-                human['pos'] += current_tick_velocity * self.timer_period
+            # Apply movement logic only if the initial delay is over
+            if not is_delay_active:
+                if is_colliding_with_robot:
+                    # Sidestep behavior
+                    if np.linalg.norm(human['vel']) > 1e-5:
+                        direction_vec = human['vel'] / np.linalg.norm(human['vel'])
+                    else: 
+                        direction_vec = np.array([1.0, 0.0])
+                    left_vec = np.array([-direction_vec[1], direction_vec[0]])
+                    human['pos'] += left_vec * self.sidestep_dist
+                else:
+                    # Normal forward movement
+                    current_tick_velocity = human['vel']
+                    human['pos'] += current_tick_velocity * self.timer_period
             
-            # Wall bounce logic
+            # Wall bounce logic (always active)
             if not (self.x_lim[0] < human['pos'][0] < self.x_lim[1]):
                 human['vel'][0] *= -1.0 
             if (human['pos'][1] > wall_y_top and human['vel'][1] > 0) or \
