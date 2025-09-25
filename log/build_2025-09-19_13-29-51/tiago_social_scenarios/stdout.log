@@ -1,0 +1,54 @@
+running egg_info
+creating ../../build/tiago_social_scenarios/tiago_social_scenarios.egg-info
+writing ../../build/tiago_social_scenarios/tiago_social_scenarios.egg-info/PKG-INFO
+writing dependency_links to ../../build/tiago_social_scenarios/tiago_social_scenarios.egg-info/dependency_links.txt
+writing entry points to ../../build/tiago_social_scenarios/tiago_social_scenarios.egg-info/entry_points.txt
+writing requirements to ../../build/tiago_social_scenarios/tiago_social_scenarios.egg-info/requires.txt
+writing top-level names to ../../build/tiago_social_scenarios/tiago_social_scenarios.egg-info/top_level.txt
+writing manifest file '../../build/tiago_social_scenarios/tiago_social_scenarios.egg-info/SOURCES.txt'
+reading manifest file '../../build/tiago_social_scenarios/tiago_social_scenarios.egg-info/SOURCES.txt'
+writing manifest file '../../build/tiago_social_scenarios/tiago_social_scenarios.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/tiago_social_scenarios/build
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/tiago_social_scenarios/build/lib
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/tiago_social_scenarios/build/lib/tiago_social_scenarios
+copying tiago_social_scenarios/gazebo_human_controller.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/tiago_social_scenarios/build/lib/tiago_social_scenarios
+copying tiago_social_scenarios/__init__.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/tiago_social_scenarios/build/lib/tiago_social_scenarios
+running install
+running install_lib
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/lib/python3.10/site-packages/tiago_social_scenarios
+copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/tiago_social_scenarios/build/lib/tiago_social_scenarios/gazebo_human_controller.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/lib/python3.10/site-packages/tiago_social_scenarios
+copying /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/tiago_social_scenarios/build/lib/tiago_social_scenarios/__init__.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/lib/python3.10/site-packages/tiago_social_scenarios
+byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/lib/python3.10/site-packages/tiago_social_scenarios/gazebo_human_controller.py to gazebo_human_controller.cpython-310.pyc
+byte-compiling /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/lib/python3.10/site-packages/tiago_social_scenarios/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/ament_index
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/ament_index/resource_index
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/ament_index/resource_index/packages
+copying resource/tiago_social_scenarios -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/ament_index/resource_index/packages
+copying package.xml -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/launch
+copying launch/my_world_nav.launch.py -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/launch
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/maps
+copying maps/hallway_map.yaml -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/maps
+copying maps/hallway_map.pgm -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/maps
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/hallway_world
+copying models/hallway_world/model.sdf -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/hallway_world
+copying models/hallway_world/model.config -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/hallway_world
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/social_human
+copying models/social_human/model.sdf -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/social_human
+copying models/social_human/model.config -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/social_human
+copying models/social_human/Slampion.dae -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/social_human
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/social_wheelchair
+copying models/social_wheelchair/wheelchair.dae -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/social_wheelchair
+copying models/social_wheelchair/model.sdf -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/social_wheelchair
+copying models/social_wheelchair/model.config -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/social_wheelchair
+creating /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/worlds
+copying worlds/scenario_1.world -> /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/worlds
+running install_egg_info
+Copying ../../build/tiago_social_scenarios/tiago_social_scenarios.egg-info to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/lib/python3.10/site-packages/tiago_social_scenarios-0.0.1-py3.10.egg-info
+running install_scripts
+Installing gazebo_human_controller script to /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/lib/tiago_social_scenarios
+writing list of installed files to '/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/tiago_social_scenarios/install.log'

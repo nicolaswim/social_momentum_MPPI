@@ -1,0 +1,23 @@
+[0.017s] Invoking command in '/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/follower_plugin': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/wim/tiago_public_ws/install/launch_pal:/opt/ros/humble /usr/bin/cmake --build /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/follower_plugin -- -j12 -l12
+[0.075s] [35m[1mConsolidate compiler generated dependencies of target follower_plugin[0m
+[0.181s] [100%] Built target follower_plugin
+[0.192s] Invoked command in '/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/follower_plugin' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/wim/tiago_public_ws/install/launch_pal:/opt/ros/humble /usr/bin/cmake --build /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/follower_plugin -- -j12 -l12
+[0.204s] Invoking command in '/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/follower_plugin': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/wim/tiago_public_ws/install/launch_pal:/opt/ros/humble /usr/bin/cmake --install /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/follower_plugin
+[0.212s] -- Install configuration: ""
+[0.212s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/ament_index/resource_index/package_run_dependencies/follower_plugin
+[0.212s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/ament_index/resource_index/parent_prefix_path/follower_plugin
+[0.213s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/environment/ament_prefix_path.sh
+[0.213s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/environment/ament_prefix_path.dsv
+[0.213s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/environment/path.sh
+[0.213s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/environment/path.dsv
+[0.213s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/local_setup.bash
+[0.213s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/local_setup.sh
+[0.213s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/local_setup.zsh
+[0.213s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/local_setup.dsv
+[0.213s] -- Installing: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/package.dsv
+[0.214s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/ament_index/resource_index/packages/follower_plugin
+[0.214s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/cmake/follower_pluginConfig.cmake
+[0.214s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/cmake/follower_pluginConfig-version.cmake
+[0.214s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/package.xml
+[0.214s] -- Up-to-date: /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/lib/libfollower_plugin.so
+[0.216s] Invoked command in '/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/follower_plugin' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/wim/tiago_public_ws/install/launch_pal:/opt/ros/humble /usr/bin/cmake --install /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/build/follower_plugin

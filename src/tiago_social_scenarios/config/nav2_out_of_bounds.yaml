@@ -1,0 +1,30 @@
+planner_server:
+  ros__parameters:
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      allow_unknown: true
+      tolerance: 1.0
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      global_frame: map
+      robot_base_frame: base_link
+      use_sim_time: true
+      track_unknown_space: true
+      rolling_window: true
+      width: 50.0
+      height: 50.0
+      resolution: 0.05
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      global_frame: odom
+      robot_base_frame: base_link
+      use_sim_time: true
+      rolling_window: true
+      width: 6.0
+      height: 6.0
+      resolution: 0.05

@@ -1,0 +1,16 @@
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/ament_index/resource_index/package_run_dependencies/follower_plugin
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/ament_index/resource_index/parent_prefix_path/follower_plugin
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/environment/ament_prefix_path.sh
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/environment/ament_prefix_path.dsv
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/environment/path.sh
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/environment/path.dsv
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/local_setup.bash
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/local_setup.sh
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/local_setup.zsh
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/local_setup.dsv
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/package.dsv
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/ament_index/resource_index/packages/follower_plugin
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/cmake/follower_pluginConfig.cmake
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/cmake/follower_pluginConfig-version.cmake
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/share/follower_plugin/package.xml
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/follower_plugin/lib/libfollower_plugin.so

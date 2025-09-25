@@ -1,0 +1,24 @@
+planner_server:
+  ros__parameters:
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      allow_unknown: true     # <- KEY
+      tolerance: 1.0
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      track_unknown_space: true
+      # keep inflation tight so start isn't "inside an obstacle"
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      inflation_layer:
+        plugin: "nav2_costmap_2d/InflationLayer"
+        inflation_radius: 0.4
+        cost_scaling_factor: 3.0
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      inflation_layer:
+        inflation_radius: 0.3

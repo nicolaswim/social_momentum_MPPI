@@ -10,7 +10,6 @@ setup.py
 ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/zip-safe
 launch/first_scenario_test.launch.py
 launch/scenario_1_gauntlet.launch.py
-launch/scenario_1_gazebo_nav.launch.py
 launch/scenario_2_crossroads.launch.py
 launch/scenario_3_cluster.launch.py
 launch/scenario_5_groups.launch.py
@@ -23,14 +22,6 @@ models/Slampion/model.sdf
 models/Slampion/textures/7319b16a17fda36440b2da1cfb01d220.jpg
 models/Slampion/textures/d1dde46e1aa3e40a3f8c3a38b560054a.jpg
 models/Slampion/textures/ff4c81ee240b216b5338a5b02394500f.jpg
-models/hallway_world/model.config
-models/hallway_world/model.sdf
-models/social_human/Slampion.dae
-models/social_human/model.config
-models/social_human/model.sdf
-models/social_wheelchair/model.config
-models/social_wheelchair/model.sdf
-models/social_wheelchair/wheelchair.dae
 models/walking_human/model.config
 models/walking_human/model.sdf
 models/walking_human/meshes/moonwalk.dae
@@ -48,7 +39,6 @@ rviz/hallway_test2.rviz
 sm_mppi_planner/__init__.py
 sm_mppi_planner/config.py
 sm_mppi_planner/fake_human_publisher.py
-sm_mppi_planner/gazebo_human_controller.py
 sm_mppi_planner/goal_publisher_node.py
 sm_mppi_planner/hallway_publisher.py
 sm_mppi_planner/mppi_planner_node.py

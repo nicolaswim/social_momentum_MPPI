@@ -1,0 +1,4 @@
+source;share/follower_plugin/local_setup.bash
+source;share/follower_plugin/local_setup.dsv
+source;share/follower_plugin/local_setup.sh
+source;share/follower_plugin/local_setup.zsh

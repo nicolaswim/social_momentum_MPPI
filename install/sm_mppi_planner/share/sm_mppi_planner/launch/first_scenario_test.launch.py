@@ -9,8 +9,8 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     """
-    This launch file starts the TIAGo simulation and the social MPPI planner.
-    All key parameters are defined in a simple 'SETTINGS' block at the top.
+    SCENARIO 1: The Bidirectional Flow Gauntlet (Revised)
+    Tests navigation in a dense, two-way corridor with heterogeneous agents.
     """
     
     # --- Package Directories ---
@@ -25,7 +25,7 @@ def generate_launch_description():
     rviz_config_file = os.path.join(pkg_share_dir, 'rviz', 'hallway_test.rviz')
 
     # ===================================================================================
-    # ======================== EASY SETTINGS CONFIGURATION BLOCK ========================
+    # ======================== SCENARIO 1 SETTINGS BLOCK ================================
     # ===================================================================================
 
     # --- Hallway Configuration (Centralized) ---
@@ -37,42 +37,42 @@ def generate_launch_description():
         'wall_mesh_path': 'package://sm_mppi_planner/models/wall/wall.dae'
     }
 
-    # --- Navigation Goal ---
-    goal = {'x': 0.0, 'y': 5.0} # Example goal near the end of the hallway
+    startup_delay_seconds = 10.0
 
-    # --- Human Simulation ---
+    # --- Navigation Goal ---
+    goal = {'x': 9.0, 'y': 0.0}
+
+    # --- Planner Configuration ---
+    planner_params = {
+        'static_cost_weight': 25.0,
+        'safety_boundary': 0.2
+    }
+    
+#     # --- Human Choreography (YAML String) ---
+    humans_yaml_string = """
+ - {type: standing, x: -10.0, y: 1.5, vx: 1.43, vy: 0.0}
+ - {type: standing, x: -11.0, y: 0.5, vx: 0.7,  vy: 0.0}
+ - {type: standing, x: 10.0,  y: -1.5, vx: -1.43,vy: 0.0}
+ - {type: standing, x: 8.0,   y: 1.0, vx: -0.6, vy: 0.0}
+ - {type: sitting,  x: 9.0,   y: -0.6, vx: -0.23, vy: 0.0}
+
+"""
+    
+    
+    # --- Human Simulation Parameters ---
     standing_human_mesh_path = 'package://sm_mppi_planner/models/Slampion/Slampion.dae'
     sitting_human_mesh_path = 'package://sm_mppi_planner/models/wheelchair/wheelchair.dae' 
     
-    human_simulation_params = {
-        'total_people': 4,
-        'people_standing_up': 4,
-        'human_radius': 0.3,
-        # Dynamically set human limits based on hallway dimensions
+    human_publisher_base_params = {
+        'humans_yaml': humans_yaml_string,
+        'human_radius': 0.4,
         'x_limits': [-(hallway_params['hallway_length']/2), (hallway_params['hallway_length']/2)],
         'y_limits': [-(hallway_params['hallway_width']/2), (hallway_params['hallway_width']/2)], 
-        'human_max_speed': 0.3,
-        'human_min_speed': 0.1,
+        'startup_delay': startup_delay_seconds # <-- PASS DELAY TO HUMANS
     }
-
-    hw = hallway_params['hallway_width'] / 2.0
-    hl = hallway_params['hallway_length'] / 2.0
-    wt = hallway_params['wall_thickness'] / 2.0
-
-    # NEW: Define the invisible safety boundary
-    safety_boundary = 0.2 
-
-    # The YAML string now uses the safety_boundary to create "inflated" walls for the planner
-    hallway_walls_yaml_string = f"""
-    [
-        [{-hl}, {hw + wt + safety_boundary}, {hl}, {hw + wt + safety_boundary}, {hl}, {hw - wt - safety_boundary}, {-hl}, {hw - wt - safety_boundary}],
-        [{-hl}, {-hw - wt - safety_boundary}, {hl}, {-hw - wt - safety_boundary}, {hl}, {-hw + wt + safety_boundary}, {-hl}, {-hw + wt + safety_boundary}]
-    ]
-    """
 
     # --- General Simulation Settings ---
     use_sim_time_arg = DeclareLaunchArgument('use_sim_time', default_value='true')
-    world_name_arg = DeclareLaunchArgument('world_name', default_value='empty')
     launch_rviz_arg = DeclareLaunchArgument('launch_rviz', default_value='true')
     launch_gazebo_arg = DeclareLaunchArgument('launch_gazebo', default_value='true')
         
@@ -80,96 +80,43 @@ def generate_launch_description():
     # ============== END OF SETTINGS - NO NEED TO EDIT BELOW THIS LINE ==================
     # ===================================================================================
 
+    # --- Dynamic Generation of Planner Obstacles ---
+    hw=hallway_params['hallway_width']/2.0; hl=hallway_params['hallway_length']/2.0
+    wt=hallway_params['wall_thickness']/2.0; sb=planner_params['safety_boundary']
+    hallway_walls_yaml_string=f"[[{-hl},{hw+wt+sb},{hl},{hw+wt+sb},{hl},{hw-wt-sb},{-hl},{hw-wt-sb}],[{-hl},{-hw-wt-sb},{hl},{-hw-wt-sb},{hl},{-hw+wt+sb},{-hl},{-hw+wt+sb}]]"
+    
     # --- Gazebo Simulation ---
-    tiago_simulation_group = GroupAction(
-        condition=IfCondition(LaunchConfiguration('launch_gazebo')),
-        actions=[
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(tiago_gazebo_pkg_share_dir, 'launch', 'tiago_gazebo.launch.py')
-                ),
-                launch_arguments={
-                    'is_public_sim': 'True',
-                    'world_name': LaunchConfiguration('world_name'),
-                    'use_sim_time': LaunchConfiguration('use_sim_time'),
-                }.items(),
-                condition=IfCondition(PythonExpression([f"'{tiago_gazebo_pkg_share_dir}' != ''"]))
-            )
-        ]
-    )
+    tiago_simulation_group = GroupAction(condition=IfCondition(LaunchConfiguration('launch_gazebo')),actions=[IncludeLaunchDescription(PythonLaunchDescriptionSource(os.path.join(tiago_gazebo_pkg_share_dir,'launch','tiago_gazebo.launch.py')),launch_arguments={'is_public_sim':'True','world_name':'my_world','use_sim_time':LaunchConfiguration('use_sim_time')}.items(),condition=IfCondition(PythonExpression([f"'{tiago_gazebo_pkg_share_dir}'!=''"])))])
 
     # --- RViz ---
-    rviz_with_ld_preload_action = ExecuteProcess(
-        cmd=['bash', '-c', f"LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 rviz2 -d {rviz_config_file} --ros-args -p use_sim_time:=true"],
-        output='screen',
-        condition=IfCondition(LaunchConfiguration('launch_rviz'))
-    )
+    rviz_with_ld_preload_action=ExecuteProcess(cmd=['bash','-c',f"LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 rviz2 -d {rviz_config_file} --ros-args -p use_sim_time:=true"],output='screen',condition=IfCondition(LaunchConfiguration('launch_rviz')))
 
     # --- Your Nodes ---
     sm_mppi_planner_node = Node(
-        package='sm_mppi_planner',
-        executable='mppi_planner_node',
-        name='sm_mppi_planner_node',
-        output='screen',
-        parameters=[
-            {'use_sim_time': LaunchConfiguration('use_sim_time')},
-            {'static_obstacles_yaml': hallway_walls_yaml_string},
-        ]
+        package='sm_mppi_planner', executable='mppi_planner_node', name='sm_mppi_planner_node', output='screen',
+        parameters=[{'use_sim_time':LaunchConfiguration('use_sim_time'),'static_obstacles_yaml':hallway_walls_yaml_string,'static_cost_weight':planner_params['static_cost_weight'], 'startup_delay': startup_delay_seconds}]
     )
 
     goal_publisher_node = Node(
-        package='sm_mppi_planner',
-        executable='goal_publisher_node',
-        name='goal_publisher_node',
-        output='screen',
-        parameters=[
-            {'use_sim_time': LaunchConfiguration('use_sim_time')},
-            {'goal_x': goal['x']},
-            {'goal_y': goal['y']}
-        ]
+        package='sm_mppi_planner', executable='goal_publisher_node', name='goal_publisher_node', output='screen',
+        parameters=[{'use_sim_time':LaunchConfiguration('use_sim_time'),'goal_x':goal['x'],'goal_y':goal['y']}]
     )
     
     human_publisher_full_params = {
-        'use_sim_time': LaunchConfiguration('use_sim_time'),
-        'world_frame_id': 'odom',
-        'publish_frequency': 10.0,
-        'humans_topic': '/humans',
-        'markers_topic': '/human_markers',
-        'standing_human_mesh_path': standing_human_mesh_path, 
-        'sitting_human_mesh_path': sitting_human_mesh_path, 
+        'use_sim_time':LaunchConfiguration('use_sim_time'),'world_frame_id':'odom','standing_human_mesh_path':standing_human_mesh_path,'sitting_human_mesh_path':sitting_human_mesh_path,
     }
-    human_publisher_full_params.update(human_simulation_params)
+    human_publisher_full_params.update(human_publisher_base_params)
+    human_publisher_node=Node(package='sm_mppi_planner',executable='fake_human_publisher',name='fake_human_publisher',output='screen',parameters=[human_publisher_full_params])
 
-    human_publisher_node = Node(
-        package='sm_mppi_planner',
-        executable='fake_human_publisher',
-        name='fake_human_publisher',
-        output='screen',
-        parameters=[human_publisher_full_params]
-    )
-
-    # UPDATED: Pass the hallway parameters to the publisher node
-    hallway_publisher_node = Node(
-        package='sm_mppi_planner',
-        executable='hallway_publisher',
-        name='hallway_publisher',
-        output='screen',
-        parameters=[hallway_params]
-    )
+    hallway_publisher_node = Node(package='sm_mppi_planner',executable='hallway_publisher',name='hallway_publisher',output='screen',parameters=[hallway_params])
 
     # --- Assemble the Launch Description ---
     ld = LaunchDescription()
-    ld.add_action(use_sim_time_arg)
-    ld.add_action(world_name_arg)
-    ld.add_action(launch_rviz_arg)
-    ld.add_action(launch_gazebo_arg)
-    
+    ld.add_action(use_sim_time_arg); ld.add_action(launch_rviz_arg); ld.add_action(launch_gazebo_arg)
     ld.add_action(tiago_simulation_group)
     ld.add_action(rviz_with_ld_preload_action)
-    
     ld.add_action(sm_mppi_planner_node)
     ld.add_action(goal_publisher_node)
     ld.add_action(human_publisher_node)
     ld.add_action(hallway_publisher_node)
-
     return ld
