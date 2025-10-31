@@ -3,6 +3,7 @@
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/fake_human_publisher.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/tf2_wrapper.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/sm_mppi.py
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/gazebo_actor_relay.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/goal_publisher_node.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/utils.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/config.py
@@ -13,6 +14,7 @@
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/__pycache__/fake_human_publisher.cpython-310.pyc
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/__pycache__/tf2_wrapper.cpython-310.pyc
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/__pycache__/sm_mppi.cpython-310.pyc
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/__pycache__/gazebo_actor_relay.cpython-310.pyc
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/__pycache__/goal_publisher_node.cpython-310.pyc
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/__pycache__/utils.cpython-310.pyc
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner/__pycache__/config.cpython-310.pyc
@@ -22,7 +24,7 @@
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/package.xml
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/scenario_3_cluster.launch.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/sm_paramtrized_version.launch.py
-/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/first_scenario_test.launch.py
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/joe_test.launch.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/view_hallway.launch.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/scenario_5_groups.launch.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/share/sm_mppi_planner/launch/testing_wheelchairs.launch.py
@@ -57,7 +59,7 @@
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner-0.0.1-py3.10.egg-info/top_level.txt
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner-0.0.1-py3.10.egg-info/SOURCES.txt
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/python3.10/site-packages/sm_mppi_planner-0.0.1-py3.10.egg-info/PKG-INFO
-/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner/fake_human_publisher
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner/gazebo_actor_relay
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner/goal_publisher_node
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner/hallway_publisher
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/sm_mppi_planner/lib/sm_mppi_planner/mppi_planner_node

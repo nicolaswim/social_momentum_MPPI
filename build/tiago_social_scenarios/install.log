@@ -6,8 +6,7 @@
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/package.xml
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/launch/my_world_nav.launch.py
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/launch/start_hallway_nav.launch.py
-/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/maps/hallway_map.yaml
-/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/maps/hallway_map.pgm
+/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/maps
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/worlds/scenario_1.world
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/hallway_world/model.sdf
 /home/wim/Documents/social_momentum_venv/social_momentum_MPPI/install/tiago_social_scenarios/share/tiago_social_scenarios/models/hallway_world/model.config

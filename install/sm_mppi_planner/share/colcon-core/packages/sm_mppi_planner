@@ -1,1 +1,1 @@
-geometry_msgs:my_social_nav_interfaces:nav_msgs:python3-yaml:rclpy:tf2_msgs:tf2_ros:visualization_msgs
+gazebo_msgs:geometry_msgs:my_social_nav_interfaces:nav_msgs:python3-yaml:rclpy:std_msgs:tf2_msgs:tf2_ros:visualization_msgs

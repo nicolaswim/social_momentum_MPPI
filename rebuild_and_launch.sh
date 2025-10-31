@@ -32,6 +32,7 @@
 
 
 # In your workspace root
-colcon build --packages-select tiago_social_scenarios
+colcon build 
 source install/setup.bash
-ros2 launch tiago_social_scenarios start_hallway_nav.launch.py world_name:=scenario_1
+# ros2 launch tiago_social_scenarios start_hallway_nav.launch.py world_name:=scenario_1
+ros2 launch sm_mppi_planner joe_test.launch.py

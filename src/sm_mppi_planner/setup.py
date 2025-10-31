@@ -47,10 +47,6 @@ setup(
         (os.path.join('share', package_name, 'models/hallway_world'), glob('models/hallway_world/*')),
         (os.path.join('share', package_name, 'models/social_human'), glob('models/social_human/*')),
         (os.path.join('share', package_name, 'models/social_wheelchair'), glob('models/social_wheelchair/*')),
-
-
-
-        
     ],
     install_requires=[
         'setuptools',
@@ -77,8 +73,9 @@ setup(
         'console_scripts': [
             'mppi_planner_node = sm_mppi_planner.mppi_planner_node:main',
             'goal_publisher_node = sm_mppi_planner.goal_publisher_node:main',
-            'fake_human_publisher = sm_mppi_planner.fake_human_publisher:main',
+            # 'fake_human_publisher = sm_mppi_planner.fake_human_publisher:main', # <-- Removed
             'hallway_publisher = sm_mppi_planner.hallway_publisher:main',
+            'gazebo_actor_relay = sm_mppi_planner.gazebo_actor_relay:main', # <-- Added
         ],
     },
 )

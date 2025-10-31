@@ -100,8 +100,8 @@ def generate_launch_description():
         output='screen'
     )
 
-# give Gazebo + spawn plenty of time before spawners run
-start_ctrls = TimerAction(period=15.0, actions=[spawner_js, spawner_base])
+    # give Gazebo + spawn plenty of time before spawners run
+    start_ctrls = TimerAction(period=15.0, actions=[spawner_js, spawner_base])
 
 
     # Nav2 (stock params to avoid pal_navigation_cfg_utils) + your map + RViz
@@ -138,4 +138,5 @@ start_ctrls = TimerAction(period=15.0, actions=[spawner_js, spawner_base])
     ld.add_action(localization)
     ld.add_action(navigation)
     ld.add_action(rviz)
+    
     return ld

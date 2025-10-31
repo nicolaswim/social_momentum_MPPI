@@ -10,8 +10,6 @@ setup.py
 ../../build/tiago_social_scenarios/tiago_social_scenarios.egg-info/zip-safe
 launch/my_world_nav.launch.py
 launch/start_hallway_nav.launch.py
-maps/hallway_map.pgm
-maps/hallway_map.yaml
 models/hallway_world/model.config
 models/hallway_world/model.sdf
 models/social_human/Slampion.dae

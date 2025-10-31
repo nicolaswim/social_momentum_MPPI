@@ -82,7 +82,7 @@ def generate_launch_description():
     hallway_walls_yaml_string=f"[[{-hl},{hw+wt+sb},{hl},{hw+wt+sb},{hl},{hw-wt-sb},{-hl},{hw-wt-sb}],[{-hl},{-hw-wt-sb},{hl},{-hw-wt-sb},{hl},{-hw+wt+sb},{-hl},{-hw+wt+sb}]]"
     
     # --- Gazebo Simulation ---
-    tiago_simulation_group = GroupAction(condition=IfCondition(LaunchConfiguration('launch_gazebo')),actions=[IncludeLaunchDescription(PythonLaunchDescriptionSource(os.path.join(tiago_gazebo_pkg_share_dir,'launch','tiago_gazebo.launch.py')),launch_arguments={'is_public_sim':'True','world_name':'empty','use_sim_time':LaunchConfiguration('use_sim_time')}.items(),condition=IfCondition(PythonExpression([f"'{tiago_gazebo_pkg_share_dir}'!=''"])))])
+    tiago_simulation_group = GroupAction(condition=IfCondition(LaunchConfiguration('launch_gazebo')),actions=[IncludeLaunchDescription(PythonLaunchDescriptionSource(os.path.join(tiago_gazebo_pkg_share_dir,'launch','tiago_gazebo.launch.py')),launch_arguments={'is_public_sim':'True','world_name':'scenario_2','use_sim_time':LaunchConfiguration('use_sim_time')}.items(),condition=IfCondition(PythonExpression([f"'{tiago_gazebo_pkg_share_dir}'!=''"])))])
 
     # --- RViz ---
     rviz_with_ld_preload_action=ExecuteProcess(cmd=['bash','-c',f"LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 rviz2 -d {rviz_config_file} --ros-args -p use_sim_time:=true"],output='screen',condition=IfCondition(LaunchConfiguration('launch_rviz')))
