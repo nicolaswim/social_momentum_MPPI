@@ -9,7 +9,8 @@ from launch.actions import (
     TimerAction
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PythonExpression
+# --- ADDED TextSubstitution ---
+from launch.substitutions import LaunchConfiguration, PythonExpression, TextSubstitution 
 from launch.conditions import IfCondition
 from launch_ros.actions import Node
 
@@ -59,6 +60,16 @@ def generate_launch_description():
     launch_rviz_arg = DeclareLaunchArgument('launch_rviz', default_value='true')
     launch_gazebo_arg = DeclareLaunchArgument('launch_gazebo', default_value='true')
 
+    # --- ADDED: New Launch Argument for Scenario ID ---
+    scenario_id_arg = DeclareLaunchArgument(
+        'scenario_id',
+        default_value='1',
+        description='The ID of the scenario to load (1-5).'
+    )
+    # Get the value of the new argument
+    scenario_id = LaunchConfiguration('scenario_id')
+
+
     # --- Dynamic Generation of Planner Obstacles ---
     hw=hallway_params['hallway_width']/2.0; hl=hallway_params['hallway_length']/2.0
     wt=hallway_params['wall_thickness']/2.0; sb=planner_params['safety_boundary']
@@ -74,7 +85,8 @@ def generate_launch_description():
                 ),
                 launch_arguments={
                     'is_public_sim': 'True',
-                    'world_name': 'scenario_1', # Still loads your modified scenario_1.world
+                    # --- MODIFIED: Build the world_name from the argument ---
+                    'world_name': [TextSubstitution(text='scenario_'), scenario_id],
                     'use_sim_time': LaunchConfiguration('use_sim_time')
                 }.items(),
                 condition=IfCondition(PythonExpression([f"'{tiago_gazebo_pkg_share_dir}'!=''"]))
@@ -90,8 +102,6 @@ def generate_launch_description():
     )
 
     # --- Define Your Nodes ---
-    # We define them here, but will launch them inside a TimerAction
-    
     sm_mppi_planner_node = Node(
             package='sm_mppi_planner', 
             executable='mppi_planner_node', 
@@ -101,9 +111,6 @@ def generate_launch_description():
                 {'use_sim_time': LaunchConfiguration('use_sim_time')},
                 {'static_obstacles_yaml': hallway_walls_yaml_string},
                 {'static_cost_weight': planner_params['static_cost_weight']},
-                
-                # --- ADD THIS LINE ---
-                # This tells the planner to subscribe to the relay's topic
                 {'human_topic': '/social_nav/humans'}
             ]
     )
@@ -114,7 +121,6 @@ def generate_launch_description():
             {'use_sim_time': LaunchConfiguration('use_sim_time')},
             {'goal_x': goal['x']},
             {'goal_y': goal['y']}
-            # No 'startup_delay' param needed
         ]
     )
     
@@ -125,7 +131,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {'use_sim_time': LaunchConfiguration('use_sim_time')},
-            {'planner_frame': 'odom'}, # Or 'map', whatever your planner uses
+            {'planner_frame': 'odom'}, 
             {'publish_rate_hz': 30.0}
         ]
     )
@@ -139,8 +145,6 @@ def generate_launch_description():
     )
 
     # --- Use TimerAction to delay the navigation stack ---
-    # This action will wait for 'simulation_startup_delay' seconds
-    # (using the ROS clock, i.e., sim time) before launching the nodes.
     delayed_nav_stack = TimerAction(
         period=simulation_startup_delay,
         actions=[
@@ -152,6 +156,10 @@ def generate_launch_description():
 
     # --- Assemble the Launch Description ---
     ld = LaunchDescription()
+    
+    # --- ADDED: Add the new argument to the launch description ---
+    ld.add_action(scenario_id_arg)
+
     ld.add_action(use_sim_time_arg)
     ld.add_action(launch_rviz_arg)
     ld.add_action(launch_gazebo_arg)
