@@ -132,6 +132,8 @@ rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosi
 rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/geometry_msgs/msg/Point32.idl
 rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/geometry_msgs/msg/PointStamped.idl
 rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/geometry_msgs/msg/Polygon.idl
+rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/geometry_msgs/msg/PolygonInstance.idl
+rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/geometry_msgs/msg/PolygonInstanceStamped.idl
 rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/geometry_msgs/msg/PolygonStamped.idl
 rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/geometry_msgs/msg/Pose.idl
 rosidl_generator_py/my_social_nav_interfaces/_my_social_nav_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/humble/share/geometry_msgs/msg/Pose2D.idl

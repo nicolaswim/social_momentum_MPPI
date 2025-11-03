@@ -74,7 +74,7 @@ def generate_launch_description():
                 ),
                 launch_arguments={
                     'is_public_sim': 'True',
-                    'world_name': 'scenario_1', # Still loads your modified scenario_1.world
+                    'world_name': 'scenario_2', # Still loads your modified scenario_1.world
                     'use_sim_time': LaunchConfiguration('use_sim_time')
                 }.items(),
                 condition=IfCondition(PythonExpression([f"'{tiago_gazebo_pkg_share_dir}'!=''"]))

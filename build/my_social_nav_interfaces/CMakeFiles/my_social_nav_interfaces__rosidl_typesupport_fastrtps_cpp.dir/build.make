@@ -121,6 +121,8 @@ rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps
 rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_array__type_support.cpp: /opt/ros/humble/share/geometry_msgs/msg/Point32.idl
 rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_array__type_support.cpp: /opt/ros/humble/share/geometry_msgs/msg/PointStamped.idl
 rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_array__type_support.cpp: /opt/ros/humble/share/geometry_msgs/msg/Polygon.idl
+rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_array__type_support.cpp: /opt/ros/humble/share/geometry_msgs/msg/PolygonInstance.idl
+rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_array__type_support.cpp: /opt/ros/humble/share/geometry_msgs/msg/PolygonInstanceStamped.idl
 rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_array__type_support.cpp: /opt/ros/humble/share/geometry_msgs/msg/PolygonStamped.idl
 rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_array__type_support.cpp: /opt/ros/humble/share/geometry_msgs/msg/Pose.idl
 rosidl_typesupport_fastrtps_cpp/my_social_nav_interfaces/msg/detail/dds_fastrtps/human_array__type_support.cpp: /opt/ros/humble/share/geometry_msgs/msg/Pose2D.idl
