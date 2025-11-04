@@ -332,13 +332,13 @@ Visualization Manager:
       Enabled: true
       Name: MarkerArray
       Namespaces:
-        human_meshes: true
+        gazebo_actors: true
       Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /human_markers
+        Value: /social_nav/human_markers
       Value: true
     - Class: rviz_default_plugins/MarkerArray
       Enabled: true
@@ -398,16 +398,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 19.344337463378906
+      Distance: 28.600675582885742
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 2.4410347938537598
+        Y: 0.25342607498168945
+        Z: -3.942720413208008
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
@@ -434,5 +434,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: 720
+  X: 480
   Y: 71

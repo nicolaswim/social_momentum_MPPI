@@ -50,7 +50,10 @@ class GazeboActorRelay(Node):
             "human2": "human_1",
             "human3": "human_2",
             "human4": "human_3",
-            "wheelchair1": "human_4", # Assuming this is the 5th agent
+            "human5": "human_4",
+            "human6": "human_5",
+            "wheelchair1": "human_6",
+            "wheelchair2": "human_7",
         }
         self.get_logger().info(f"Using TF name map: {self.gazebo_to_planner_tf_map}")
 

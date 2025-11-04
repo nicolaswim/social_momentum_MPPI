@@ -8,7 +8,7 @@ setup.py
 ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/requires.txt
 ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/top_level.txt
 ../../build/sm_mppi_planner/sm_mppi_planner.egg-info/zip-safe
-launch/joe_test.launch.py
+launch/gazebo_relay_node_all_simulations.launch.py
 launch/scenario_1_gauntlet.launch.py
 launch/scenario_2_crossroads.launch.py
 launch/scenario_3_cluster.launch.py

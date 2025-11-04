@@ -9,20 +9,11 @@ from launch.actions import (
     TimerAction
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-# --- ADDED TextSubstitution ---
 from launch.substitutions import LaunchConfiguration, PythonExpression, TextSubstitution 
 from launch.conditions import IfCondition
 from launch_ros.actions import Node
 
 def generate_launch_description():
-    """
-    SCENARIO 1: The Bidirectional Flow Gauntlet (Revised)
-    Tests navigation in a dense, two-way corridor with heterogeneous agents.
-    
-    This version uses a TimerAction to delay the launch of the nav stack
-    and a robust gazebo_actor_relay to bridge real sim data.
-    """
-    
     # --- Package Directories ---
     pkg_share_dir = get_package_share_directory('sm_mppi_planner')
     tiago_gazebo_pkg_share_dir = ""
@@ -60,7 +51,7 @@ def generate_launch_description():
     launch_rviz_arg = DeclareLaunchArgument('launch_rviz', default_value='true')
     launch_gazebo_arg = DeclareLaunchArgument('launch_gazebo', default_value='true')
 
-    # --- ADDED: New Launch Argument for Scenario ID ---
+    # --- Launch Argument for Scenario ID ---
     scenario_id_arg = DeclareLaunchArgument(
         'scenario_id',
         default_value='1',
@@ -68,6 +59,38 @@ def generate_launch_description():
     )
     # Get the value of the new argument
     scenario_id = LaunchConfiguration('scenario_id')
+
+    # =================================================================
+    # ============== NEW SECTION: ROSBAG RECORDING ====================
+    # =================================================================
+    
+    # We correct your notes: 
+    # 1. The ROS 2 command is "ros2 bag record"
+    # 2. The topic is "/model_states" (as we discovered)
+    # 3. We add other key topics for a full analysis.
+    
+    topics_to_record = [
+        '/model_states',    # Ground truth for ALL models (robot, actors)
+        '/tf',              # All transforms (odom, human_0, etc.)
+        '/tf_static',       # Static transforms
+        '/clock',           # CRITICAL: The simulation clock
+        '/goal_pose',       # The goal sent to your planner
+        '/mobile_base_controller/cmd_vel_unstamped' # The planner's output
+    ]
+    
+    # This creates a folder named 'scenario_data_X' where X is the scenario ID
+    output_bag_file = [
+        TextSubstitution(text='scenario_data_'),
+        scenario_id
+    ]
+
+    rosbag_record_action = ExecuteProcess(
+        cmd=['ros2', 'bag', 'record', '-o', output_bag_file] + topics_to_record,
+        output='screen'
+    )
+    # =================================================================
+    # ================== END OF NEW SECTION ===========================
+    # =================================================================
 
 
     # --- Dynamic Generation of Planner Obstacles ---
@@ -111,7 +134,8 @@ def generate_launch_description():
                 {'use_sim_time': LaunchConfiguration('use_sim_time')},
                 {'static_obstacles_yaml': hallway_walls_yaml_string},
                 {'static_cost_weight': planner_params['static_cost_weight']},
-                {'human_topic': '/social_nav/humans'}
+                {'human_topic': '/social_nav/humans'},
+                {'startup_delay': 1.0}
             ]
     )
 
