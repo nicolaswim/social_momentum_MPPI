@@ -61,7 +61,7 @@ Thumbs.db
 **/.ignition/
 **/*.pyc
 
-/rosbags/
+# /rosbags/
 
 # workspace junk everywhere
 /build/
