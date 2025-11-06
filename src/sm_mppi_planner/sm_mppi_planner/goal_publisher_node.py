@@ -54,7 +54,7 @@ def main(args=None):
         pass
     finally:
         goal_publisher_node.destroy_node()
-        rclpy.shutdown()
+        # rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

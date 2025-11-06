@@ -308,8 +308,8 @@ def main(args=None):
                 stop_cmd = Twist() # Ensure Twist is defined or imported if used here standalone
                 node.cmd_vel_pub.publish(stop_cmd)
             node.destroy_node()
-        if rclpy.ok():
-            rclpy.shutdown()
+        # if rclpy.ok():
+            # rclpy.shutdown()
         print("MPPI Planner Node Shutdown complete.")
 
 if __name__ == '__main__':

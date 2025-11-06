@@ -73,9 +73,10 @@ setup(
         'console_scripts': [
             'mppi_planner_node = sm_mppi_planner.mppi_planner_node:main',
             'goal_publisher_node = sm_mppi_planner.goal_publisher_node:main',
-            # 'fake_human_publisher = sm_mppi_planner.fake_human_publisher:main', # <-- Removed
+            # 'fake_human_publisher = sm_mppi_planner.fake_human_publisher:main', 
             'hallway_publisher = sm_mppi_planner.hallway_publisher:main',
-            'gazebo_actor_relay = sm_mppi_planner.gazebo_actor_relay:main', # <-- Added
+            'gazebo_actor_relay = sm_mppi_planner.gazebo_actor_relay:main', 
+            'metrics_logger = sm_mppi_planner.logger_node:main',
         ],
     },
 )

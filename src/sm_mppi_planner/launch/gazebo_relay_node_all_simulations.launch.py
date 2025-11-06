@@ -10,7 +10,7 @@ from launch.actions import (
     TimerAction
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PythonExpression, TextSubstitution 
+from launch.substitutions import LaunchConfiguration, PythonExpression, TextSubstitution
 from launch.conditions import IfCondition
 from launch_ros.actions import Node
 
@@ -61,46 +61,65 @@ def generate_launch_description():
     # Get the value of the new argument
     scenario_id = LaunchConfiguration('scenario_id')
 
-    # =================================================================
-    # ============== NEW SECTION: ROSBAG RECORDING ====================
-    # =================================================================
-    
-    # We correct your notes: 
-    # 1. The ROS 2 command is "ros2 bag record"
-    # 2. The topic is "/model_states" (as we discovered)
-    # 3. We add other key topics for a full analysis.
-    
-    topics_to_record = [
-        '/model_states',    # Ground truth for ALL models (robot, actors)
-        '/tf',              # All transforms (odom, human_0, etc.)
-        '/tf_static',       # Static transforms
-        '/clock',           # CRITICAL: The simulation clock
-        '/goal_pose',       # The goal sent to your planner
-        '/mobile_base_controller/cmd_vel_unstamped' # The planner's output
-    ]
-    
-# --- Create a unique, timestamped bag file name ---
-    
-    # Get the current time as a string (e.g., "20251106_143005")
+    # --- Timestamp and output name ---
     timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    
-    # Build the full bag folder name. 
-    # This will resolve to something like: "scenario_data_1_20251106_143005"
+    os.makedirs('rosbags/raw', exist_ok=True)
+
+    # Bag name: rosbags/raw/scenario_backup_<id>_<ts>
     output_bag_file = [
-        TextSubstitution(text='scenario_data_'),
+        TextSubstitution(text='rosbags/raw/scenario_backup_'),
         scenario_id,
         TextSubstitution(text='_'),
         TextSubstitution(text=timestamp_str)
     ]
 
-    rosbag_record_action = ExecuteProcess(
-        cmd=['ros2', 'bag', 'record', '-a', '-o', output_bag_file],
-        output='screen'
-    )
-    # =================================================================
-    # ================== END OF NEW SECTION ===========================
-    # =================================================================
+    # Topics to record
+    topics_to_record = [
+        '/mobile_base_controller/odom',
+        '/joint_states',
+        '/clock',
+        '/tf',
+        '/tf_static',
+        '/model_states',
+        '/goal_pose',
+        '/social_nav/humans',
+        '/mobile_base_controller/cmd_vel_unstamped'
+    ]
 
+    # Compressed rosbag2 record
+    rosbag_record_action = ExecuteProcess(
+        cmd=[
+            'ros2', 'bag', 'record',
+            '--compression-mode', 'message',
+            '--compression-format', 'zstd',
+            '-o', output_bag_file
+        ] + topics_to_record,
+        output='screen',
+        emulate_tty=True,
+        shell=False
+    )
+
+    
+    # --- FIX: Reverted JoinSubstitution back to a simple list ---
+    output_parquet_file = [
+        TextSubstitution(text='rosbags/raw/metrics_data_'),
+        scenario_id,
+        TextSubstitution(text='_'),
+        TextSubstitution(text=timestamp_str),
+        TextSubstitution(text='.parquet')
+    ]
+
+    metrics_logger_node = Node(
+        package='sm_mppi_planner',
+        executable='metrics_logger',
+        name='metrics_logger',
+        output='screen',
+        parameters=[
+            {'output_filename': output_parquet_file}, # Pass the list directly
+            {'slop_seconds': 0.15}, 
+            {'use_sim_time': LaunchConfiguration('use_sim_time')}
+        ]
+    )
 
     # --- Dynamic Generation of Planner Obstacles ---
     hw=hallway_params['hallway_width']/2.0; hl=hallway_params['hallway_length']/2.0
@@ -184,7 +203,8 @@ def generate_launch_description():
             sm_mppi_planner_node,
             goal_publisher_node,
             gazebo_actor_relay_node,
-            rosbag_record_action
+            rosbag_record_action,
+            metrics_logger_node
         ]
     )
 
