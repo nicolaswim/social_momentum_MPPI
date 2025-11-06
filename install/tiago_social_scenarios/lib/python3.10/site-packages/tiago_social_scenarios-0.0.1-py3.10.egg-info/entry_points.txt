@@ -1,3 +1,0 @@
-[console_scripts]
-gazebo_human_controller = tiago_social_scenarios.gazebo_human_controller:main
-

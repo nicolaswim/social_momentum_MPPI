@@ -1,9 +1,0 @@
-setup.py
-my_social_nav_interfaces/__init__.py
-my_social_nav_interfaces.egg-info/PKG-INFO
-my_social_nav_interfaces.egg-info/SOURCES.txt
-my_social_nav_interfaces.egg-info/dependency_links.txt
-my_social_nav_interfaces.egg-info/top_level.txt
-my_social_nav_interfaces/msg/__init__.py
-my_social_nav_interfaces/msg/_human_array.py
-my_social_nav_interfaces/msg/_human_pose_vel.py

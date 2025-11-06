@@ -62,3 +62,17 @@ Thumbs.db
 **/*.pyc
 
 /rosbags/
+
+# workspace junk everywhere
+/build/
+/install/
+/log/
+**/build/
+**/install/
+**/log/
+# rosbags
+/rosbags/
+scenario_data_*/
+**/*.db3
+# IDE
+.vscode/

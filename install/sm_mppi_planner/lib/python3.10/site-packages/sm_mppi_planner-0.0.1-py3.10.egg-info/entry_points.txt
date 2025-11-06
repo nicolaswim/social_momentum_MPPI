@@ -1,6 +1,0 @@
-[console_scripts]
-gazebo_actor_relay = sm_mppi_planner.gazebo_actor_relay:main
-goal_publisher_node = sm_mppi_planner.goal_publisher_node:main
-hallway_publisher = sm_mppi_planner.hallway_publisher:main
-mppi_planner_node = sm_mppi_planner.mppi_planner_node:main
-

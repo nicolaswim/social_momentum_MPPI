@@ -1,7 +1,0 @@
-{
-  "package_name": "my_social_nav_interfaces",
-  "non_idl_tuples": [
-    "/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/src/my_social_nav_interfaces:msg/HumanArray.msg",
-    "/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/src/my_social_nav_interfaces:msg/HumanPoseVel.msg"
-  ]
-}
