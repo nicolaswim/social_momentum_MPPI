@@ -1,4 +1,5 @@
 import os
+import datetime
 from ament_index_python.packages import get_package_share_directory, PackageNotFoundError
 from launch import LaunchDescription
 from launch.actions import (
@@ -78,14 +79,22 @@ def generate_launch_description():
         '/mobile_base_controller/cmd_vel_unstamped' # The planner's output
     ]
     
-    # This creates a folder named 'scenario_data_X' where X is the scenario ID
+# --- Create a unique, timestamped bag file name ---
+    
+    # Get the current time as a string (e.g., "20251106_143005")
+    timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Build the full bag folder name. 
+    # This will resolve to something like: "scenario_data_1_20251106_143005"
     output_bag_file = [
         TextSubstitution(text='scenario_data_'),
-        scenario_id
+        scenario_id,
+        TextSubstitution(text='_'),
+        TextSubstitution(text=timestamp_str)
     ]
 
     rosbag_record_action = ExecuteProcess(
-        cmd=['ros2', 'bag', 'record', '-o', output_bag_file] + topics_to_record,
+        cmd=['ros2', 'bag', 'record', '-a', '-o', output_bag_file],
         output='screen'
     )
     # =================================================================
@@ -174,7 +183,8 @@ def generate_launch_description():
         actions=[
             sm_mppi_planner_node,
             goal_publisher_node,
-            gazebo_actor_relay_node
+            gazebo_actor_relay_node,
+            rosbag_record_action
         ]
     )
 

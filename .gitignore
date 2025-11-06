@@ -1,0 +1,64 @@
+# --- Colcon/ROS 2 build artifacts ---
+/build/
+/install/
+/log/
+/COLCON_IGNORE
+**/colcon_build.rc
+**/colcon_command_prefix_*.sh*
+**/CTest*
+**/cmake_install.cmake
+**/Makefile
+**/CMakeFiles/
+**/CMakeCache.txt
+**/export_*.cmake
+**/TargetDirectories.txt
+**/progress.marks
+**/progress.make
+
+# rosidl / generated outputs (live under build/install anyway)
+**/rosidl_*/
+**/_my_*_typesupport_*.c
+**/*__rosidl_typesupport_*.so
+**/*__rosidl_generator_*.so
+
+# --- Python packaging/build junk ---
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+**/*.so
+**/*.so.*
+**/*.egg-info/
+**/build/
+**/dist/
+
+# --- C/C++ compilation byproducts ---
+**/*.o
+**/*.o.d
+**/*.a
+**/*.lo
+**/*.la
+
+# --- Editor/OS noise ---
+.vscode/
+.idea/
+*.code-workspace
+.DS_Store
+Thumbs.db
+
+# --- Simulation / runtime data you likely don't want in Git ---
+/scenario_data_*/
+**/*.db3
+**/events.log
+**/logger_all.log
+**/stdout.log
+**/stderr.log
+**/stdout_stderr.log
+**/streams.log
+**/install.log
+
+# --- Gazebo & RViz cache/temp (keep your actual models/rviz configs) ---
+**/.gazebo/
+**/.ignition/
+**/*.pyc
+
+/rosbags/
