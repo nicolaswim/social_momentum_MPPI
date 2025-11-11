@@ -119,9 +119,9 @@ class GazeboActorRelay(Node):
             "human2": "human_1",
             "human3": "human_2",
             "human4": "human_3",
-            "human5": "human_4",
-            "human6": "human_5",
-            "wheelchair1": "human_6",
+            "human5": "human_5",
+            "human6": "human_6",
+            "wheelchair1": "human_4",
             "wheelchair2": "human_7",
         }
         clear_marker.ns = self.marker_namespace

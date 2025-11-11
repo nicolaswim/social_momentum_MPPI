@@ -163,9 +163,11 @@ def generate_launch_description():
 
     # Create a substitution that looks up the agent count from the dictionary
     active_agents_sub = PythonExpression([
-        'str(', str(scenario_agent_counts), '.get(', scenario_id, ', "2"))'
+        str(scenario_agent_counts),
+        "['",
+        scenario_id,
+        "']"
     ])
-
     # --- Define Your Nodes ---
     sm_mppi_planner_node = Node(
             package='sm_mppi_planner', 

@@ -90,8 +90,6 @@ class MPPLocalPlannerMPPI(Node):
             device=self.device,
             active_agents=self.active_agents
         )
-
-        
         
         # ... (rest of the __init__ method is unchanged) ...
         self.loop_counter = 0
@@ -230,7 +228,7 @@ class MPPLocalPlannerMPPI(Node):
         # This ensures if a TF is missed, the agent isn't stuck at its last valid position indefinitely in the controller's view
         # (Though your current default is 100,100 which is already far)
         current_agent_states_for_controller = {
-            i: self.agent_states[i].clone() for i in range(ACTIVE_AGENTS) # Start with last known or default
+            i: self.agent_states[i].clone() for i in range(self.active_agents) # Start with last known or default
         }
 
         if self.active_agents > 0:

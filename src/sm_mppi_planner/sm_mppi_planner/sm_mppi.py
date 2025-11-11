@@ -103,15 +103,12 @@ class SMMPPIController:
         sm_costs = torch.zeros(self.num_samples).to(self.device)
         static_costs = self.collision_avoidance_cost(state_squeezed)
 
-        # --- FIX: Calculate interacting agents ONCE, before the loop ---
-        self.get_interacting_agents() 
-
-        for i in range(self.active_agents):
+        for i in range(ACTIVE_AGENTS):
             next_x_states = self.agent_states[i][0] + torch.linspace(self.dt, self.horizon * self.dt, self.horizon, device=self.device) * self.agent_velocities[i][0]
             next_y_states = self.agent_states[i][1] + torch.linspace(self.dt, self.horizon * self.dt, self.horizon, device=self.device) * self.agent_velocities[i][1]
             human_states = torch.stack((next_x_states, next_y_states), dim=1)
             dist = torch.norm(state_squeezed[:, :, :2] - human_states, dim=2)
-            sm_costs += self.SocialCost(state, i, human_states) # <-- This now uses the cached list
+            sm_costs += self.SocialCost(state, i, human_states)
             dynamic_obstacle_cost = torch.where(dist < 1.0, 1 / (1 + dist**2), torch.tensor(0.0, device=self.device))
             dynamic_obstacle_costs += torch.sum(dynamic_obstacle_cost, dim=1)
 
