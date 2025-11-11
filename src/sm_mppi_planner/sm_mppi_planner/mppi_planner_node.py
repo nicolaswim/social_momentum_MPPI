@@ -79,12 +79,19 @@ class MPPLocalPlannerMPPI(Node):
         timer_period = 0.05
         self.timer = self.create_timer(timer_period, self.plan_and_publish)
 
+        self.declare_parameter('active_agents', 2) # Use 2 as a fallback default
+        self.active_agents = self.get_parameter('active_agents').value
+        self.get_logger().info(f"Planner configured for {self.active_agents} active agents.")
+
         # --- CRITICAL FIX IS HERE ---
         # Pass the loaded obstacles AND the cost weight to the controller
         self.controller = SMMPPIController(
             static_obs=final_obstacles,
             device=self.device,
+            active_agents=self.active_agents
         )
+
+        
         
         # ... (rest of the __init__ method is unchanged) ...
         self.loop_counter = 0
@@ -92,13 +99,15 @@ class MPPLocalPlannerMPPI(Node):
         self.current_state = torch.tensor([0.0, 0.0, 0.0], dtype=torch.float32).to(self.device)
         self.robot_velocity = torch.tensor([0.0, 0.0], dtype=torch.float32).to(self.device)
         self.previous_robot_state = torch.zeros_like(self.current_state)
-        self.agent_states = {i: torch.tensor([100.0, 100.0, 0.0], dtype=torch.float32).to(self.device) for i in range(ACTIVE_AGENTS)}
-        self.agent_velocities = {i: torch.tensor([0.0, 0.0], dtype=torch.float32).to(self.device) for i in range(ACTIVE_AGENTS)}
-        self.previous_agent_states = {i: torch.zeros_like(self.agent_states[0]) for i in range(ACTIVE_AGENTS)}
+        self.agent_states = {i: torch.tensor([100.0, 100.0, 0.0], dtype=torch.float32).to(self.device) for i in range(self.active_agents)}
+        self.agent_velocities = {i: torch.tensor([0.0, 0.0], dtype=torch.float32).to(self.device) for i in range(self.active_agents)}
+        self.previous_agent_states = {i: torch.zeros_like(self.agent_states[0]) for i in range(self.active_agents)}
         self.goal_topic_name = "/goal_pose"
         self.goal_subscriber = self.create_subscription(PoseStamped,self.goal_topic_name,self.goal_callback,10)
         self.planner_initial_tf_wait_duration = Duration(seconds=delay_seconds)
         self.get_logger().info("MPPI Local Planner Node Initialized Successfully.")
+
+        
     
 
     def goal_callback(self, msg: PoseStamped):
@@ -224,8 +233,8 @@ class MPPLocalPlannerMPPI(Node):
             i: self.agent_states[i].clone() for i in range(ACTIVE_AGENTS) # Start with last known or default
         }
 
-        if ACTIVE_AGENTS > 0:
-            for i in range(ACTIVE_AGENTS):
+        if self.active_agents > 0:
+            for i in range(self.active_agents):
                 human_frame_name = f"{HUMAN_FRAME}_{i}"
                 # Human pose: transform from "odom" (target) to "human_X" (source)
                 T_odom_human_transform = self.tf2_wrapper.get_latest_pose("odom", human_frame_name)

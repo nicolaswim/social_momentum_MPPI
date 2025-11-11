@@ -36,7 +36,7 @@ def generate_launch_description():
     }
 
     # --- Simulation Startup Delay ---
-    simulation_startup_delay = 20.0
+    simulation_startup_delay = 21.0
 
     # --- Navigation Goal ---
     goal = {'x': 9.0, 'y': 0.0}
@@ -152,6 +152,20 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('launch_rviz'))
     )
 
+    # Define agent counts for each scenario
+    scenario_agent_counts = {
+        '1': 5,  # 4 humans + 1 wheelchair [cite: 93, 100, 107, 114, 121]
+        '2': 3,  # 2 humans + 1 wheelchair [cite: 10, 14, 18]
+        '3': 4,  # 2 humans + 2 wheelchairs [cite: 31, 33, 35, 39]
+        '4': 2,  # 2 humans [cite: 136, 141]
+        '5': 6,  # 6 humans [cite: 53, 58, 63, 68, 73, 78]
+    }
+
+    # Create a substitution that looks up the agent count from the dictionary
+    active_agents_sub = PythonExpression([
+        'str(', str(scenario_agent_counts), '.get(', scenario_id, ', "2"))'
+    ])
+
     # --- Define Your Nodes ---
     sm_mppi_planner_node = Node(
             package='sm_mppi_planner', 
@@ -163,7 +177,8 @@ def generate_launch_description():
                 {'static_obstacles_yaml': hallway_walls_yaml_string},
                 {'static_cost_weight': planner_params['static_cost_weight']},
                 {'human_topic': '/social_nav/humans'},
-                {'startup_delay': 1.0}
+                {'startup_delay': 1.0},
+                {'active_agents': active_agents_sub}
             ]
     )
 

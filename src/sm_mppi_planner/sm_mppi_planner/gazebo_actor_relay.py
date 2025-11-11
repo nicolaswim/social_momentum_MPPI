@@ -6,7 +6,7 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 from gazebo_msgs.msg import ModelStates
 from visualization_msgs.msg import Marker, MarkerArray
-from geometry_msgs.msg import Pose, Vector3, TransformStamped
+from geometry_msgs.msg import Pose, Vector3, TransformStamped, Quaternion, Point
 from std_msgs.msg import ColorRGBA
 
 import tf2_ros
@@ -31,7 +31,7 @@ class GazeboActorRelay(Node):
         self.vel_threshold = self.get_parameter('unreliable_vel_threshold').value
         
         self.actor_regex = re.compile(r"human\d+|wheelchair\d+")
-        self.marker_namespace = "gazebo_actors"
+        self.marker_namespace = "gazebo_actors" # Changed from "human_meshes"
         self.mesh_map = {
             'human': 'package://sm_mppi_planner/models/Slampion/Slampion.dae',
             'wheelchair': 'package://sm_mppi_planner/models/wheelchair/wheelchair.dae'
@@ -42,18 +42,15 @@ class GazeboActorRelay(Node):
         self.last_time_cache = {}
         self.latest_model_states = None
 
-        # --- NEW: Gazebo Name to Planner TF Name Mapping ---
-        # This maps the names from the .world file to the names
-        # your mppi_planner_node is looking for (e.g., "human_0").
+        # --- Gazebo Name to Planner TF Name Mapping ---
         self.gazebo_to_planner_tf_map = {
             "human1": "human_0",
             "human2": "human_1",
             "human3": "human_2",
             "human4": "human_3",
-            "human5": "human_4",
-            "human6": "human_5",
-            "wheelchair1": "human_6",
-            "wheelchair2": "human_7",
+            "human5": "human_4", # This was the wheelchair in scenario_1.world
+            "wheelchair1": "human_5", # Example for scenario_2
+            # Add all agents you might use
         }
         self.get_logger().info(f"Using TF name map: {self.gazebo_to_planner_tf_map}")
 
@@ -65,10 +62,10 @@ class GazeboActorRelay(Node):
 
         # --- Publishers ---
         self.human_array_pub = self.create_publisher(
-            HumanArray, 'social_nav/humans', 10
+            HumanArray, 'social_nav/humans', 10 # Renamed from '/humans'
         )
         self.marker_array_pub = self.create_publisher(
-            MarkerArray, 'social_nav/human_markers', 10
+            MarkerArray, 'social_nav/human_markers', 10 # Renamed from '/human_markers'
         )
 
         # --- Subscriber ---
@@ -116,7 +113,17 @@ class GazeboActorRelay(Node):
 
         clear_marker = Marker()
         clear_marker.header.frame_id = self.planner_frame
-        clear_marker.header.stamp = now.to_msg()
+        clear_marker.header.stamp = now.to_msg()        # --- Gazebo Name to Planner TF Name Mapping ---
+        self.gazebo_to_planner_tf_map = {
+            "human1": "human_0",
+            "human2": "human_1",
+            "human3": "human_2",
+            "human4": "human_3",
+            "human5": "human_4",
+            "human6": "human_5",
+            "wheelchair1": "human_6",
+            "wheelchair2": "human_7",
+        }
         clear_marker.ns = self.marker_namespace
         clear_marker.action = Marker.DELETEALL
         marker_array_msg.markers.append(clear_marker)
@@ -128,21 +135,15 @@ class GazeboActorRelay(Node):
             return
 
         for actor_name in name_to_index.keys():
-            # Check if it's an actor we care about
             if not self.actor_regex.match(actor_name):
                 continue
             
-            # --- NEW: Check if this actor has a mapping ---
             if actor_name not in self.gazebo_to_planner_tf_map:
-                # This will skip actors like 'tiago', 'ground_plane', etc.
-                # It will warn if a matched actor (e.g. 'human5') is missing
                 if actor_name.startswith("human") or actor_name.startswith("wheelchair"):
                      self.get_logger().warn(f"Actor '{actor_name}' found but has no TF map. Skipping.", throttle_duration_sec=5.0)
                 continue
             
-            # --- Get the planner-friendly name ---
             planner_tf_name = self.gazebo_to_planner_tf_map[actor_name]
-                
             index = name_to_index[actor_name]
             actor_pose = msg.pose[index]
             actor_twist = msg.twist[index]
@@ -164,36 +165,69 @@ class GazeboActorRelay(Node):
 
             # --- 2. Build Human Message (HumanArray) ---
             human_msg = HumanPoseVel()
-            human_msg.human_id = planner_tf_name # Use the mapped name
+            human_msg.human_id = planner_tf_name
             human_msg.position = actor_pose.position
             human_msg.velocity = final_velocity
             human_array_msg.humans.append(human_msg)
 
             # --- 3. Build Marker Message (MarkerArray) ---
+            # --- THIS SECTION IS NOW COPIED FROM fake_human_publisher.py ---
             marker = Marker()
             marker.header.frame_id = self.planner_frame
             marker.header.stamp = now.to_msg()
-            marker.ns = self.marker_namespace
+            marker.ns = self.marker_namespace # Use the one from this class
             marker.id = index
             marker.type = Marker.MESH_RESOURCE
             marker.action = Marker.ADD
-            marker.pose = actor_pose
-            marker.scale = Vector3(x=1.0, y=1.0, z=1.0)
-            marker.color = ColorRGBA(r=0.5, g=0.8, b=1.0, a=0.9)
+            marker.mesh_use_embedded_materials = True # <-- THIS IS KEY FOR TEXTURES
             marker.lifetime = Duration(seconds=self.publish_period * 2.0).to_msg()
-            marker.mesh_resource = self.get_mesh_resource(actor_name)
+
+            # --- Logic from fake_human_publisher ---
+            
+            # Calculate yaw from velocity (Gazebo's actor pose is often just (0,0,0,1))
+            base_yaw = math.atan2(final_velocity.y, final_velocity.x) if (final_velocity.x**2 + final_velocity.y**2)**0.5 > 0.01 else 0.0
+            
+            z_offset = 0.0
+            visual_yaw_offset = 0.75 * math.pi
+            
+            # Check the *original* Gazebo name
+            if actor_name.startswith('wheelchair'): 
+                z_offset = 0.5
+                visual_yaw_offset = math.radians(90.0)
+                marker.mesh_resource = self.mesh_map['wheelchair']
+            else:
+                marker.mesh_resource = self.mesh_map['human']
+
+            final_yaw = base_yaw + visual_yaw_offset
+
+            # Set marker pose and orientation
+            marker.pose.position = Point(x=actor_pose.position.x, y=actor_pose.position.y, z=z_offset)
+            
+            # Calculate Quaternion from the corrected yaw and roll
+            roll = math.pi / 2.0
+            pitch = 0.0
+            cy=math.cos(final_yaw*0.5); sy=math.sin(final_yaw*0.5)
+            cp=math.cos(pitch*0.5); sp=math.sin(pitch*0.5)
+            cr=math.cos(roll*0.5); sr=math.sin(roll*0.5)
+            q=Quaternion(); q.w=cr*cp*cy+sr*sp*sy; q.x=sr*cp*cy-cr*sp*sy; q.y=cr*sp*cy+sr*cp*sy; q.z=cr*cp*sy-sr*sp*cy
+            marker.pose.orientation = q
+            
+            marker.scale = Vector3(x=1.0, y=1.0, z=1.0)
+            
             marker_array_msg.markers.append(marker)
+            # --- END OF COPIED LOGIC ---
 
             # --- 4. Build TF Message (TransformStamped) ---
             t = TransformStamped()
             t.header.stamp = now.to_msg()
-            t.header.frame_id = self.planner_frame # 'odom'
-            t.child_frame_id = planner_tf_name    # <-- USE THE MAPPED NAME
+            t.header.frame_id = self.planner_frame
+            t.child_frame_id = planner_tf_name
             
+            # Use the raw Gazebo pose for TF (planner needs the true position)
             t.transform.translation.x = actor_pose.position.x
             t.transform.translation.y = actor_pose.position.y
-            t.transform.translation.z = actor_pose.position.z
-            t.transform.rotation = actor_pose.orientation
+            t.transform.translation.z = actor_pose.position.z # Use original Z for TF
+            t.transform.rotation = actor_pose.orientation # Use original orientation for TF
             
             transforms_list.append(t)
 

@@ -8,8 +8,8 @@ NOW = datetime.now()
 # if not overridden by ROS parameters via a YAML file.
 VMAX = 0.5  # Default max linear velocity
 DT = 0.2    # Default time step for MPPI prediction horizon
-HORIZON_LENGTH = 15 # Default number of time steps MPPI looks into the future
-NUM_SAMPLES = 250 # Default number of trajectory samples
+HORIZON_LENGTH = 12 # Default number of time steps MPPI looks into the future
+NUM_SAMPLES = 50 # Default number of trajectory samples
 
 # --- Goal Configuration (for SMMPPIController's internal goal list if no external goal) ---
 GOALS = np.array([[-5.0, 0.0]]) # Default robot goal(s)
