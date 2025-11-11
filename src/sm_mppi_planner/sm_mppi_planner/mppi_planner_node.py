@@ -118,6 +118,19 @@ class MPPLocalPlannerMPPI(Node):
             
             new_goal_x = msg.pose.position.x
             new_goal_y = msg.pose.position.y
+            new_goal_tensor = torch.tensor([new_goal_x, new_goal_y, yaw], dtype=torch.float32).to(self.device)
+
+            # --- FIX: Check if the goal is actually new ---
+            # Calculate distance between new goal and old goal
+            if self.goal is not None:
+                goal_pos_diff = torch.norm(new_goal_tensor[:2] - self.goal[:2])
+                goal_yaw_diff = abs(normalize_angle(new_goal_tensor[2] - self.goal[2]))
+                
+                # If the goal is the same (e.g., within 1cm), just ignore this message
+                if goal_pos_diff < 0.01 and goal_yaw_diff < 0.01:
+                    # self.get_logger().debug("Received the same goal again, ignoring.")
+                    return
+            # --- END OF FIX ---
 
             self.get_logger().info(f"Received new external goal via topic: [{new_goal_x:.2f}, {new_goal_y:.2f}]")
 
@@ -272,27 +285,35 @@ class MPPLocalPlannerMPPI(Node):
             self.agent_velocities
         )
 
+        # --- THIS IS THE CRITICAL FIX ---
+        
+        # FIRST, check if the controller or the node's high-precision check
+        # thinks we have reached the goal.
+        
+        # The controller.compute_control sets its *own* termination flag
+        if termination:
+            if not self.goal_reached: # Only log this once
+                 self.get_logger().info(f"Controller reported termination. Current pos: {self.current_state[:2].cpu().numpy()}, Goal: {self.controller.goal.cpu().numpy()}. Halting.")
+            
+            self.cmd_vel_pub.publish(Twist())
+            self.goal_reached = True # Set the node's flag
+            return # EXIT EARLY. DO NOT PUBLISH THE ACTION.
+
+        # If termination is False, THEN we publish the action
         if action is not None:
             self.get_logger().info(f"MPPI Action: [lin_vel={action[0]:.2f}, ang_vel={action[1]:.2f}], Termination: {termination}", throttle_duration_sec=0.5)
-        else:
-            self.get_logger().warn(f"MPPI Action is None. Termination: {termination}", throttle_duration_sec=1.0)
-
-        if termination:
-             self.get_logger().info(f"Termination reported by controller. Current pos: {self.current_state[:2].cpu().numpy()}, Goal: {self.controller.goal.cpu().numpy()}")
-
-# --- ADD THIS NEW, SIMPLER BLOCK ---
-        if action is not None:
             # If the planner gives a valid action, publish it
             twist_msg = Twist()
             twist_msg.linear.x = min(float(action[0].item()), VMAX)
             twist_msg.angular.z = float(action[1].item())
             self.cmd_vel_pub.publish(twist_msg)
-            self.get_logger().info(f"Published cmd_vel: lin_x={twist_msg.linear.x:.2f}, ang_z={twist_msg.angular.z:.2f}", throttle_duration_sec=0.5)
+            self.get_logger().info(f"Published cmd_vel: lin_x={twist_msg.linear.x:.2f}, ang_z={twist_msg.linear.z:.2f}", throttle_duration_sec=0.5)
         else:
             # If planner fails for any reason, stop the robot as a safety measure
             self.get_logger().warn("MPPI controller returned None action. Publishing zero velocity.", throttle_duration_sec=1.0)
             self.cmd_vel_pub.publish(Twist())
-        # --- END OF NEW BLOCK ---
+        
+        # --- END OF FIX ---
 
 def main(args=None):
     rclpy.init(args=args)

@@ -103,7 +103,7 @@ class SMMPPIController:
         sm_costs = torch.zeros(self.num_samples).to(self.device)
         static_costs = self.collision_avoidance_cost(state_squeezed)
 
-        for i in range(ACTIVE_AGENTS):
+        for i in range(self.active_agents):
             next_x_states = self.agent_states[i][0] + torch.linspace(self.dt, self.horizon * self.dt, self.horizon, device=self.device) * self.agent_velocities[i][0]
             next_y_states = self.agent_states[i][1] + torch.linspace(self.dt, self.horizon * self.dt, self.horizon, device=self.device) * self.agent_velocities[i][1]
             human_states = torch.stack((next_x_states, next_y_states), dim=1)
