@@ -22,4 +22,4 @@ echo "--- Launching the simulation ---"
 
 # THIS IS THE FIX:
 # Launch the SINGLE, CORRECT master launch file that starts everything.
-ros2 launch tiago_social_scenarios start_nav2_scenario_1.launch.py
+ros2 launch tiago_social_scenarios start_nav2_scenario_1.launch.pyros2 launch tiago_social_scenarios start_nav2_scenario_1.launch.py
