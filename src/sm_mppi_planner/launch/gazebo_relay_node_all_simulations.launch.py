@@ -210,7 +210,10 @@ def generate_launch_description():
         executable='hallway_publisher',
         name='hallway_publisher',
         output='screen',
-        parameters=[hallway_params]
+        parameters=[
+            hallway_params,
+            {'use_sim_time': LaunchConfiguration('use_sim_time')} 
+        ]
     )
 
     # --- Use TimerAction to delay the navigation stack ---

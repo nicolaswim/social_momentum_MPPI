@@ -1,0 +1,16 @@
+[INFO] [1763032092.139990869] [tf2_monitor_main]: Waiting for transform odom ->  base_link: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+Gathering data on odom -> base_link for 10 seconds...
+
+
+
+RESULTS: for odom to base_link
+Chain is: odom -> base_footprint -> base_link
+Net delay     avg = 3.35456e+08: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 1301.03, Max Delay: 2567.06
+
+All Broadcasters:
+Node: <no authority available> 91.4503 Hz, Average Delay: 1.75936e+09 Max Delay: 1.76303e+09
+[INFO] [1763032107.319829600] [rclcpp]: signal_handler(signum=15)

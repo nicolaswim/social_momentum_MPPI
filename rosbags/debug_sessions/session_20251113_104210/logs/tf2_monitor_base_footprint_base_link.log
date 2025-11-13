@@ -1,0 +1,107 @@
+[INFO] [1763026933.687498042] [tf2_monitor_main]: Waiting for transform base_footprint ->  base_link: Invalid frame ID "base_footprint" passed to canTransform argument target_frame - frame does not exist
+Gathering data on base_footprint -> base_link for 10 seconds...
+
+
+
+RESULTS: for base_footprint to base_link
+Chain is: base_link -> base_footprint
+Net delay     avg = 3.35455e+08: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2338, Max Delay: 22.2338
+
+All Broadcasters:
+Node: <no authority available> 71.5161 Hz, Average Delay: 1.76068e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for base_footprint to base_link
+Chain is: base_link -> base_footprint
+Net delay     avg = 6.07082e+08: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2338, Max Delay: 22.2338
+
+All Broadcasters:
+Node: <no authority available> 94.0418 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for base_footprint to base_link
+Chain is: base_link -> base_footprint
+Net delay     avg = 8.27026e+08: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2338, Max Delay: 22.2338
+
+All Broadcasters:
+Node: <no authority available> 94.0099 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for base_footprint to base_link
+Chain is: base_link -> base_footprint
+Net delay     avg = 1.00512e+09: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2338, Max Delay: 22.2338
+
+All Broadcasters:
+Node: <no authority available> 94.1067 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for base_footprint to base_link
+Chain is: base_link -> base_footprint
+Net delay     avg = 1.14933e+09: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2338, Max Delay: 22.2338
+
+All Broadcasters:
+Node: <no authority available> 94.0457 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for base_footprint to base_link
+Chain is: base_link -> base_footprint
+Net delay     avg = 1.2661e+09: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2338, Max Delay: 22.2338
+
+All Broadcasters:
+Node: <no authority available> 94.1731 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for base_footprint to base_link
+Chain is: base_link -> base_footprint
+Net delay     avg = 1.36065e+09: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2338, Max Delay: 22.2338
+
+All Broadcasters:
+Node: <no authority available> 93.9859 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for base_footprint to base_link
+Chain is: base_link -> base_footprint
+Net delay     avg = 1.43721e+09: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2338, Max Delay: 22.2338
+
+All Broadcasters:
+Node: <no authority available> 94.0537 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+[INFO] [1763027020.026082102] [rclcpp]: signal_handler(signum=15)

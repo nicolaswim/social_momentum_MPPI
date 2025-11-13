@@ -1,0 +1,15 @@
+stdin is not a terminal device. Keyboard handling disabled.[INFO] [1763025582.572431618] [rosbag2_recorder]: Press SPACE for pausing/resuming
+[INFO] [1763025582.574462000] [rosbag2_storage]: Opened database '/home/wim/Documents/social_momentum_venv/social_momentum_MPPI/rosbags/debug_sessions/session_20251113_101940/bag/bag_0.db3' for READ_WRITE.
+[INFO] [1763025582.575683143] [rosbag2_recorder]: Listening for topics...
+[INFO] [1763025582.575764306] [rosbag2_recorder]: Event publisher thread: Starting
+[INFO] [1763025582.578759636] [rosbag2_recorder]: Subscribed to topic '/tf_static'
+[INFO] [1763025582.579962758] [rosbag2_recorder]: Subscribed to topic '/model_states'
+[INFO] [1763025582.580635993] [rosbag2_recorder]: Subscribed to topic '/tf'
+[INFO] [1763025582.581571129] [rosbag2_recorder]: Subscribed to topic '/clock'
+[INFO] [1763025582.581664790] [rosbag2_recorder]: Recording...
+[INFO] [1763025582.585764559] [rosbag2_recorder]: Subscribed to topic '/ground_truth_odom'
+[INFO] [1763025582.690018253] [rosbag2_recorder]: Subscribed to topic '/mobile_base_controller/odom'
+[INFO] [1763025582.690065267] [rosbag2_recorder]: All requested topics are subscribed. Stopping discovery...
+[INFO] [1763025682.040357195] [rosbag2_cpp]: Writing remaining messages from cache to the bag. It may take a while
+[INFO] [1763025682.041398321] [rosbag2_recorder]: Event publisher thread: Exiting
+[INFO] [1763025682.041466821] [rosbag2_recorder]: Recording stopped

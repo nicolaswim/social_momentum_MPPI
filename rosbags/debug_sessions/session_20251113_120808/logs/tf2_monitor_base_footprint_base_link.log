@@ -1,0 +1,16 @@
+[INFO] [1763032092.136581414] [tf2_monitor_main]: Waiting for transform base_footprint ->  base_link: Invalid frame ID "base_footprint" passed to canTransform argument target_frame - frame does not exist
+Gathering data on base_footprint -> base_link for 10 seconds...
+
+
+
+RESULTS: for base_footprint to base_link
+Chain is: base_link -> base_footprint
+Net delay     avg = 3.35456e+08: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 1301.02, Max Delay: 2567.05
+
+All Broadcasters:
+Node: <no authority available> 91.5442 Hz, Average Delay: 1.75936e+09 Max Delay: 1.76303e+09
+[INFO] [1763032107.322788025] [rclcpp]: signal_handler(signum=15)

@@ -1,0 +1,5 @@
+[INFO] [1763024796.244225659] [tf2_monitor_main]: Waiting for transform world ->  map: Invalid frame ID "world" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1763024797.246750804] [tf2_monitor_main]: Waiting for transform world ->  map: Invalid frame ID "world" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1763024797.997998608] [rclcpp]: signal_handler(signum=15)
+terminate called after throwing an instance of 'rclcpp::exceptions::RCLError'
+  what():  could not create subscription: rcl node's context is invalid, at ./src/rcl/node.c:428

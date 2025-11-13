@@ -111,6 +111,26 @@ Other launch files are provided for specific demonstrations:
 * `headon_demo.launch.py`: A scenario where a human walks directly towards the robot.
 * `teleop_launch.launch.py`: A scenario where a human can be controlled via a `Twist` topic, for example with `teleop_twist_keyboard`.
 
+## Debugging Workflow (TF/RViz Drift)
+
+When Gazebo and RViz disagree about the robot pose, capture the TF tree and ground-truth data while the simulation runs:
+
+1. Start your normal automation (e.g., `./run_batch.sh` or a scenario launch).
+2. In a second terminal, run:
+   ```bash
+   ./scripts/capture_debug_data.sh
+   ```
+3. The script records `/tf`, `/tf_static`, `/clock`, `/mobile_base_controller/odom`, `/ground_truth_odom`, and `/model_states` into a rosbag stored under `rosbags/debug_sessions/<timestamp>`, while also running `tf2_monitor` (defaulting to `odom→base_link` and `base_footprint→base_link`). Logs and bags live inside the same session folder for quick inspection.
+4. Use `ros2 bag info`, RViz, or the plotting utilities in `rosbags/post_processing/` to compare the localization frames against Gazebo ground truth and pinpoint any drifting node.
+
+Environment variables let you tune the capture without editing the script:
+* `RECORD_DURATION` / `MONITOR_DURATION` (seconds) – how long to collect data (defaults: 600 s).
+* `BAG_TOPICS` – space-separated topic list to record.
+* `TF_MONITOR_A_TARGET` / `TF_MONITOR_B_TARGET` – change which upstream frames are compared to `base_link`.
+* `SESSION_NAME` or `SESSION_ROOT` – control where the bag/logs are stored.
+
+Terminal-ready command blocks for the simulator, capture script, and quick inspection live in `docs/debug_session_commands.md`. This workflow ensures every suspicious run automatically produces the TF data, odometry, and Gazebo truth needed to debug slips between simulation and RViz.
+
 ## Package Structure
 
 ```

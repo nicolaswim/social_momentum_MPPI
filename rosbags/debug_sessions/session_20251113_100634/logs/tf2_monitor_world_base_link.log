@@ -1,0 +1,6 @@
+[INFO] [1763024796.246129830] [tf2_monitor_main]: Waiting for transform world ->  base_link: Invalid frame ID "world" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1763024797.249753771] [tf2_monitor_main]: Waiting for transform world ->  base_link: Invalid frame ID "world" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1763024798.002423330] [rclcpp]: signal_handler(signum=15)
+[WARN] [1763024798.250149502] [tf2_monitor_main]: Transform Exception 
+terminate called after throwing an instance of 'rclcpp::exceptions::RCLError'
+  what():  failed to create guard condition: the given context is not valid, either rcl_init() was not called or rcl_shutdown() was called., at ./src/rcl/guard_condition.c:67

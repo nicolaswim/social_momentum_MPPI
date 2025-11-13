@@ -1,0 +1,107 @@
+[INFO] [1763026933.688219357] [tf2_monitor_main]: Waiting for transform odom ->  base_link: Invalid frame ID "odom" passed to canTransform argument target_frame - frame does not exist
+Gathering data on odom -> base_link for 10 seconds...
+
+
+
+RESULTS: for odom to base_link
+Chain is: odom -> base_footprint -> base_link
+Net delay     avg = 3.35455e+08: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2337, Max Delay: 22.2337
+
+All Broadcasters:
+Node: <no authority available> 71.5157 Hz, Average Delay: 1.76068e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for odom to base_link
+Chain is: odom -> base_footprint -> base_link
+Net delay     avg = 6.07082e+08: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2337, Max Delay: 22.2337
+
+All Broadcasters:
+Node: <no authority available> 94.0351 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for odom to base_link
+Chain is: odom -> base_footprint -> base_link
+Net delay     avg = 8.27026e+08: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2337, Max Delay: 22.2337
+
+All Broadcasters:
+Node: <no authority available> 94.0123 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for odom to base_link
+Chain is: odom -> base_footprint -> base_link
+Net delay     avg = 1.00512e+09: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2337, Max Delay: 22.2337
+
+All Broadcasters:
+Node: <no authority available> 94.1086 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for odom to base_link
+Chain is: odom -> base_footprint -> base_link
+Net delay     avg = 1.14933e+09: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2337, Max Delay: 22.2337
+
+All Broadcasters:
+Node: <no authority available> 94.0758 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for odom to base_link
+Chain is: odom -> base_footprint -> base_link
+Net delay     avg = 1.2661e+09: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2337, Max Delay: 22.2337
+
+All Broadcasters:
+Node: <no authority available> 94.1732 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for odom to base_link
+Chain is: odom -> base_footprint -> base_link
+Net delay     avg = 1.36065e+09: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2337, Max Delay: 22.2337
+
+All Broadcasters:
+Node: <no authority available> 93.9856 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+
+
+
+RESULTS: for odom to base_link
+Chain is: odom -> base_footprint -> base_link
+Net delay     avg = 1.43721e+09: max = 1.76303e+09
+
+Frames:
+Frame: base_footprint, published by <no authority available>, Average Delay: 1.76303e+09, Max Delay: 1.76303e+09
+Frame: base_link, published by <no authority available>, Average Delay: 22.2337, Max Delay: 22.2337
+
+All Broadcasters:
+Node: <no authority available> 94.0465 Hz, Average Delay: 1.76303e+09 Max Delay: 1.76303e+09
+[INFO] [1763027020.024515738] [rclcpp]: signal_handler(signum=15)

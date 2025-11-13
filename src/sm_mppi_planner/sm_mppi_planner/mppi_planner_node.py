@@ -74,7 +74,11 @@ class MPPLocalPlannerMPPI(Node):
         self.goal_reached = False
 
         self.tf2_wrapper = TF2Wrapper(self)
-        self.cmd_vel_pub = self.create_publisher(Twist, "/mobile_base_controller/cmd_vel_unstamped", 10)
+        # Allow the command velocity topic to be configured so we can talk directly to the base controller
+        self.declare_parameter('cmd_vel_topic', '/mobile_base_controller/cmd_vel_unstamped')
+        cmd_vel_topic = self.get_parameter('cmd_vel_topic').value
+        self.cmd_vel_pub = self.create_publisher(Twist, cmd_vel_topic, 10)
+        self.get_logger().info(f"Publishing velocity commands on '{cmd_vel_topic}'.")
 
         timer_period = 0.05
         self.timer = self.create_timer(timer_period, self.plan_and_publish)

@@ -27,3 +27,4 @@ source ~/tiago_public_ws/install/setup.bash
 source install/setup.bash
 set -u
 ros2 launch sm_mppi_planner gazebo_relay_node_all_simulations.launch.py scenario_id:=1
+# ros2 launch sm_mppi_planner scenario_1_gauntlet.launch.py
