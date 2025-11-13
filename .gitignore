@@ -72,6 +72,7 @@ Thumbs.db
 **/log/
 # rosbags
 rosbags/raw/*
+rosbags/debug_sessions/
 scenario_data_*/
 **/*.db3
 # IDE

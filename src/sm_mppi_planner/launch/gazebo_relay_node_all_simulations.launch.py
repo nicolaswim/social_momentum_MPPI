@@ -145,13 +145,45 @@ def generate_launch_description():
         ]
     )
 
-    # --- RViz ---
-    rviz_with_ld_preload_action = ExecuteProcess(
-        cmd=['bash', '-c', f"LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 rviz2 -d {rviz_config_file} --ros-args -p use_sim_time:=true"],
+    # # --- RViz ---
+    # rviz_with_ld_preload_action = ExecuteProcess(
+    #     cmd=['bash', '-c', f"LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 rviz2 -d {rviz_config_file} --ros-args -p use_sim_time:=true"],
+    #     output='screen',
+    #     condition=IfCondition(LaunchConfiguration('launch_rviz'))
+    # )
+
+    # # --- RViz ---
+    # rviz_node = Node(
+    #     package='rviz2',
+    #     executable='rviz2',
+    #     name='rviz2',
+    #     arguments=['-d', rviz_config_file],
+    #     parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}],
+    #     output='screen',
+    #     condition=IfCondition(LaunchConfiguration('launch_rviz'))
+    # )
+
+    ## 1. Get the full, absolute path to the rviz2 executable
+    rviz_executable = '/opt/ros/humble/bin/rviz2'
+
+    # 2. Copy your *entire* current environment
+    rviz_env = os.environ.copy()
+
+    # 3. Add the graphics fix variable to it
+    rviz_env['LD_PRELOAD'] = '/lib/x86_64-linux-gnu/libpthread.so.0'
+
+    # 4. Create the action
+    rviz_action = ExecuteProcess(
+        cmd=[
+            rviz_executable,  # <-- Use the full path
+            '-d', rviz_config_file,
+            '--ros-args',
+            '-p', [TextSubstitution(text='use_sim_time:='), LaunchConfiguration('use_sim_time')]
+        ],
+        env=rviz_env,  # <-- Use the corrected environment
         output='screen',
         condition=IfCondition(LaunchConfiguration('launch_rviz'))
     )
-
     # Define agent counts for each scenario
     scenario_agent_counts = {
         '1': 5,  # 4 humans + 1 wheelchair [cite: 93, 100, 107, 114, 121]
@@ -240,7 +272,9 @@ def generate_launch_description():
     
     # Launch Gazebo and RViz immediately
     ld.add_action(tiago_simulation_group)
-    ld.add_action(rviz_with_ld_preload_action)
+    # ld.add_action(rviz_with_ld_preload_action)
+    # ld.add_action(rviz_node)
+    ld.add_action(rviz_action)
     ld.add_action(hallway_publisher_node) # This can also start immediately
 
     # Launch the rest of the stack after the 20s delay
