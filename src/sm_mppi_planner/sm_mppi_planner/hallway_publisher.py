@@ -35,11 +35,12 @@ class HallwayPublisher(Node):
 
     def publish_hallway(self):
         marker_array = MarkerArray()
+        now = self.get_clock().now().to_msg()
 
         # --- Wall 1 ---
         wall_1 = Marker()
         wall_1.header.frame_id = "odom"
-        wall_1.header.stamp = self.get_clock().now().to_msg()
+        wall_1.header.stamp = now
         wall_1.ns = "hallway"
         wall_1.id = 0
         wall_1.type = Marker.MESH_RESOURCE
@@ -66,7 +67,7 @@ class HallwayPublisher(Node):
         # --- Wall 2 ---
         wall_2 = Marker()
         wall_2.header.frame_id = "odom"
-        wall_2.header.stamp = self.get_clock().now().to_msg()
+        wall_2.header.stamp = now
         wall_2.ns = "hallway"
         wall_2.id = 1
         wall_2.type = Marker.MESH_RESOURCE
@@ -82,8 +83,39 @@ class HallwayPublisher(Node):
         wall_2.scale = wall_1.scale
         wall_2.color = wall_1.color
 
+        # --- START: ADDED RED DOT MARKER ---
+        
+        goal_marker = Marker()
+        goal_marker.header.frame_id = "odom"
+        goal_marker.header.stamp = now
+        goal_marker.ns = "goal_marker"
+        goal_marker.id = 2  # Give it a unique ID
+        goal_marker.type = Marker.SPHERE
+        goal_marker.action = Marker.ADD
+        
+        # Set pose to (9.0, 0.0, 0.0)
+        goal_marker.pose.position.x = 9.0
+        goal_marker.pose.position.y = 0.0
+        goal_marker.pose.position.z = 0.0  # At ground level
+        goal_marker.pose.orientation.w = 1.0
+
+        # Set scale (e.g., 0.3m diameter)
+        goal_marker.scale.x = 0.3
+        goal_marker.scale.y = 0.3
+        goal_marker.scale.z = 0.3
+
+        # Set color to red
+        goal_marker.color.r = 1.0
+        goal_marker.color.g = 0.0
+        goal_marker.color.b = 0.0
+        goal_marker.color.a = 1.0
+        
+        # --- END: ADDED RED DOT MARKER ---
+
         marker_array.markers.append(wall_1)
         marker_array.markers.append(wall_2)
+        marker_array.markers.append(goal_marker) # Add the dot to the array
+        
         self.publisher_.publish(marker_array)
 
 def main(args=None):
