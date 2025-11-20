@@ -32,7 +32,7 @@ def generate_launch_description():
 
     # --- ROS Bag Configuration ---
     output_bag_file = [
-        TextSubstitution(text='rosbags/raw/scenario_backup_'),
+        TextSubstitution(text='/home/user/exchange/rosbags/raw/scenario_backup_'),
         scenario_id,
         TextSubstitution(text='_'),
         TextSubstitution(text=timestamp_str)
@@ -65,7 +65,7 @@ def generate_launch_description():
 
     # --- Metrics Logger Node Configuration ---
     output_parquet_file = [
-        TextSubstitution(text='rosbags/raw/metrics_data_'),
+        TextSubstitution(text='/home/user/exchange/rosbags/raw/metrics_data_'),
         scenario_id,
         TextSubstitution(text='_'),
         TextSubstitution(text=timestamp_str),
