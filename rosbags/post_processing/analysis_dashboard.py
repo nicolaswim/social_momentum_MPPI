@@ -67,7 +67,7 @@ def calculate_metrics(df):
     return df, kpi_summary
 
 # --- MODIFIED: Added 'parquet_file' as an argument ---
-def create_dashboard(df, kpi_summary, parquet_file):
+def create_dashboard(df, kpi_summary, parquet_file, show_plot=True):
     """
     Generates a 4-panel dashboard with Matplotlib.
     """
@@ -183,21 +183,43 @@ def create_dashboard(df, kpi_summary, parquet_file):
     plt.savefig(output_image)
     print(f"Dashboard saved to {output_image}")
     
-    plt.show()
+    if show_plot:
+        plt.show()
+    else:
+        plt.close(fig)
+
+def process_file(parquet_file, show_plot):
+    df = load_data(parquet_file)
+    df_metrics, kpi_summary = calculate_metrics(df)
+    create_dashboard(df_metrics, kpi_summary, parquet_file, show_plot=show_plot)
 
 def main():
     if len(sys.argv) > 1:
-        parquet_file = sys.argv[1]
+        target_path = sys.argv[1]
     else:
         print("Error: Please provide the path to the .parquet file.")
         print("Usage: python3 analysis_dashboard.py <path_to_data.parquet>")
         sys.exit(1)
         
-    df = load_data(parquet_file)
-    df_metrics, kpi_summary = calculate_metrics(df)
-    
-    # --- MODIFIED: Pass 'parquet_file' to the dashboard function ---
-    create_dashboard(df_metrics, kpi_summary, parquet_file)
+    target_path = os.path.abspath(target_path)
+
+    if os.path.isdir(target_path):
+        parquet_files = [
+            os.path.join(target_path, fname)
+            for fname in sorted(os.listdir(target_path))
+            if fname.lower().endswith(".parquet")
+        ]
+
+        if not parquet_files:
+            print(f"No .parquet files found in directory: {target_path}")
+            sys.exit(1)
+
+        print(f"Found {len(parquet_files)} parquet files in {target_path}. Batch processing...")
+        for file_path in parquet_files:
+            print(f"\nProcessing {file_path} ...")
+            process_file(file_path, show_plot=False)
+    else:
+        process_file(target_path, show_plot=True)
 
 if __name__ == "__main__":
     main()

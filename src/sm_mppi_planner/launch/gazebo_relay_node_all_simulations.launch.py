@@ -36,7 +36,7 @@ def generate_launch_description():
     }
 
     # --- Simulation Startup Delay ---
-    simulation_startup_delay = 21.0
+    simulation_startup_delay = 25.0
 
     # --- Navigation Goal ---
     goal = {'x': 9.0, 'y': 0.0}
