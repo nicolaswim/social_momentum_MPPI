@@ -3,8 +3,7 @@ import datetime
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
-    ExecuteProcess,
-    TimerAction # Still needed, but we won't use it to delay the main actions
+    ExecuteProcess
 )
 from launch.substitutions import LaunchConfiguration, TextSubstitution
 from launch_ros.actions import Node
@@ -30,9 +29,13 @@ def generate_launch_description():
     # --- Timestamp and output name ---
     timestamp_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 
+    # Define the absolute, persistent root path for logging inside the container
+    # This must match the volume mount target: /home/user/exchange
+    LOG_ROOT = '/home/user/exchange/rosbags/raw/'
+
     # --- ROS Bag Configuration ---
     output_bag_file = [
-        TextSubstitution(text='/home/user/exchange/rosbags/raw/scenario_backup_'),
+        TextSubstitution(text=LOG_ROOT + 'scenario_backup_'), # <-- ABSOLUTE PATH
         scenario_id,
         TextSubstitution(text='_'),
         TextSubstitution(text=timestamp_str)
@@ -65,7 +68,7 @@ def generate_launch_description():
 
     # --- Metrics Logger Node Configuration ---
     output_parquet_file = [
-        TextSubstitution(text='/home/user/exchange/rosbags/raw/metrics_data_'),
+        TextSubstitution(text=LOG_ROOT + 'metrics_data_'), # <-- ABSOLUTE PATH
         scenario_id,
         TextSubstitution(text='_'),
         TextSubstitution(text=timestamp_str),
@@ -79,7 +82,7 @@ def generate_launch_description():
         name='metrics_logger',
         output='screen',
         parameters=[
-            {'output_filename': output_parquet_file},
+            {'output_filename': output_parquet_file}, # This uses the new absolute path
             {'slop_seconds': 0.15},
             {'use_sim_time': use_sim_time}
         ]
