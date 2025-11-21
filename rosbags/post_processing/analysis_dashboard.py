@@ -24,14 +24,24 @@ def load_data(parquet_file):
     Loads the Parquet file and sets up the time-series index.
     """
     if not os.path.exists(parquet_file):
-        print(f"Error: File not found: {parquet_file}")
-        print("Please run the logger_node.py first.")
+        # ... (error handling remains the same)
         sys.exit(1)
         
     print(f"Loading data from {parquet_file}...")
     df = pd.read_parquet(parquet_file, engine="pyarrow")
     
-    df.set_index("timestamp", inplace=True)
+    # --- FIX THE COLUMN NAME HERE ---
+    # Replace "timestamp" with the actual column name found in your file
+    ACTUAL_TIME_COLUMN = "timestamp" # <-- CHANGE THIS if necessary!
+    
+    if ACTUAL_TIME_COLUMN not in df.columns:
+        # Provide a better error message if the column is still missing
+        raise KeyError(
+            f"Expected column '{ACTUAL_TIME_COLUMN}' not found. "
+            f"Available columns are: {list(df.columns)}"
+        )
+        
+    df.set_index(ACTUAL_TIME_COLUMN, inplace=True)
     df.sort_index(inplace=True)
     
     print(f"Loaded {len(df)} data points.")
@@ -44,6 +54,9 @@ def calculate_metrics(df):
     print("Calculating metrics...")
     
     # --- 1. Calculate Time-Aware Derivatives (Accel, Jerk) ---
+    # df.index is a DatetimeIndex
+    # .diff() computes the difference between consecutive timestamps (Timedelta)
+    # .dt.total_seconds() converts the Timedelta to a float number of seconds
     df["delta_t"] = df.index.to_series().diff().dt.total_seconds()
     df["acceleration_m_s2"] = df["lin_vel"].diff() / df["delta_t"]
     df["jerk_m_s3"] = df["acceleration_m_s2"].diff() / df["delta_t"]
@@ -56,9 +69,7 @@ def calculate_metrics(df):
     # --- 3. Calculate Total Energy (REMOVED) ---
     
     # --- 4. Clean and Store Results ---
-    # df.dropna(inplace=True) # Removed this line
     
-    # --- MODIFIED: 'total_energy_wh' removed ---
     kpi_summary = {
         "total_duration": total_duration,
         "avg_joint_speeds": avg_joint_speeds,
@@ -66,10 +77,10 @@ def calculate_metrics(df):
     
     return df, kpi_summary
 
-# --- MODIFIED: Added 'parquet_file' as an argument ---
-def create_dashboard(df, kpi_summary, parquet_file, show_plot=True):
+# --- MODIFIED: Added 'output_dir' instead of 'parquet_file' to specify save location ---
+def create_dashboard(df, kpi_summary, parquet_file, output_dir, show_plot=True):
     """
-    Generates a 4-panel dashboard with Matplotlib.
+    Generates a 4-panel dashboard with Matplotlib and saves it to the specified output directory.
     """
     print("Generating dashboard...")
     
@@ -99,12 +110,13 @@ def create_dashboard(df, kpi_summary, parquet_file, show_plot=True):
     ax1.set_ylabel("Y Position (m)")
     ax1.legend()
     ax1.grid(True)
-    ax1.axis("equal")
+    ax1.axis("equal") # Ensure path scaling is accurate
 
     # --- Plot 2: Kinematics (Accel & Jerk) ---
     ax2 = axs[0, 1]
     ax2_twin = ax2.twinx()
     
+    # Time is on the index, using df.index.values for x-axis
     (p1,) = ax2.plot(
         df.index.values,
         df["acceleration_m_s2"].values,
@@ -124,6 +136,7 @@ def create_dashboard(df, kpi_summary, parquet_file, show_plot=True):
     ax2.set_xlabel("Time")
     ax2.set_ylabel("Acceleration ($m/s^2$)", color="green")
     ax2_twin.set_ylabel("Jerk ($m/s^3$)", color="purple")
+    # Combine legends from both axes
     ax2.legend(handles=[p1, p2], loc="upper right")
     ax2.grid(True)
 
@@ -138,6 +151,7 @@ def create_dashboard(df, kpi_summary, parquet_file, show_plot=True):
     ax4.set_title("Aggregate KPIs")
     
     # Format text
+    # Keep only the date/time part of the timedelta for display
     duration_str = str(kpi_summary["total_duration"]).split(".")[0]
     
     text_lines = [
@@ -162,23 +176,14 @@ def create_dashboard(df, kpi_summary, parquet_file, show_plot=True):
         fontfamily="monospace",
     )
     
-    # --- Finalize and Show ---
+    # --- Finalize and Save ---
     fig.tight_layout(rect=[0, 0.03, 1, 0.96])
     
-    # --- MODIFIED: Generate unique name and save to script's directory ---
-    
-    # Get the directory where this script is located (rosbags/post_processing/)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    
-    # Get the base filename from the parquet file (e.g., "metrics_data_... .parquet")
-    base_filename = os.path.basename(parquet_file)
-    
     # Get the filename without the extension (e.g., "metrics_data_...")
-    file_name_no_ext = os.path.splitext(base_filename)[0]
+    file_name_no_ext = os.path.splitext(os.path.basename(parquet_file))[0]
     
-    # Join the script's directory, the unique name, and the .png extension
-    # This will save to "rosbags/post_processing/metrics_data_... .png"
-    output_image = os.path.join(script_dir, file_name_no_ext + ".png")
+    # Join the output directory, the unique name, and the .png extension
+    output_image = os.path.join(output_dir, file_name_no_ext + ".png")
     
     plt.savefig(output_image)
     print(f"Dashboard saved to {output_image}")
@@ -188,38 +193,89 @@ def create_dashboard(df, kpi_summary, parquet_file, show_plot=True):
     else:
         plt.close(fig)
 
-def process_file(parquet_file, show_plot):
+# --- MODIFIED: Added 'output_dir' for file saving ---
+def process_file(parquet_file, output_dir, show_plot):
     df = load_data(parquet_file)
     df_metrics, kpi_summary = calculate_metrics(df)
-    create_dashboard(df_metrics, kpi_summary, parquet_file, show_plot=show_plot)
+    create_dashboard(df_metrics, kpi_summary, parquet_file, output_dir, show_plot=show_plot)
 
+# --- MODIFIED: The main logic is completely overhauled to handle folder mirroring ---
 def main():
-    if len(sys.argv) > 1:
-        target_path = sys.argv[1]
-    else:
-        print("Error: Please provide the path to the .parquet file.")
-        print("Usage: python3 analysis_dashboard.py <path_to_data.parquet>")
+    if len(sys.argv) < 2:
+        print("Error: Please provide the path to the data directory (e.g., 'rosbags/raw').")
+        print("Usage: python3 analysis_dashboard.py <path_to_data_folder>")
         sys.exit(1)
         
-    target_path = os.path.abspath(target_path)
+    # The user provides the 'raw' directory (or a subdirectory inside it)
+    target_path = os.path.abspath(sys.argv[1])
+    
+    if not os.path.isdir(target_path):
+        print(f"Error: Target path is not a directory: {target_path}")
+        sys.exit(1)
+        
+    # 1. Determine the root directory structure (e.g., 'rosbags/post_processing')
+    
+    # Get the directory where this script is located (rosbags/post_processing/)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Assuming the script is in 'rosbags/post_processing', its parent is 'rosbags'
+    rosbags_dir = os.path.abspath(os.path.join(script_dir, os.pardir))
+    
+    # Define the 'raw' and 'post_processing' directories based on the script's location
+    post_processing_root = script_dir
+    raw_root = os.path.join(rosbags_dir, "raw")
+    
+    # 2. Check if the provided path is the 'raw' root or a subdirectory
+    if target_path == raw_root:
+        # If the user points to 'rosbags/raw', we process all subdirectories inside it
+        source_dirs = [
+            os.path.join(raw_root, name) 
+            for name in os.listdir(raw_root)
+            if os.path.isdir(os.path.join(raw_root, name))
+        ]
+    elif os.path.dirname(target_path) == raw_root:
+        # If the user points to 'rosbags/raw/SUBDIR', we process only that one
+        source_dirs = [target_path]
+    else:
+        print(f"Error: Target path '{target_path}' does not seem to be inside '{raw_root}'.")
+        print("Please point to the 'raw' directory or one of its immediate subdirectories.")
+        sys.exit(1)
 
-    if os.path.isdir(target_path):
+    if not source_dirs:
+        print(f"No subdirectories found in {raw_root} to process.")
+        sys.exit(1)
+
+    print(f"Found {len(source_dirs)} source folders to process.")
+    
+    for source_folder in source_dirs:
+        folder_name = os.path.basename(source_folder)
+        
+        # Define the mirrored output folder (e.g., 'rosbags/post_processing/REPAIRED_NAV2')
+        output_folder = os.path.join(post_processing_root, folder_name)
+        
+        # Create the output directory if it doesn't exist
+        os.makedirs(output_folder, exist_ok=True)
+        
+        print(f"\n--- Processing folder: {folder_name} ---")
+        
+        # Find all .parquet files in the current source folder
         parquet_files = [
-            os.path.join(target_path, fname)
-            for fname in sorted(os.listdir(target_path))
+            os.path.join(source_folder, fname)
+            for fname in sorted(os.listdir(source_folder))
             if fname.lower().endswith(".parquet")
         ]
 
         if not parquet_files:
-            print(f"No .parquet files found in directory: {target_path}")
-            sys.exit(1)
+            print(f"No .parquet files found in directory: {source_folder}")
+            continue
 
-        print(f"Found {len(parquet_files)} parquet files in {target_path}. Batch processing...")
+        print(f"Found {len(parquet_files)} parquet files. Saving dashboards to {output_folder} ...")
+        
+        # Process all files in the batch
         for file_path in parquet_files:
-            print(f"\nProcessing {file_path} ...")
-            process_file(file_path, show_plot=False)
-    else:
-        process_file(target_path, show_plot=True)
+            print(f"  > Processing {os.path.basename(file_path)} ...")
+            # The dashboard is saved to the 'output_folder'
+            process_file(file_path, output_folder, show_plot=False)
 
 if __name__ == "__main__":
     main()
