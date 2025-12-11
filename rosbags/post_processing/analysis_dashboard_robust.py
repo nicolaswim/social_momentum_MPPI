@@ -43,6 +43,11 @@ def load_data(parquet_file):
             return None
         
     df = df.drop_duplicates()
+
+    if pd.api.types.is_numeric_dtype(df[ACTUAL_TIME_COLUMN]):
+            print(f"[INFO] Converting numeric timestamp (nanoseconds) to datetime objects...")
+            df[ACTUAL_TIME_COLUMN] = pd.to_datetime(df[ACTUAL_TIME_COLUMN], unit='ns')
+
     df.set_index(ACTUAL_TIME_COLUMN, inplace=True)
     df.sort_index(inplace=True)
     df = df[~df.index.duplicated(keep='first')]
