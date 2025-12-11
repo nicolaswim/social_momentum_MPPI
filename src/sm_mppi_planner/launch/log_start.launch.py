@@ -68,7 +68,8 @@ def generate_launch_description():
 
     # --- Metrics Logger Node Configuration ---
     output_parquet_file = [
-        TextSubstitution(text=LOG_ROOT + 'metrics_data_'), # <-- ABSOLUTE PATH
+        # TextSubstitution(text=LOG_ROOT + 'metrics_data_'), # <-- ABSOLUTE PATH
+        TextSubstitution(text=LOG_ROOT + 'scenario_backup_'), # <-- ABSOLUTE PATH
         scenario_id,
         TextSubstitution(text='_'),
         TextSubstitution(text=timestamp_str),

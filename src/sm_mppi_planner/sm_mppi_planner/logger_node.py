@@ -12,10 +12,12 @@
 ##
 
 import rclpy
+import atexit
 from rclpy.node import Node
 import message_filters
 import pandas as pd
 import os
+import sys
 import numpy as np
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
@@ -105,6 +107,9 @@ class MetricsLogger(Node):
             # 6. Append to the in-memory buffer
             self.data_buffer.append(data_tuple)
 
+            if len(self.data_buffer) % 100 == 0:
+                self.get_logger().info(f"Buffer health: {len(self.data_buffer)} records collected...")
+
         except Exception as e:
             self.get_logger().warn(f"Error in callback: {e}")
 
@@ -160,16 +165,24 @@ def main(args=None):
     rclpy.init(args=args)
     
     logger = MetricsLogger()
+
+    # Register the save hook to run automatically when the program exits
+    # This catches SIGTERM, SIGINT, and normal exits.
+    atexit.register(logger.save_data_hook)
     
     try:
         rclpy.spin(logger)
     except KeyboardInterrupt:
-        logger.get_logger().info('KeyboardInterrupt received, shutting down...')
+        logger.get_logger().info('KeyboardInterrupt received.')
+    except Exception as e:
+        logger.get_logger().error(f'Unexpected exception: {e}')
     finally:
-        # This block executes *after* spin() returns,
-        logger.save_data_hook()
+        # cleanup ROS stuff
         logger.destroy_node()
-        # rclpy.shutdown() # Removed this, launch system handles it
+        # Note: Do NOT call save_data_hook() here anymore, 
+        # atexit handles it automatically.
+        if rclpy.ok():
+            rclpy.shutdown()
 
 if __name__ == "__main__":
     main()
