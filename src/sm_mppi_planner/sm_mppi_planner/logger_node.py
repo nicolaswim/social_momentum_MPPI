@@ -1,186 +1,158 @@
 #!/usr/bin/env python3
-
-## Component 1: Real-Time Synchronous Logger (ROS 2 / rclpy)
-##
-## This ROS 2 node subscribes to odometry and joint states.
-## It uses ApproximateTimeSynchronizer to create a unified data stream.
-## Data is buffered *in-memory* as a list of tuples for maximum performance.
-##
-## On shutdown (Ctrl+C), the `finally` block catches the KeyboardInterrupt
-## and fires the save_data_hook, converting the buffer to a Pandas 
-## DataFrame and saving it to a single, highly-compressed Parquet file.
-##
-
 import rclpy
-import atexit
 from rclpy.node import Node
 import message_filters
 import pandas as pd
 import os
 import sys
-import numpy as np
+import atexit
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
-# BatteryState import removed
+from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 class MetricsLogger(Node):
     def __init__(self):
         super().__init__("metrics_logger")
-        self.get_logger().info("Initializing Metrics Logger Node...")
-
+        
         # --- Parameters ---
-        self.declare_parameter("output_filename", "robot_run_data.parquet")
-        self.declare_parameter("slop_seconds", 0.15)
+        self.declare_parameter("output_filename", "/home/user/exchange/rosbags/raw/robot_run_data.parquet")
+        # INCREASED SLOP: 0.15s might be too tight for Sim. Trying 0.5s.
+        self.declare_parameter("slop_seconds", 0.5) 
 
         self.output_filename = self.get_parameter("output_filename").value
         self.slop_seconds = self.get_parameter("slop_seconds").value
         
-        self.get_logger().info(f"Output file: {self.output_filename}")
-        self.get_logger().info(f"Time slop: {self.slop_seconds}s")
+        # Print to console so we know where it THINKS it is saving
+        print(f"\n[LOGGER] Target File Path: {self.output_filename}\n")
 
-        # --- Data Storage ---
         self.data_buffer = []
-
-        # --- JointState Management ---
         self.joint_name_order = None
         self.joint_velocity_names = None
 
-        # --- ROS 2 Subscribers (using message_filters) ---
-        odom_sub = message_filters.Subscriber(self, Odometry, "/mobile_base_controller/odom") # <-- FIXED
-        joint_sub = message_filters.Subscriber(self, JointState, "/joint_states")
-        # battery_sub removed
+        # --- Subscribers ---
+        # Note: If your robot uses a namespace, these might need to be adjusted.
+        # But since your rosbag works with these names, they should be correct.
+        qos_policy = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
 
-        # Create the ApproximateTimeSynchronizer
-        # --- MODIFIED: Now only synchronizes two topics ---
-        self.ts = message_filters.ApproximateTimeSynchronizer(
-            [odom_sub, joint_sub],
-            queue_size=10,
-            slop=self.slop_seconds,
+        # We pass 'qos_profile=qos_policy' to ensure we can hear the robot
+        odom_sub = message_filters.Subscriber(
+            self, 
+            Odometry, 
+            "/mobile_base_controller/odom", 
+            qos_profile=qos_policy
+        )
+        
+        joint_sub = message_filters.Subscriber(
+            self, 
+            JointState, 
+            "/joint_states", 
+            qos_profile=qos_policy
         )
 
-        # Register the single, unified callback
+        # --- Synchronizer ---
+        # Allow headerless messages (unlikely for odom/joint_state but safe)
+        self.ts = message_filters.ApproximateTimeSynchronizer(
+            [odom_sub, joint_sub],
+            queue_size=50,
+            slop=self.slop_seconds,
+            allow_headerless=True
+        )
         self.ts.registerCallback(self.unified_callback)
+        print("[LOGGER] Node initialized. Waiting for synchronized data...")
 
-        self.get_logger().info("Metrics Logger is running. Buffering data in memory...")
-
-    # --- MODIFIED: Callback signature changed ---
     def unified_callback(self, odom_msg, joint_msg):
-        """
-        The single, time-synchronized callback.
-        Deconstructs ROS messages and appends a lightweight tuple to
-        the in-memory buffer.
-        """
         try:
-            # --- One-time joint name initialization ---
+            # 1. Initialize joint names if needed
             if self.joint_name_order is None:
                 self.joint_name_order = joint_msg.name
-                self.joint_velocity_names = [
-                    name + "_vel" for name in self.joint_name_order
-                ]
-                self.get_logger().info(
-                    f"Joints initialized. Logging {len(self.joint_name_order)} joints."
-                )
+                self.joint_velocity_names = [n + "_vel" for n in self.joint_name_order]
+                print(f"[LOGGER] Joints identified: {len(self.joint_name_order)} joints.")
 
-            # 1. Get timestamp (use odom as the reference)
+            # 2. Extract Data
             timestamp = odom_msg.header.stamp
-
-            # 2. Extract Odometry data
             pos_x = odom_msg.pose.pose.position.x
             pos_y = odom_msg.pose.pose.position.y
             lin_vel = odom_msg.twist.twist.linear.x
 
-            # 3. Extract JointState data
             vel_map = dict(zip(joint_msg.name, joint_msg.velocity))
-            joint_velocities = [vel_map[name] for name in self.joint_name_order]
+            joint_velocities = [vel_map.get(name, 0.0) for name in self.joint_name_order]
 
-            # 4. Power data (REMOVED)
-
-            # 5. Create the data tuple
-            # --- MODIFIED: 'power' removed from tuple ---
-            data_tuple = (
-                timestamp,
-                pos_x,
-                pos_y,
-                lin_vel,
-            ) + tuple(joint_velocities)
-
-            # 6. Append to the in-memory buffer
+            data_tuple = (timestamp, pos_x, pos_y, lin_vel) + tuple(joint_velocities)
             self.data_buffer.append(data_tuple)
 
+            # 3. --- NEW: AUTO-SAVE EVERY 100 STEPS ---
+            # If we have collected 100 new data points, save the file immediately.
             if len(self.data_buffer) % 100 == 0:
-                self.get_logger().info(f"Buffer health: {len(self.data_buffer)} records collected...")
+                self.save_snapshot()
 
         except Exception as e:
-            self.get_logger().warn(f"Error in callback: {e}")
+            print(f"[LOGGER] Error in callback: {e}")
+
+    def save_snapshot(self):
+        """Saves the current buffer to disk immediately."""
+        try:
+            columns = ["timestamp", "pos_x", "pos_y", "lin_vel"] + self.joint_velocity_names
+            df = pd.DataFrame(self.data_buffer, columns=columns)
+            
+            # Convert time
+            df["timestamp"] = df["timestamp"].apply(lambda t: t.sec * 1_000_000_000 + t.nanosec)
+            
+            # Overwrite the file with the latest data
+            df.to_parquet(self.output_filename, engine="pyarrow", compression="snappy")
+            
+            # Print a small dot so you know it's saving without spamming logs
+            print(f"[LOGGER] . (Saved {len(df)} rows)", end="", flush=True)
+            
+        except Exception as e:
+            print(f"\n[LOGGER] SAVE FAILED: {e}")
 
     def save_data_hook(self):
-        """
-        This function is called *only* on node shutdown.
-        It performs the high-speed dump of the in-memory buffer to disk.
-        """
-        self.get_logger().info("Shutdown hook activated.")
-        
+        # We use 'print' here because sometimes the ROS logger dies before this runs
+        print(f"\n[LOGGER] Shutdown triggered. Buffer size: {len(self.data_buffer)}")
+
         if not self.data_buffer:
-            self.get_logger().info("No data collected. Exiting.")
+            print("[LOGGER] !!! ERROR: BUFFER EMPTY. NO DATA COLLECTED. !!!")
+            print("[LOGGER] This means topics were not synchronized.")
+            print(f"[LOGGER] Checked topics: /mobile_base_controller/odom and /joint_states")
             return
 
-        self.get_logger().info(
-            f"Converting in-memory buffer ({len(self.data_buffer)} rows) to DataFrame..."
-        )
+        # Force directory creation just in case
+        folder_path = os.path.dirname(self.output_filename)
+        if folder_path and not os.path.exists(folder_path):
+            try:
+                os.makedirs(folder_path, exist_ok=True)
+                print(f"[LOGGER] Created directory: {folder_path}")
+            except Exception as e:
+                print(f"[LOGGER] Failed to create directory: {e}")
+                return
 
-        # 1. Define the DataFrame columns
-        # --- MODIFIED: 'power_w' removed from columns ---
-        columns = [
-            "timestamp",
-            "pos_x",
-            "pos_y",
-            "lin_vel",
-        ] + self.joint_velocity_names
-
-        # 2. Create the Pandas DataFrame
+        columns = ["timestamp", "pos_x", "pos_y", "lin_vel"] + self.joint_velocity_names
         df = pd.DataFrame(self.data_buffer, columns=columns)
-
-        # 3. Convert ROS 2 timestamp to pandas datetime
-        df["timestamp"] = pd.to_datetime(
-            df["timestamp"].apply(lambda ts: (ts.sec * 1e9) + ts.nanosec)
-        )
-
-        self.get_logger().info(f"Saving DataFrame to {self.output_filename}...")
+        
+        # Convert ROS2 Time (seconds, nanoseconds) to standard integer nanoseconds
+        df["timestamp"] = df["timestamp"].apply(lambda t: t.sec * 1_000_000_000 + t.nanosec)
 
         try:
-            # 4. Save to Parquet
-            df.to_parquet(
-                self.output_filename, engine="pyarrow", compression="snappy"
-            )
-            self.get_logger().info(
-                f"Successfully saved data to {self.output_filename}."
-            )
-
+            df.to_parquet(self.output_filename, engine="pyarrow", compression="snappy")
+            print(f"[LOGGER] SUCCESS: Saved {len(df)} rows to:")
+            print(f"[LOGGER] >> {self.output_filename}")
         except Exception as e:
-            self.get_logger().error(f"CRITICAL: Failed to save data to disk: {e}")
-            self.get_logger().error("Data in buffer is LOST.")
-
+            print(f"[LOGGER] CRITICAL FAILURE: Could not save file. {e}")
 
 def main(args=None):
     rclpy.init(args=args)
-    
     logger = MetricsLogger()
-
-    # Register the save hook to run automatically when the program exits
-    # This catches SIGTERM, SIGINT, and normal exits.
+    
+    # Register hook to run on ANY exit (normal or crash)
     atexit.register(logger.save_data_hook)
     
     try:
         rclpy.spin(logger)
     except KeyboardInterrupt:
-        logger.get_logger().info('KeyboardInterrupt received.')
-    except Exception as e:
-        logger.get_logger().error(f'Unexpected exception: {e}')
+        print("[LOGGER] KeyboardInterrupt received.")
     finally:
-        # cleanup ROS stuff
+        # cleanup
         logger.destroy_node()
-        # Note: Do NOT call save_data_hook() here anymore, 
-        # atexit handles it automatically.
         if rclpy.ok():
             rclpy.shutdown()
 
