@@ -1,2 +1,2 @@
-filename,duration,path_length,smoothness_score,min_human_dist,avg_human_dist,intrusion_count,time_in_danger,politeness_slope,politeness_status
-scenario_backup_1_20251212_124530.parquet,97.91,13.001210151117125,9.990702113699612,0.0455388228407497,3.4877967981108204,2,1.5799999999999983,0.030819234894405367,RUDE
+filename,duration,path_length,pir,smoothness_score,min_human_dist,min_ttc,intrusion_count,politeness_slope,politeness_status
+scenario_backup_1_20251212_124530.parquet,97.91,13.001210151117125,1.6265852848154094,9.990702113699612,0.0455388228407497,0.1,5,0.030819234894405367,RUDE
