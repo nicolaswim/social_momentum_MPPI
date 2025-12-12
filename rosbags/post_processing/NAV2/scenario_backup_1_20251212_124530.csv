@@ -1,2 +1,2 @@
-filename,duration,path_length,pir,smoothness_score,min_human_dist,safety_margin,min_ttc,intrusion_count,passing_preference,politeness_slope,politeness_status
+filename,duration,path_length,pir,avg_jerk,min_human_dist,safety_margin,min_ttc,intrusion_count,passing_preference,politeness_slope,politeness_status
 scenario_backup_1_20251212_124530.parquet,97.91,13.001210151117125,1.6265852848154094,9.990702113699612,0.0455388228407497,-0.5544611771592503,0.1,3,Left,0.030819234894405367,RUDE

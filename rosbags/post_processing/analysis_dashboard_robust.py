@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-## Component 2: Social Navigation Analysis Dashboard (TITANIUM 7.0)
+## Component 2: Social Navigation Analysis Dashboard (TITANIUM 8.1 - FINAL POLISH)
 ##
 ## UPDATES:
-## - Logic: Spatial-Temporal Merging (8.0s Time OR 2.0m Distance).
-## - Visuals: Tighter labels on Zoom-ins.
-## - Terminology: Renamed "Smoothness" to "Avg Jerk".
-## - Symbols: Standardized Circles for Robot/Human in zoom-ins.
+## - Bottom Right: Reverted to Transparent Circles (alpha=0.3) & Thinner Borders.
+## - Logic: Retained Robust Spatial-Temporal Merging (8.0s / 2.0m).
+## - Safety Monitor: Red Dots + Red Background.
+## - Report Card: "Avg Jerk" label + Black Text.
 ##
 
 import pandas as pd
@@ -31,10 +31,8 @@ HUMAN_RADIUS = 0.3
 ELLIPSE_A = 1.2  
 ELLIPSE_B = 0.6  
 DANGER_TTC_LIMIT = 2.0
-
-# --- MERGING LOGIC CONFIG ---
-MERGE_TIME_THRESHOLD = 8.0  # Merge if within 8 seconds
-MERGE_DIST_THRESHOLD = 2.0  # Merge if within 2 meters (Spatial Lock)
+MERGE_TIME_THRESHOLD = 8.0  
+MERGE_DIST_THRESHOLD = 2.0  
 
 # --- COLORS ---
 COLOR_RUDE_ZONE = '#D32F2F'     
@@ -64,7 +62,6 @@ def load_data(parquet_file):
     df.set_index(time_col, inplace=True)
     df.sort_index(inplace=True)
     
-    # Trim startup
     if not df.empty:
         start_time = df.index.min()
         cutoff = start_time + pd.Timedelta(seconds=20.1)
@@ -77,17 +74,8 @@ def load_data(parquet_file):
     return df
 
 def filter_events_spatial_temporal(raw_events, time_thresh=8.0, dist_thresh=2.0):
-    """
-    Robust Merging Strategy:
-    1. Group by Actor.
-    2. Sort by Time.
-    3. Merge if:
-       - Time gap < 8.0s  OR
-       - Spatial gap < 2.0m (Same spot struggle)
-    """
     if not raw_events: return []
     
-    # 1. Group by Human ID
     events_by_human = {}
     for ev in raw_events:
         h_id = ev['human']
@@ -98,36 +86,24 @@ def filter_events_spatial_temporal(raw_events, time_thresh=8.0, dist_thresh=2.0)
     final_unique_events = []
 
     for h_id, ev_list in events_by_human.items():
-        # Sort raw frames by time
         ev_list.sort(key=lambda x: x['timestamp_val'])
-        
-        # Start the first cluster
         current_cluster = [ev_list[0]]
         
         for i in range(1, len(ev_list)):
-            prev_frame = current_cluster[-1] # End of current cluster
-            curr_frame = ev_list[i]          # Start of potential new cluster
+            prev_frame = current_cluster[-1]
+            curr_frame = ev_list[i]
             
-            # Checks
             time_diff = curr_frame['timestamp_val'] - prev_frame['timestamp_val']
-            
-            # Spatial Distance between where previous ended and new starts
             dist_diff = np.sqrt((curr_frame['rx'] - prev_frame['rx'])**2 + 
                                 (curr_frame['ry'] - prev_frame['ry'])**2)
             
-            # MERGE CONDITION: Close in Time OR Close in Space
             if time_diff < time_thresh or dist_diff < dist_thresh:
-                # Extend the event
                 current_cluster.append(curr_frame)
             else:
-                # Close out old event, find worst moment
                 worst_frame = min(current_cluster, key=lambda x: x['min_dist'])
                 final_unique_events.append(worst_frame)
-                
-                # Start new event
                 current_cluster = [curr_frame]
         
-        # Append last cluster
         if current_cluster:
             worst_frame = min(current_cluster, key=lambda x: x['min_dist'])
             final_unique_events.append(worst_frame)
@@ -137,7 +113,6 @@ def filter_events_spatial_temporal(raw_events, time_thresh=8.0, dist_thresh=2.0)
 def calculate_social_metrics(df):
     stats = {}
     
-    # 1. KINEMATICS
     df["delta_t"] = df.index.to_series().diff().dt.total_seconds().fillna(0)
     df_kin = df[df["delta_t"] > 0.0001].copy()
     
@@ -145,7 +120,6 @@ def calculate_social_metrics(df):
     df_kin["jerk"] = df_kin["accel"].diff() / df_kin["delta_t"]
     stats["smoothness_score"] = df_kin["jerk"].abs().rolling(10).mean().mean()
 
-    # 2. EFFICIENCY
     path_dist = np.sqrt(df["pos_x"].diff()**2 + df["pos_y"].diff()**2).sum()
     start_pos = np.array([df["pos_x"].iloc[0], df["pos_y"].iloc[0]])
     end_pos = np.array([df["pos_x"].iloc[-1], df["pos_y"].iloc[-1]])
@@ -154,7 +128,6 @@ def calculate_social_metrics(df):
     stats["path_length"] = path_dist
     stats["pir"] = path_dist / optimal_dist if optimal_dist > 0 else 0
 
-    # 3. SOCIAL METRICS
     human_x_cols = [c for c in df.columns if "human" in c and c.endswith("_x")]
     human_prefixes = [c.replace("_x", "") for c in human_x_cols]
     
@@ -183,12 +156,10 @@ def calculate_social_metrics(df):
             df[f"dist_to_{h}"] = dist
             min_dists.append(dist)
             
-            # Local Frame
             x_local = dx * np.cos(-h_yaw) - dy * np.sin(-h_yaw)
             y_local = dx * np.sin(-h_yaw) + dy * np.cos(-h_yaw)
             in_ellipse = ((x_local / ELLIPSE_A)**2 + (y_local / ELLIPSE_B)**2) <= 1
             
-            # TTC
             vx_rel = rvx - hvx; vy_rel = rvy - hvy
             dot_prod = (dx * vx_rel) + (dy * vy_rel)
             speed_rel_towards = dot_prod / (dist + 0.001)
@@ -202,7 +173,6 @@ def calculate_social_metrics(df):
             ttc[static_danger_mask] = 0.1 
             min_ttcs.append(np.min(ttc))
 
-            # Collect Raw Violation Frames
             violation_indices = np.where(in_ellipse)[0]
             
             for idx in violation_indices:
@@ -229,14 +199,13 @@ def calculate_social_metrics(df):
         stats["min_human_dist"] = np.min(df["nearest_human_dist"])
         stats["min_ttc"] = np.min(min_ttcs) if min_ttcs else 10.0
         
-        # --- NEW SPATIAL-TEMPORAL DEBOUNCING ---
+        # MERGING
         filtered_events = filter_events_spatial_temporal(
             raw_events_metadata, 
             time_thresh=MERGE_TIME_THRESHOLD,
             dist_thresh=MERGE_DIST_THRESHOLD
         )
         
-        # Sort by severity
         filtered_events.sort(key=lambda x: x["min_dist"])
         
         stats["events"] = filtered_events
@@ -267,7 +236,7 @@ def save_csv_per_run(stats, filename, output_dir):
         "duration": stats.get("duration", 0),
         "path_length": stats.get("path_length", 0),
         "pir": stats.get("pir", 0),
-        "smoothness_score": stats.get("smoothness_score", 0),
+        "avg_jerk": stats.get("smoothness_score", 0),
         "min_human_dist": stats.get("min_human_dist", -1),
         "safety_margin": stats.get("safety_margin", -99),
         "min_ttc": stats.get("min_ttc", 999),
@@ -346,12 +315,19 @@ def create_dashboard(df, stats, filename, output_dir):
         ax2.axhline(y=0.45, color='red', linestyle='--', alpha=0.5, label="Limit")
         ax2.tick_params(axis='y', labelcolor='orange')
         
+        # Red Dots
+        collisions = df[df["nearest_human_dist"] < 0.45]
+        if not collisions.empty:
+            ax2.plot(collisions.index.values, collisions["nearest_human_dist"].values, 
+                     'r.', markersize=10)
+
+        # TTC
         ax2_r = ax2.twinx()
         ax2_r.set_ylabel("TTC (s)", color='purple')
         ttc_raw = df["nearest_human_dist"] / (df["lin_vel"] + 0.01)
         ttc_raw = ttc_raw.clip(upper=10.0) 
-        ttc_smooth = ttc_raw.rolling(window=5, center=True).median().fillna(ttc_raw)
         
+        ttc_smooth = ttc_raw.rolling(window=5, center=True).median().fillna(ttc_raw)
         danger_mask = ttc_smooth < DANGER_TTC_LIMIT
         ax2_r.fill_between(df.index.values, 0, 10, where=danger_mask, 
                          color=COLOR_DANGER_FILL, alpha=0.5, transform=ax2_r.get_xaxis_transform(), label="Danger")
@@ -388,7 +364,7 @@ def create_dashboard(df, stats, filename, output_dir):
             m_c = (x_c > xl) & (x_c < xh) & (y_c > yl) & (y_c < yh)
             xf, yf = x_c[m_c], y_c[m_c]
             
-            # TRANSPARENT BLUE
+            # Transparent Blue
             ax3.scatter(xf, yf, color='tab:blue', alpha=0.3, s=15)
             
             if len(xf) > 5:
@@ -408,12 +384,13 @@ def create_dashboard(df, stats, filename, output_dir):
     ax3.grid(True)
 
     # ==========================================================
-    # 4. BOTTOM RIGHT: Collision Zoom-Ins
+    # 4. BOTTOM RIGHT: Zoom-Ins (Reverted to Transparent Circles)
     # ==========================================================
     ax_container = fig.add_subplot(gs[1, 1])
     ax_container.set_xticks([]); ax_container.set_yticks([])
     ax_container.set_title("COLLISION INSTANCE DETAILS AS EVALUATION METRIC", fontsize=11, pad=20) 
     
+    # Thin Border
     for spine in ax_container.spines.values():
         spine.set_linewidth(1.0); spine.set_edgecolor('black')
 
@@ -432,9 +409,9 @@ def create_dashboard(df, stats, filename, output_dir):
             ax_sub = fig.add_subplot(gs_inner[i])
             ev = events[i]
             
-            # Tighter Label positioning (Moved closer to ellipse)
-            ax_sub.text(ev["hx"], ev["hy"] + 1.0, f"X{i+1}: {ev['type']}", 
-                        ha='center', va='bottom', fontsize=9, fontweight='bold', color='black')
+            # Label above
+            ax_sub.text(ev["hx"], ev["hy"] + 1.2, f"X{i+1}: {ev['type']} ({ev['min_dist']:.2f}m)", 
+                        ha='center', va='bottom', fontsize=9, color='black')
             
             ax_sub.set_xlim(ev["rx"] - 2.0, ev["rx"] + 2.0)
             ax_sub.set_ylim(ev["ry"] - 2.0, ev["ry"] + 2.0)
@@ -445,12 +422,12 @@ def create_dashboard(df, stats, filename, output_dir):
                           angle=deg, color='r', alpha=0.2)
             ax_sub.add_patch(ell)
             
-            # VECTORS & SOLID CIRCLES (Both same style)
+            # --- TRANSPARENT CIRCLES & ARROWS ---
             # Human
-            ax_sub.add_patch(Circle((ev["hx"], ev["hy"]), HUMAN_RADIUS, color='r', fill=True, alpha=0.4))
+            ax_sub.add_patch(Circle((ev["hx"], ev["hy"]), 0.15, color='r', fill=True, alpha=0.3))
             ax_sub.arrow(ev["hx"], ev["hy"], ev["hvx"], ev["hvy"], head_width=0.2, color='r', length_includes_head=True)
             # Robot
-            ax_sub.add_patch(Circle((ev["rx"], ev["ry"]), ROBOT_RADIUS, color='b', fill=True, alpha=0.4))
+            ax_sub.add_patch(Circle((ev["rx"], ev["ry"]), ROBOT_RADIUS, color='b', fill=True, alpha=0.3))
             ax_sub.arrow(ev["rx"], ev["ry"], ev["rvx"], ev["rvy"], head_width=0.2, color='b', length_includes_head=True)
             
     else:
@@ -466,6 +443,7 @@ def create_dashboard(df, stats, filename, output_dir):
         "--- RUN SUMMARY ---",
         f"Time:       {stats['duration']:.2f} s",
         f"Path Len:   {stats['path_length']:.2f} m",
+        # Renamed Smoothness -> Avg Jerk
         f"Avg Jerk:   {stats['smoothness_score']:.2f} m/s^3",
         "            (< 5 is smooth)",
         f"PIR:        {stats['pir']:.2f} (1.0=Opt)",
@@ -501,9 +479,9 @@ def create_dashboard(df, stats, filename, output_dir):
     else:
         lines.append("No Human Data")
 
-    text_color = 'red' if stats.get('safety_margin', 1) < 0 else 'black'
+    # Force Black Text
     ax5.text(0.05, 0.95, "\n\n".join(lines), transform=ax5.transAxes, 
-             fontsize=14, family="monospace", va="top", color=text_color)
+             fontsize=14, family="monospace", va="top", color='black')
 
     plt.tight_layout()
     img_path = os.path.join(output_dir, os.path.splitext(os.path.basename(filename))[0] + ".png")
