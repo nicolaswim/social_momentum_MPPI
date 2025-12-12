@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 
-## Component 2: Social Navigation Analysis Dashboard (TITANIUM 2.0)
+## Component 2: Social Navigation Analysis Dashboard (TITANIUM 7.0)
 ##
 ## UPDATES:
-## - Fixed Safety Monitor (Legend + messy lines).
-## - Embedded "Failure Snapshots" (Dynamic Subplots in Bottom-Right).
-## - Layout: 3-Column (Graphs Left/Mid, Report Card Right).
+## - Logic: Spatial-Temporal Merging (8.0s Time OR 2.0m Distance).
+## - Visuals: Tighter labels on Zoom-ins.
+## - Terminology: Renamed "Smoothness" to "Avg Jerk".
+## - Symbols: Standardized Circles for Robot/Human in zoom-ins.
 ##
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
-from matplotlib.patches import Ellipse
+from matplotlib.patches import Ellipse, Circle, Patch
+from matplotlib.lines import Line2D
 import sys
 import os
 import argparse
@@ -22,11 +24,23 @@ import csv
 MAX_POS_RANGE = 5000.0 
 HALL_X_MIN, HALL_X_MAX = -1.0, 12.0
 HALL_Y_MIN, HALL_Y_MAX = -3.0, 3.0 
+ROBOT_RADIUS = 0.3
+HUMAN_RADIUS = 0.3 
+
+# --- SOCIAL PARAMETERS ---
 ELLIPSE_A = 1.2  
 ELLIPSE_B = 0.6  
-COLOR_RUDE = '#8B0000'    
-COLOR_POLITE = '#90EE90'  
+DANGER_TTC_LIMIT = 2.0
+
+# --- MERGING LOGIC CONFIG ---
+MERGE_TIME_THRESHOLD = 8.0  # Merge if within 8 seconds
+MERGE_DIST_THRESHOLD = 2.0  # Merge if within 2 meters (Spatial Lock)
+
+# --- COLORS ---
+COLOR_RUDE_ZONE = '#D32F2F'     
+COLOR_POLITE_ZONE = '#388E3C'   
 COLOR_ROBOT = 'blue'
+COLOR_DANGER_FILL = '#ffcccc'
 
 def load_data(parquet_file):
     if not os.path.exists(parquet_file): return None
@@ -62,6 +76,64 @@ def load_data(parquet_file):
 
     return df
 
+def filter_events_spatial_temporal(raw_events, time_thresh=8.0, dist_thresh=2.0):
+    """
+    Robust Merging Strategy:
+    1. Group by Actor.
+    2. Sort by Time.
+    3. Merge if:
+       - Time gap < 8.0s  OR
+       - Spatial gap < 2.0m (Same spot struggle)
+    """
+    if not raw_events: return []
+    
+    # 1. Group by Human ID
+    events_by_human = {}
+    for ev in raw_events:
+        h_id = ev['human']
+        if h_id not in events_by_human:
+            events_by_human[h_id] = []
+        events_by_human[h_id].append(ev)
+    
+    final_unique_events = []
+
+    for h_id, ev_list in events_by_human.items():
+        # Sort raw frames by time
+        ev_list.sort(key=lambda x: x['timestamp_val'])
+        
+        # Start the first cluster
+        current_cluster = [ev_list[0]]
+        
+        for i in range(1, len(ev_list)):
+            prev_frame = current_cluster[-1] # End of current cluster
+            curr_frame = ev_list[i]          # Start of potential new cluster
+            
+            # Checks
+            time_diff = curr_frame['timestamp_val'] - prev_frame['timestamp_val']
+            
+            # Spatial Distance between where previous ended and new starts
+            dist_diff = np.sqrt((curr_frame['rx'] - prev_frame['rx'])**2 + 
+                                (curr_frame['ry'] - prev_frame['ry'])**2)
+            
+            # MERGE CONDITION: Close in Time OR Close in Space
+            if time_diff < time_thresh or dist_diff < dist_thresh:
+                # Extend the event
+                current_cluster.append(curr_frame)
+            else:
+                # Close out old event, find worst moment
+                worst_frame = min(current_cluster, key=lambda x: x['min_dist'])
+                final_unique_events.append(worst_frame)
+                
+                # Start new event
+                current_cluster = [curr_frame]
+        
+        # Append last cluster
+        if current_cluster:
+            worst_frame = min(current_cluster, key=lambda x: x['min_dist'])
+            final_unique_events.append(worst_frame)
+        
+    return final_unique_events
+
 def calculate_social_metrics(df):
     stats = {}
     
@@ -86,7 +158,7 @@ def calculate_social_metrics(df):
     human_x_cols = [c for c in df.columns if "human" in c and c.endswith("_x")]
     human_prefixes = [c.replace("_x", "") for c in human_x_cols]
     
-    events_metadata = [] 
+    raw_events_metadata = [] 
     
     if human_prefixes:
         min_dists = []
@@ -96,6 +168,8 @@ def calculate_social_metrics(df):
         ry = df["gt_robot_y"].values if "gt_robot_y" in df.columns else df["pos_y"].values
         rvx = np.gradient(rx)
         rvy = np.gradient(ry)
+        
+        timestamps_numeric = df.index.astype(np.int64) / 1e9
 
         for h in human_prefixes:
             hx = df[f"{h}_x"].values
@@ -109,12 +183,12 @@ def calculate_social_metrics(df):
             df[f"dist_to_{h}"] = dist
             min_dists.append(dist)
             
-            # Ellipse Check
+            # Local Frame
             x_local = dx * np.cos(-h_yaw) - dy * np.sin(-h_yaw)
             y_local = dx * np.sin(-h_yaw) + dy * np.cos(-h_yaw)
             in_ellipse = ((x_local / ELLIPSE_A)**2 + (y_local / ELLIPSE_B)**2) <= 1
             
-            # TTC Check
+            # TTC
             vx_rel = rvx - hvx; vy_rel = rvy - hvy
             dot_prod = (dx * vx_rel) + (dy * vy_rel)
             speed_rel_towards = dot_prod / (dist + 0.001)
@@ -123,36 +197,31 @@ def calculate_social_metrics(df):
             closing_mask = speed_rel_towards > 0.05 
             ttc[closing_mask] = dist[closing_mask] / speed_rel_towards[closing_mask]
             
-            # Static Danger Fix
             robot_speed = np.sqrt(rvx**2 + rvy**2)
             static_danger_mask = (dist < 0.5) & (robot_speed < 0.05)
             ttc[static_danger_mask] = 0.1 
-            
             min_ttcs.append(np.min(ttc))
 
-            # Event Tracking
-            states = in_ellipse.astype(int)
-            transitions = np.diff(states, prepend=0)
-            starts = np.where(transitions == 1)[0]
-            ends = np.where(transitions == -1)[0]
+            # Collect Raw Violation Frames
+            violation_indices = np.where(in_ellipse)[0]
             
-            if states[0] == 1: starts = np.insert(starts, 0, 0)
-            if len(ends) < len(starts): ends = np.append(ends, len(states)-1)
-            
-            for s, e in zip(starts, ends):
-                event_dists = dist[s:e+1]
-                local_min_idx = np.argmin(event_dists)
-                global_idx = s + local_min_idx
-                
-                events_metadata.append({
+            for idx in violation_indices:
+                x_loc_val = x_local[idx]
+                if x_loc_val > 0.5: type_str = "Frontal"
+                elif x_loc_val < -0.5: type_str = "Rear"
+                else: type_str = "Side"
+
+                raw_events_metadata.append({
                     "human": h,
-                    "frame_idx": global_idx,
-                    "min_dist": dist[global_idx],
-                    "rx": rx[global_idx], "ry": ry[global_idx],
-                    "hx": hx[global_idx], "hy": hy[global_idx],
-                    "rvx": rvx[global_idx], "rvy": rvy[global_idx],
-                    "hvx": hvx[global_idx], "hvy": hvy[global_idx],
-                    "h_yaw": h_yaw[global_idx]
+                    "type": type_str,
+                    "frame_idx": idx,
+                    "timestamp_val": timestamps_numeric[idx], 
+                    "min_dist": dist[idx],
+                    "rx": rx[idx], "ry": ry[idx],
+                    "hx": hx[idx], "hy": hy[idx],
+                    "rvx": rvx[idx], "rvy": rvy[idx],
+                    "hvx": hvx[idx], "hvy": hvy[idx],
+                    "h_yaw": h_yaw[idx]
                 })
 
         df["nearest_human_dist"] = np.min(min_dists, axis=0)
@@ -160,10 +229,28 @@ def calculate_social_metrics(df):
         stats["min_human_dist"] = np.min(df["nearest_human_dist"])
         stats["min_ttc"] = np.min(min_ttcs) if min_ttcs else 10.0
         
-        # Sort events by severity (closest distance first)
-        events_metadata.sort(key=lambda x: x["min_dist"])
-        stats["events"] = events_metadata
-        stats["intrusion_count"] = len(events_metadata)
+        # --- NEW SPATIAL-TEMPORAL DEBOUNCING ---
+        filtered_events = filter_events_spatial_temporal(
+            raw_events_metadata, 
+            time_thresh=MERGE_TIME_THRESHOLD,
+            dist_thresh=MERGE_DIST_THRESHOLD
+        )
+        
+        # Sort by severity
+        filtered_events.sort(key=lambda x: x["min_dist"])
+        
+        stats["events"] = filtered_events
+        stats["intrusion_count"] = len(filtered_events)
+        stats["safety_margin"] = stats["min_human_dist"] - (ROBOT_RADIUS + HUMAN_RADIUS)
+        
+        if filtered_events:
+            ev = filtered_events[0]
+            dx = ev["rx"] - ev["hx"]; dy = ev["ry"] - ev["hy"]
+            y_loc = dx * np.sin(-ev["h_yaw"]) + dy * np.cos(-ev["h_yaw"])
+            stats["passing_preference"] = "Left" if y_loc > 0 else "Right"
+        else:
+            stats["passing_preference"] = "N/A"
+        
         stats["has_social_data"] = True
     else:
         stats["min_human_dist"] = -1
@@ -182,8 +269,10 @@ def save_csv_per_run(stats, filename, output_dir):
         "pir": stats.get("pir", 0),
         "smoothness_score": stats.get("smoothness_score", 0),
         "min_human_dist": stats.get("min_human_dist", -1),
+        "safety_margin": stats.get("safety_margin", -99),
         "min_ttc": stats.get("min_ttc", 999),
         "intrusion_count": stats.get("intrusion_count", 0),
+        "passing_preference": stats.get("passing_preference", "N/A"),
         "politeness_slope": stats.get("politeness_slope", 0),
         "politeness_status": stats.get("politeness_status", "N/A")
     }
@@ -199,9 +288,6 @@ def save_csv_per_run(stats, filename, output_dir):
 def create_dashboard(df, stats, filename, output_dir):
     print("Generating dashboard...")
     
-    # --- LAYOUT: 2 Rows, 3 Columns ---
-    # Col 0, 1: Graphs (Map, Safety, Polite, Failures)
-    # Col 2: Report Card (Sidebar)
     fig = plt.figure(figsize=(24, 12))
     gs = gridspec.GridSpec(2, 3, width_ratios=[1, 1, 0.4]) 
     fig.suptitle(f"Social Nav Analysis: {os.path.basename(filename)}", fontsize=16)
@@ -217,60 +303,62 @@ def create_dashboard(df, stats, filename, output_dir):
     ax1.set_xlim(HALL_X_MIN, HALL_X_MAX)
     ax1.set_ylim(HALL_Y_MIN, HALL_Y_MAX)
     
-    # Humans
     human_x_cols = [c for c in df.columns if "human" in c and c.endswith("_x")]
     for h_col in human_x_cols:
         h_prefix = h_col.replace("_x", "")
         valid_mask = df[h_col].abs() < 50
         ax1.plot(df.loc[valid_mask, f"{h_prefix}_x"].values, 
                  df.loc[valid_mask, f"{h_prefix}_y"].values, 
-                 color="grey", alpha=0.3)
+                 color="grey", alpha=0.3, linewidth=1)
 
-    # Robot
     rx = df["gt_robot_x"].values if "gt_robot_x" in df.columns else df["pos_x"].values
     ry = df["gt_robot_y"].values if "gt_robot_y" in df.columns else df["pos_y"].values
     ax1.plot(rx, ry, color=COLOR_ROBOT, label="Robot Path", linewidth=2)
     ax1.plot(rx[0], ry[0], "go"); ax1.plot(rx[-1], ry[-1], "rx")
     
-    # Markers (Top 4 events only to keep clean)
     if stats.get("events"):
-        for i, event in enumerate(stats["events"][:4]):
-            ax1.plot(event["rx"], event["ry"], 'rX', markersize=10)
-            ax1.text(event["rx"], event["ry"]+0.3, f"X{i+1}", color='red', fontweight='bold')
-    
-    ax1.legend(loc="upper right")
+        for i, event in enumerate(stats["events"]):
+            deg = np.degrees(event["h_yaw"])
+            ell = Ellipse((event["hx"], event["hy"]), width=ELLIPSE_A*2, height=ELLIPSE_B*2, 
+                          angle=deg, edgecolor='red', facecolor='none', linewidth=2, linestyle='--')
+            ax1.add_patch(ell)
+            ax1.text(event["rx"], event["ry"], f"X{i+1}", color='red', fontweight='bold', fontsize=12)
+
+    legend_elements = [
+        Line2D([0], [0], color='grey', alpha=0.5, lw=2, label='Human Paths'),
+        Line2D([0], [0], color='blue', lw=2, label='Robot Path'),
+        Line2D([0], [0], color='red', marker='X', linestyle='None', markersize=10, label='Incidents'),
+        Patch(edgecolor='red', facecolor='none', linestyle='--', label='Collision Zones')
+    ]
+    ax1.legend(handles=legend_elements, loc="upper right")
     ax1.grid(True, linestyle=':')
 
     # ==========================================================
-    # 2. TOP MIDDLE: Safety Monitor (Fixed Legend & Lines)
+    # 2. TOP MIDDLE: Safety Monitor
     # ==========================================================
     ax2 = fig.add_subplot(gs[0, 1])
     if stats["has_social_data"]:
-        ax2.set_title("Safety Monitor: Distance & TTC")
+        ax2.set_title("Safety Monitor")
         ax2.set_xlabel("Time (HH:MM:SS)")
         ax2.set_ylabel("Distance (m)", color='orange')
         
-        # Distance (Left Axis)
-        l1 = ax2.plot(df.index.values, df["nearest_human_dist"].values, color="orange", label="Dist")
-        ax2.axhline(y=0.45, color='red', linestyle='--', alpha=0.5, label="Intimate Limit")
+        l1 = ax2.plot(df.index.values, df["nearest_human_dist"].values, color="orange", label="Dist", linewidth=2)
+        ax2.axhline(y=0.45, color='red', linestyle='--', alpha=0.5, label="Limit")
         ax2.tick_params(axis='y', labelcolor='orange')
         
-        # TTC (Right Axis)
         ax2_r = ax2.twinx()
         ax2_r.set_ylabel("TTC (s)", color='purple')
+        ttc_raw = df["nearest_human_dist"] / (df["lin_vel"] + 0.01)
+        ttc_raw = ttc_raw.clip(upper=10.0) 
+        ttc_smooth = ttc_raw.rolling(window=5, center=True).median().fillna(ttc_raw)
         
-        # Calc Plot-Friendly TTC (Clipped)
-        ttc_plot = df["nearest_human_dist"] / (df["lin_vel"] + 0.01)
-        ttc_plot = ttc_plot.clip(upper=10.0) 
+        danger_mask = ttc_smooth < DANGER_TTC_LIMIT
+        ax2_r.fill_between(df.index.values, 0, 10, where=danger_mask, 
+                         color=COLOR_DANGER_FILL, alpha=0.5, transform=ax2_r.get_xaxis_transform(), label="Danger")
         
-        l2 = ax2_r.plot(df.index.values, ttc_plot.values, color='purple', alpha=0.3, label="Est. TTC")
-        ax2_r.tick_params(axis='y', labelcolor='purple')
-        ax2_r.set_ylim(0, 10)
-        
-        # COMBINED LEGEND
-        lines = l1 + l2
-        labels = [l.get_label() for l in lines]
-        ax2.legend(lines, labels, loc="upper right")
+        ax2_r.set_ylim(0, 10); ax2_r.set_yticks([]) 
+        lines = l1 + [Patch(color=COLOR_DANGER_FILL, alpha=0.5, label='Danger (<2s)')]
+        ax2.legend(lines, [l.get_label() for l in lines], loc="upper right")
     else:
         ax2.text(0.5, 0.5, "NO DATA", ha='center')
     ax2.grid(True)
@@ -286,12 +374,10 @@ def create_dashboard(df, stats, filename, output_dir):
         ax3.set_xlabel("Dist (m)"); ax3.set_ylabel("Vel (m/s)")
         ax3.set_ylim(-0.05, 0.6)
         
-        # Zones
         x_zone = np.linspace(0, 10, 100)
-        ax3.fill_between(x_zone, 0.1*x_zone, 2.0, color=COLOR_POLITE, alpha=0.2, label="Polite")
-        ax3.fill_between(x_zone, -0.1, 0.1*x_zone, color=COLOR_RUDE, alpha=0.2, label="Rude")
+        ax3.fill_between(x_zone, 0.1*x_zone, 2.0, color=COLOR_POLITE_ZONE, alpha=0.2, label="Polite")
+        ax3.fill_between(x_zone, -0.1, 0.1*x_zone, color=COLOR_RUDE_ZONE, alpha=0.2, label="Rude")
 
-        # Scatter
         x = df["nearest_human_dist"].values; y = df["lin_vel"].values
         mask = ~np.isnan(x) & ~np.isnan(y)
         x_c = x[mask]; y_c = y[mask]
@@ -302,7 +388,8 @@ def create_dashboard(df, stats, filename, output_dir):
             m_c = (x_c > xl) & (x_c < xh) & (y_c > yl) & (y_c < yh)
             xf, yf = x_c[m_c], y_c[m_c]
             
-            ax3.scatter(xf, yf, color='gray', alpha=0.3, s=5)
+            # TRANSPARENT BLUE
+            ax3.scatter(xf, yf, color='tab:blue', alpha=0.3, s=15)
             
             if len(xf) > 5:
                 z = np.polyfit(xf, yf, 1)
@@ -321,54 +408,56 @@ def create_dashboard(df, stats, filename, output_dir):
     ax3.grid(True)
 
     # ==========================================================
-    # 4. BOTTOM MIDDLE: Dynamic Failure Snapshots (Embedded)
+    # 4. BOTTOM RIGHT: Collision Zoom-Ins
     # ==========================================================
-    # Create a nested GridSpec inside the gs[1,1] cell
+    ax_container = fig.add_subplot(gs[1, 1])
+    ax_container.set_xticks([]); ax_container.set_yticks([])
+    ax_container.set_title("COLLISION INSTANCE DETAILS AS EVALUATION METRIC", fontsize=11, pad=20) 
     
-    # How many events to show? Max 4.
+    for spine in ax_container.spines.values():
+        spine.set_linewidth(1.0); spine.set_edgecolor('black')
+
+    custom_lines = [Line2D([0], [0], color='red', lw=2, label='Human'),
+                    Line2D([0], [0], color='blue', lw=2, label='Robot'),
+                    Patch(color='red', alpha=0.1, label='Zone')]
+    ax_container.legend(handles=custom_lines, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncol=3, frameon=False, fontsize='small')
+
     events = stats.get("events", [])
     num_show = min(len(events), 4)
     
     if num_show > 0:
-        # Define layout (1x1, 1x2, or 2x2)
-        rows = 1 if num_show <= 2 else 2
-        cols = num_show if num_show <= 2 else 2
-        
-        gs_inner = gridspec.GridSpecFromSubplotSpec(rows, cols, subplot_spec=gs[1, 1], wspace=0.3, hspace=0.4)
+        gs_inner = gridspec.GridSpecFromSubplotSpec(2, 2, subplot_spec=gs[1, 1], wspace=0.1, hspace=0.3)
         
         for i in range(num_show):
             ax_sub = fig.add_subplot(gs_inner[i])
             ev = events[i]
             
-            ax_sub.set_title(f"X{i+1}: Dist {ev['min_dist']:.2f}m", fontsize=9)
+            # Tighter Label positioning (Moved closer to ellipse)
+            ax_sub.text(ev["hx"], ev["hy"] + 1.0, f"X{i+1}: {ev['type']}", 
+                        ha='center', va='bottom', fontsize=9, fontweight='bold', color='black')
+            
             ax_sub.set_xlim(ev["rx"] - 2.0, ev["rx"] + 2.0)
             ax_sub.set_ylim(ev["ry"] - 2.0, ev["ry"] + 2.0)
-            ax_sub.axis('off') # Cleaner look
+            ax_sub.axis('off') 
             
-            # Draw Ellipse
             deg = np.degrees(ev["h_yaw"])
             ell = Ellipse((ev["hx"], ev["hy"]), width=ELLIPSE_A*2, height=ELLIPSE_B*2, 
                           angle=deg, color='r', alpha=0.2)
             ax_sub.add_patch(ell)
             
-            # Draw Agents
-            ax_sub.plot(ev["hx"], ev["hy"], 'ro', markersize=6)
-            ax_sub.arrow(ev["hx"], ev["hy"], ev["hvx"], ev["hvy"], head_width=0.1, color='r', length_includes_head=True)
-            
-            ax_sub.plot(ev["rx"], ev["ry"], 'bo', markersize=6)
-            ax_sub.arrow(ev["rx"], ev["ry"], ev["rvx"], ev["rvy"], head_width=0.1, color='b', length_includes_head=True)
-            
-            # Circle Robot
-            ax_sub.add_patch(plt.Circle((ev["rx"], ev["ry"]), 0.3, color='b', fill=False))
+            # VECTORS & SOLID CIRCLES (Both same style)
+            # Human
+            ax_sub.add_patch(Circle((ev["hx"], ev["hy"]), HUMAN_RADIUS, color='r', fill=True, alpha=0.4))
+            ax_sub.arrow(ev["hx"], ev["hy"], ev["hvx"], ev["hvy"], head_width=0.2, color='r', length_includes_head=True)
+            # Robot
+            ax_sub.add_patch(Circle((ev["rx"], ev["ry"]), ROBOT_RADIUS, color='b', fill=True, alpha=0.4))
+            ax_sub.arrow(ev["rx"], ev["ry"], ev["rvx"], ev["rvy"], head_width=0.2, color='b', length_includes_head=True)
             
     else:
-        ax_sub = fig.add_subplot(gs[1, 1])
-        ax_sub.text(0.5, 0.5, "No Social Violations\nSafe Run", ha='center', fontsize=12)
-        ax_sub.axis('off')
-
+        ax_container.text(0.5, 0.5, "Safe Run\nNo Collisions Detected", ha='center', va='center')
 
     # ==========================================================
-    # 5. RIGHT SIDEBAR: Report Card
+    # 5. RIGHT SIDEBAR: Text Report
     # ==========================================================
     ax5 = fig.add_subplot(gs[:, 2])
     ax5.axis("off")
@@ -377,7 +466,7 @@ def create_dashboard(df, stats, filename, output_dir):
         "--- RUN SUMMARY ---",
         f"Time:       {stats['duration']:.2f} s",
         f"Path Len:   {stats['path_length']:.2f} m",
-        f"Smoothness: {stats['smoothness_score']:.2f} m/s^3",
+        f"Avg Jerk:   {stats['smoothness_score']:.2f} m/s^3",
         "            (< 5 is smooth)",
         f"PIR:        {stats['pir']:.2f} (1.0=Opt)",
         "",
@@ -385,10 +474,16 @@ def create_dashboard(df, stats, filename, output_dir):
     ]
     
     if stats["has_social_data"]:
+        margin = stats['safety_margin']
         lines.append(f"Min Dist:   {stats['min_human_dist']:.2f} m")
+        
+        if margin < 0: lines.append("STATUS:     COLLISION")
+        else: lines.append(f"Margin:     {margin:.2f} m")
+            
         lines.append(f"Min TTC:    {stats['min_ttc']:.2f} s")
         lines.append(f"Violations: {stats['intrusion_count']}")
         lines.append("")
+        lines.append(f"Pass Side:  {stats['passing_preference']}")
         lines.append(f"Politeness: {slope_status}")
         lines.append(f"Slope:      {slope_val:.3f}")
         
@@ -398,18 +493,18 @@ def create_dashboard(df, stats, filename, output_dir):
         
         if num_show > 0:
             lines.append("")
-            lines.append("--- VIOLATIONS ---")
+            lines.append("--- EVENTS ---")
             for i in range(num_show):
                 ev = events[i]
-                lines.append(f"X{i+1}: {ev['human']} ({ev['min_dist']:.2f}m)")
+                lines.append(f"X{i+1}: {ev['type']} ({ev['min_dist']:.2f}m)")
 
     else:
         lines.append("No Human Data")
 
+    text_color = 'red' if stats.get('safety_margin', 1) < 0 else 'black'
     ax5.text(0.05, 0.95, "\n\n".join(lines), transform=ax5.transAxes, 
-             fontsize=14, family="monospace", va="top")
+             fontsize=14, family="monospace", va="top", color=text_color)
 
-    # Save
     plt.tight_layout()
     img_path = os.path.join(output_dir, os.path.splitext(os.path.basename(filename))[0] + ".png")
     plt.savefig(img_path)
