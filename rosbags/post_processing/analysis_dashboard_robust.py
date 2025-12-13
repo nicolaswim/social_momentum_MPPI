@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
-## Component 2: Social Navigation Analysis Dashboard (TITANIUM 8.1 - FINAL POLISH)
+## Component 2: Social Navigation Analysis Dashboard (TITANIUM 8.7 - GLOBAL SUCCESS CUTOFF)
 ##
 ## UPDATES:
-## - Bottom Right: Reverted to Transparent Circles (alpha=0.3) & Thinner Borders.
-## - Logic: Retained Robust Spatial-Temporal Merging (8.0s / 2.0m).
-## - Safety Monitor: Red Dots + Red Background.
-## - Report Card: "Avg Jerk" label + Black Text.
+## - CRITICAL: Data is now truncated the moment the robot reaches within 35cm of (9,0).
+## - CONSEQUENCE: Jerk, PIR, Politeness, Collisions, and Graphs ONLY consider data BEFORE success.
+## - LOGIC: Exclusion zone (0.5m) is still there as a safety backup, though strictly less necessary now.
 ##
 
 import pandas as pd
@@ -27,12 +26,22 @@ HALL_Y_MIN, HALL_Y_MAX = -3.0, 3.0
 ROBOT_RADIUS = 0.3
 HUMAN_RADIUS = 0.3 
 
+# --- GOAL / SUCCESS PARAMETERS ---
+GOAL_X = 9.0
+GOAL_Y = 0.0
+GOAL_TOLERANCE = 0.35  # Robot "Succeeds" if within 35cm of goal
+
 # --- SOCIAL PARAMETERS ---
 ELLIPSE_A = 1.2  
 ELLIPSE_B = 0.6  
 DANGER_TTC_LIMIT = 2.0
 MERGE_TIME_THRESHOLD = 8.0  
 MERGE_DIST_THRESHOLD = 2.0  
+
+# --- EXCLUSION ZONE PARAMETERS ---
+EXCLUSION_X = 9.0
+EXCLUSION_Y = 0.0
+EXCLUSION_RADIUS = 0.5  
 
 # --- COLORS ---
 COLOR_RUDE_ZONE = '#D32F2F'     
@@ -64,7 +73,7 @@ def load_data(parquet_file):
     
     if not df.empty:
         start_time = df.index.min()
-        cutoff = start_time + pd.Timedelta(seconds=20.1)
+        cutoff = start_time + pd.Timedelta(seconds=3.1)
         df = df[df.index >= cutoff]
         if df.empty: return None
 
@@ -112,7 +121,29 @@ def filter_events_spatial_temporal(raw_events, time_thresh=8.0, dist_thresh=2.0)
 
 def calculate_social_metrics(df):
     stats = {}
+
+    # --- 0. DATA CUTOFF LOGIC (GLOBAL) ---
+    # We slice the dataframe immediately so ALL subsequent calculations (Jerk, Politeness, etc.)
+    # only see the data up to the moment of success.
     
+    rx_raw = df["gt_robot_x"].values if "gt_robot_x" in df.columns else df["pos_x"].values
+    ry_raw = df["gt_robot_y"].values if "gt_robot_y" in df.columns else df["pos_y"].values
+    
+    dist_to_goal = np.sqrt((rx_raw - GOAL_X)**2 + (ry_raw - GOAL_Y)**2)
+    at_goal_indices = np.where(dist_to_goal < GOAL_TOLERANCE)[0]
+    
+    if len(at_goal_indices) > 0:
+        first_success_idx = at_goal_indices[0]
+        # TRUNCATE DATA HERE
+        df = df.iloc[:first_success_idx + 1].copy()
+        print(f"   -> Success detected! Truncating data to {len(df)} frames.")
+    else:
+        print("   -> Robot did not reach goal tolerance. Using full data.")
+
+    # Update Duration based on the (potentially truncated) dataframe
+    stats["duration"] = (df.index.max() - df.index.min()).total_seconds()
+
+    # --- 1. Kinematics (On truncated data) ---
     df["delta_t"] = df.index.to_series().diff().dt.total_seconds().fillna(0)
     df_kin = df[df["delta_t"] > 0.0001].copy()
     
@@ -120,14 +151,18 @@ def calculate_social_metrics(df):
     df_kin["jerk"] = df_kin["accel"].diff() / df_kin["delta_t"]
     stats["smoothness_score"] = df_kin["jerk"].abs().rolling(10).mean().mean()
 
+    # --- 2. Path & PIR (On truncated data) ---
     path_dist = np.sqrt(df["pos_x"].diff()**2 + df["pos_y"].diff()**2).sum()
     start_pos = np.array([df["pos_x"].iloc[0], df["pos_y"].iloc[0]])
-    end_pos = np.array([df["pos_x"].iloc[-1], df["pos_y"].iloc[-1]])
-    optimal_dist = np.linalg.norm(end_pos - start_pos)
+    optimal_dist = np.linalg.norm(np.array([GOAL_X, GOAL_Y]) - start_pos)
     
     stats["path_length"] = path_dist
     stats["pir"] = path_dist / optimal_dist if optimal_dist > 0 else 0
 
+    # --- 3. Social Metrics (On truncated data) ---
+    rx = df["gt_robot_x"].values if "gt_robot_x" in df.columns else df["pos_x"].values
+    ry = df["gt_robot_y"].values if "gt_robot_y" in df.columns else df["pos_y"].values
+    
     human_x_cols = [c for c in df.columns if "human" in c and c.endswith("_x")]
     human_prefixes = [c.replace("_x", "") for c in human_x_cols]
     
@@ -137,11 +172,8 @@ def calculate_social_metrics(df):
         min_dists = []
         min_ttcs = []
         
-        rx = df["gt_robot_x"].values if "gt_robot_x" in df.columns else df["pos_x"].values
-        ry = df["gt_robot_y"].values if "gt_robot_y" in df.columns else df["pos_y"].values
         rvx = np.gradient(rx)
         rvy = np.gradient(ry)
-        
         timestamps_numeric = df.index.astype(np.int64) / 1e9
 
         for h in human_prefixes:
@@ -176,6 +208,12 @@ def calculate_social_metrics(df):
             violation_indices = np.where(in_ellipse)[0]
             
             for idx in violation_indices:
+                # --- EXCLUSION ZONE BACKUP ---
+                # Even with data truncated, we keep this to be safe for collisions RIGHT at the goal line.
+                dist_from_exclusion = np.sqrt((rx[idx] - EXCLUSION_X)**2 + (ry[idx] - EXCLUSION_Y)**2)
+                if dist_from_exclusion < EXCLUSION_RADIUS:
+                    continue
+
                 x_loc_val = x_local[idx]
                 if x_loc_val > 0.5: type_str = "Frontal"
                 elif x_loc_val < -0.5: type_str = "Rear"
@@ -225,7 +263,6 @@ def calculate_social_metrics(df):
         stats["min_human_dist"] = -1
         stats["has_social_data"] = False
 
-    stats["duration"] = (df.index.max() - df.index.min()).total_seconds()
     return df, stats
 
 def save_csv_per_run(stats, filename, output_dir):
@@ -442,7 +479,7 @@ def create_dashboard(df, stats, filename, output_dir):
     
     lines = [
         "--- RUN SUMMARY ---",
-        f"Time:       {stats['duration']:.2f} s",
+        f"Time:       {stats.get('duration', 0):.2f} s",
         f"Path Len:   {stats['path_length']:.2f} m",
         # Renamed Smoothness -> Avg Jerk
         f"Avg Jerk:   {stats['smoothness_score']:.2f} m/s^3",
