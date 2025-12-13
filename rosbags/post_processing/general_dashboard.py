@@ -129,7 +129,7 @@ def generate_scientific_dashboard(df):
 
     # --- PLOT 2: JERK ---
     sns.boxplot(data=df, y='avg_jerk', ax=axes[0, 1], **plot_args)
-    axes[0, 1].set_title('Average Jerk (Smoothness)', fontsize=14, weight='bold')
+    axes[0, 1].set_title('Average Jerk ($m/s^3$)', fontsize=14, weight='bold')
     axes[0, 1].set_ylabel('Jerk ($m/s^3$)')
     axes[0, 1].legend(loc='upper right')
 
