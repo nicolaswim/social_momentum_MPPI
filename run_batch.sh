@@ -6,7 +6,7 @@ set -euo pipefail
 RUN_DURATION=${RUN_DURATION:-150} # 2.5 minutes
 COOLDOWN=${COOLDOWN:-10}
 RUN_COUNT=10
-SCENARIO_ID=1
+SCENARIO_ID=4
 
 # --- THIS IS THE FIX ---
 # Default command is now the LAUNCH script, not the REBUILD script.
