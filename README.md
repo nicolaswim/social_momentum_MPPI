@@ -1,175 +1,144 @@
----
+# Social Momentum MPPI Benchmark Suite
 
-# SM-MPPI: A Socially-Aware Navigation Planner for ROS 2
+The Social Momentum Benchmark Suite is a ROS 2-based scientific harness for profiling social navigation planners under the same simulator, logging, and analytics stack. Every run follows a controlled workflow: **Gazebo** renders a populated hallway, **Social Momentum MPPI** drives the robot, a custom **MetricsLogger** captures synchronized telemetry, and the **Titanium Dashboard** converts the resulting Parquet files into forensic report cards. This README documents the architecture, data pipeline, directory layout, and the methodology that makes the benchmark repeatable.
 
-This repository contains the ROS 2 implementation of a socially-aware local planner that combines the **Social Momentum** framework with **Model Predictive Path Integral (MPPI)** control. The planner is designed to enable a mobile robot to navigate legibly, safely, and cooperatively in dynamic environments shared with humans.
+## Architecture & Scientific Methodology
 
-This package was developed as the primary case study for the Master's Thesis *"Value sensitive design in Engineering"* (Landuyt, 2024) at Delft University of Technology, serving as a practical application for bridging ethical design principles with robotics engineering.
+| Stage | Purpose | Key Artifacts |
+| --- | --- | --- |
+| Simulation | Launch TIAGo with MPPI/Social Momentum inside Gazebo populated by scripted human actors. Robot state is published on `/mobile_base_controller/odom`, hardware feedback on `/joint_states`, and scene-level truth on `/model_states`. | Launch files in `src/sm_mppi_planner/launch`, batch automation under `scripts/`. |
+| Data Acquisition | The `MetricsLogger` node subscribes to the simulator topics, aligns them using `message_filters.ApproximateTimeSynchronizer`, and writes columnar `.parquet` snapshots. | `src/sm_mppi_planner/sm_mppi_planner/logger_node.py` |
+| Analytics | `rosbags/post_processing/analysis_dashboard_robust.py` (aka Titanium Dashboard) filters, grades, and plots each run, exporting PNG report cards and CSV metrics. | Output stored under `rosbags/post_processing/<algorithm>/`. |
 
-## Core Concepts
+The suite enforces a **forensic workflow**: runs are reproducible (fixed scenario IDs, deterministic actors), raw data remain immutable, and every derived metric is traceable back to synchronized sensor + ground-truth samples.
 
-The planner's intelligence stems from a novel cost function that integrates social awareness into the well-established MPPI control framework.
+## 1. High-Level Data Pipeline (The Workflow)
 
-### 1. Social Momentum (SM)
-[cite_start]The core social navigation logic is based on the paper **"Social Momentum: Design and Evaluation of a Framework for Socially Competent Robot Navigation"**[cite: 280]. The key insight is to model the abstract concept of a "passing agreement" between the robot and a human using a physics-inspired metric: **pairwise angular momentum**.
-
-* When the robot and a human are about to pass each other, the direction (sign) of their collective angular momentum indicates a preference for passing on the right or left.
-* The planner generates motion that actively **reinforces and increases** the magnitude of this momentum, making the robot's intention to yield or pass on a specific side clear and unambiguous. This "intent-expressive" or "legible" motion allows humans to predict the robot's path, fostering trust and smoother, more cooperative interactions.
-
-### 2. Model Predictive Path Integral (MPPI)
-MPPI is a powerful and highly-parallelizable control algorithm. It operates by:
-1.  Sampling thousands of random potential control sequences (rollouts) over a short time horizon.
-2.  Simulating the future trajectory for each rollout using a dynamics model.
-3.  Evaluating each trajectory against a cost function.
-4.  Calculating a weighted average of the best control sequences to produce the optimal command for the robot.
-
-### 3. The Integrated Cost Function
-The innovation of this package lies in the cost function within `sm_mppi.py`, which guides the MPPI controller. It evaluates trajectories based on a weighted sum of four key factors:
-
-* **Goal Cost**: Drives the robot toward its final destination.
-* **Social Momentum Cost**: This is the key to socially-aware behavior. It heavily penalizes any control actions that would reverse the established passing side (i.e., invert the sign of the angular momentum) and rewards actions that reinforce it.
-* **Dynamic Obstacle Cost**: Penalizes proximity to human agents to ensure safety.
-* **Static Obstacle Cost**: Prevents collisions with walls and other static obstacles in the environment.
-
-## System Architecture
-
-The package consists of several ROS 2 nodes that work together to create a complete simulation and planning environment.
-
-* **`mppi_planner_node`**: The main planner node. It subscribes to a goal, uses TF2 to get the current state of the robot and humans, runs the SM-MPPI controller to calculate the best velocity, and publishes it as a `Twist` message.
-* **`fake_human_publisher`**: A simulator node that spawns virtual humans. It publishes their positions to the `/tf` tree and provides visualization markers for RViz. It can operate in several scenarios (`random`, `head_on`, `teleop`).
-* **`goal_publisher_node`**: A simple utility node to publish a target goal pose for the planner.
-
-**Key Topics & Transforms:**
-* **`/tf`**: All pose information for the robot (`base_link`) and humans (`human_0`, `human_1`, etc.) relative to the `odom` frame is handled via TF transforms.
-* **`/goal_pose`** (`geometry_msgs/PoseStamped`): The input goal for the planner.
-* **`/mobile_base_controller/cmd_vel_unstamped`** (`geometry_msgs/Twist`): The final velocity command published for the robot controller.
-* **`/human_markers`** (`visualization_msgs/MarkerArray`): Markers for visualizing simulated humans in RViz.
-* **`/sm_mppi_planner/vis/rollouts`** (`visualization_msgs/MarkerArray`): Visualizes the thousands of trajectories being evaluated by MPPI in real-time.
-
-## Dependencies
-
-**System:**
-* ROS 2 (Developed on Humble)
-* Python 3.10+
-
-**Python Packages:**
-* `torch` (and `pytorch-mppi`)
-* `numpy`
-* `shapely`
-* `rclpy`
-
-**ROS Packages:**
-* `geometry_msgs`
-* `visualization_msgs`
-* `nav_msgs`
-* `tf2_ros`
-* `my_social_nav_interfaces` (custom message package included in this workspace)
-
-## Installation & Building
-
-1.  **Create and navigate to your ROS 2 workspace:**
-    ```bash
-    mkdir -p ~/ros2_ws/src
-    cd ~/ros2_ws
-    ```
-
-2.  **Clone the Repository:**
-    (Assuming this repository is cloned into the `src` folder)
-
-3.  **Install Python Dependencies:**
-    ```bash
-    cd src/social_momentum_MPPI
-    pip install -r requirements.txt 
-    # (Note: A requirements.txt would need to be created with torch, pytorch-mppi, shapely, numpy)
-    ```
-
-4.  **Build the Workspace:**
-    ```bash
-    cd ~/ros2_ws
-    colcon build --symlink-install
-    ```
-
-5.  **Source the Workspace:**
-    ```bash
-    source install/setup.bash
-    ```
-
-## Usage: Running the Simulation
-
-The package includes several launch files to run different scenarios. The main simulation can be started with:
-
-```bash
-ros2 launch sm_mppi_planner sm_mppi_simulation.launch.py
+```mermaid
+flowchart LR
+    A[Gazebo Simulation
+    (TIAGo + Actors)] --> B[/ROS 2 Topics\n/odom, /joint_states, /model_states/]
+    B --> C[MetricsLogger Node
+    (Approx. Time Sync)]
+    C --> D[Columnar .parquet
+    (rosbags/raw/<algo>/run_x.parquet)]
+    D --> E[analysis_dashboard_robust.py
+    (Titanium)]
+    E --> F[Dashboards & CSVs
+    (rosbags/post_processing/)]
 ```
 
-This will typically launch:
-* **RViz**: The ROS visualization tool.
-* **`mppi_planner_node`**: The planner itself.
-* **`fake_human_publisher`**: The human simulator.
+**Why Parquet?** The logger appends hundreds of synchronized features per frame (robot odom, joint velocities, robot ground truth, dynamically discovered human poses). Apache Parquet lets us store these dense matrices with **columnar compression (Snappy)**, enabling orders-of-magnitude faster slicing (e.g., pulling only human positions) compared to bags or CSV. That speed matters because the Titanium Dashboard may read dozens of files when aggregating `NAV2` versus `Social Momentum` runs.
 
-Other launch files are provided for specific demonstrations:
-* `headon_demo.launch.py`: A scenario where a human walks directly towards the robot.
-* `teleop_launch.launch.py`: A scenario where a human can be controlled via a `Twist` topic, for example with `teleop_twist_keyboard`.
+**Why log Ground Truth separately from Odom?** `/mobile_base_controller/odom` reflects the controller's internal belief; `/model_states` is Gazebo's oracle. Capturing both streams allows us to (1) quantify drift, (2) guard analytics against localization glitches, and (3) reproduce safety violations even when odom saturates or freezes. The logger keeps both in distinct columns (`pos_x`, `pos_y` vs. `gt_robot_x`, `gt_robot_y`) so downstream tools can choose whether to evaluate planner output or true pose.
 
-## Debugging Workflow (TF/RViz Drift)
-
-When Gazebo and RViz disagree about the robot pose, capture the TF tree and ground-truth data while the simulation runs:
-
-1. Start your normal automation (e.g., `./run_batch.sh` or a scenario launch).
-2. In a second terminal, run:
-   ```bash
-   ./scripts/capture_debug_data.sh
-   ```
-3. The script records `/tf`, `/tf_static`, `/clock`, `/mobile_base_controller/odom`, `/ground_truth_odom`, and `/model_states` into a rosbag stored under `rosbags/debug_sessions/<timestamp>`, while also running `tf2_monitor` (defaulting to `odom→base_link` and `base_footprint→base_link`). Logs and bags live inside the same session folder for quick inspection.
-4. Use `ros2 bag info`, RViz, or the plotting utilities in `rosbags/post_processing/` to compare the localization frames against Gazebo ground truth and pinpoint any drifting node.
-
-Environment variables let you tune the capture without editing the script:
-* `RECORD_DURATION` / `MONITOR_DURATION` (seconds) – how long to collect data (defaults: 600 s).
-* `BAG_TOPICS` – space-separated topic list to record.
-* `TF_MONITOR_A_TARGET` / `TF_MONITOR_B_TARGET` – change which upstream frames are compared to `base_link`.
-* `SESSION_NAME` or `SESSION_ROOT` – control where the bag/logs are stored.
-
-Terminal-ready command blocks for the simulator, capture script, and quick inspection live in `docs/debug_session_commands.md`. This workflow ensures every suspicious run automatically produces the TF data, odometry, and Gazebo truth needed to debug slips between simulation and RViz.
-
-## Package Structure
+## 2. Filesystem & Directory Structure
 
 ```
 social_momentum_MPPI/
-├── my_social_nav_interfaces/     # Custom ROS2 Messages
-│   ├── msg/
-│   │   ├── HumanArray.msg
-│   │   └── HumanPoseVel.msg
-│   └── ...
-└── src/
-    └── sm_mppi_planner/
-        ├── launch/                 # Launch files for different scenarios
-        ├── package.xml             # ROS2 package manifest
-        ├── setup.py                # Python package setup script
-        └── sm_mppi_planner/
-            ├── config.py           # Core parameters (velocities, horizon, etc.)
-            ├── mppi_planner_node.py# Main executable ROS2 node
-            ├── sm_mppi.py          # The SMMPPIController class with cost function
-            ├── fake_human_publisher.py # Simulates human agents
-            ├── goal_publisher_node.py # Publishes a sample goal
-            ├── tf2_wrapper.py      # Helper class for TF2 transformations
-            ├── utils.py            # Utility functions (dynamics model, etc.)
-            └── vis_utils.py        # RViz visualization helpers
+├── scripts/
+│   ├── run_batch.sh            # Deterministic multi-run automation
+│   ├── rebuild_and_launch.sh   # Colcon build + scenario launcher
+│   └── launch_one_sim.sh       # Helper used by the batch runner
+├── src/
+│   ├── sm_mppi_planner/
+│   │   ├── launch/             # Gazebo + logger launch files
+│   │   ├── sm_mppi_planner/
+│   │   │   └── logger_node.py  # MetricsLogger implementation
+│   │   └── setup.py
+│   ├── my_social_nav_interfaces/
+│   └── tiago_social_scenarios/
+├── rosbags/                    # DATA STORAGE ROOT
+│   ├── raw/                    # INPUT: immutable Parquet logs
+│   │   ├── NAV2/
+│   │   └── social_momentum/    # Organized by planner/scenario ID
+│   └── post_processing/        # OUTPUT: analytics artefacts only
+│       ├── NAV2/
+│       └── social_momentum/
+│           ├── *.png           # Titanium dashboards ("report cards")
+│           ├── *.csv           # One-line metric exports per run
+│           └── failures/       # Optional zoom-in snapshots
+├── rosbags/post_processing/analysis_dashboard_robust.py
+└── README.md
 ```
 
-## Configuration
+**Rosbag storage rules:**
+- `rosbags/raw/` is append-only. Each algorithm/scenario folder contains only `.parquet` files generated by the logger. Preserving raw data ensures that analytics bugs never rewrite the ground truth.
+- `rosbags/post_processing/` is disposable output. Every time the Titanium Dashboard is executed it mirrors the `raw/` folder structure and drops PNG dashboards, CSV summaries, and optional cropped "failure" evidence. By isolating derived artefacts we maintain **data integrity** and make it obvious when analytics need to be regenerated (delete `post_processing/`, keep `raw/`).
 
-Key planner parameters can be adjusted in `sm_mppi_planner/config.py`:
-* `VMAX`: Maximum linear velocity of the robot.
-* `HORIZON_LENGTH`: Number of timesteps MPPI predicts into the future.
-* `NUM_SAMPLES`: Number of trajectories sampled per cycle. High values improve performance but increase computational load.
-* `ACTIVE_AGENTS`: The number of simulated humans to expect.
+## 3. Deep Dive: Component 1 – MetricsLogger
 
-## Academic Context & Citation
+The `MetricsLogger` node (`src/sm_mppi_planner/sm_mppi_planner/logger_node.py`) is a ROS 2 Python node crafted for deterministic benchmarking.
 
-This work is grounded in academic research. If you use this code or its concepts in your research, please cite the relevant publications.
+- **Approximate Time Synchronization:** It creates `message_filters.Subscriber` instances for `/mobile_base_controller/odom` and `/joint_states` and feeds them into `message_filters.ApproximateTimeSynchronizer(queue_size=50, slop=0.5)`. This synchronizer tolerates up to 0.5 s skew but enforces a single callback (`unified_callback`) where odom, joint velocities, and the cached ground-truth sample are fused into one row. This prevents classic "odometry says stop but joints say go" races when Gazebo jitters under load.
+- **Ground-Truth Cache:** `/model_states` lacks timestamps, so the logger stores the latest message in `self.latest_model_msg` and attaches it to the next synchronized odom/joint packet. The code explicitly looks for `"mobile_base"` to capture the robot's true pose and maintain separate `gt_robot_x/y` columns.
+- **Auto-Discovery of Humans:** During the first ground-truth callback the logger scans the `ModelStates.name` array for substrings `actor`, `human`, or `person`. The sorted match list (`['actor0', 'actor1', ...]`) seeds the schema so each human path gets dedicated columns (`actor0_x`, `actor0_y`, ...). If an actor temporarily disappears the logger pads zeros but never renames columns, simplifying downstream analytics and ensuring humans added mid-simulation are detected automatically.
+- **Write-Ahead Safety:** Every 100 synchronized samples the logger calls `save_snapshot()` to persist the entire buffer using PyArrow+Snappy. Combined with an `atexit` hook, this guards against data loss even if Gazebo crashes. Before writing, the node performs a disk write test to prove the container/robot has permission to touch the host path.
+- **Columnar Schema:** Each row stores the ROS timestamp (nanoseconds), planar odom pose/velocity, all joint velocities (with `_vel` suffix), robot ground truth, and the discovered human coordinates. The deterministic schema enables schema evolution tracking across experiments.
 
-**Thesis Context:**
-> Landuyt, N. W. (2024). *Value sensitive design in Engineering* [Unpublished master's thesis]. Delft University of Technology. 
+## 4. Deep Dive: Component 2 – Titanium Dashboard (analysis_dashboard_robust.py)
 
-**Core Scientific Paper:**
-> Mavrogiannis, C., Alves-Oliveira, P., Thomason, W., & Knepper, R. A. (2022). Social Momentum: Design and Evaluation of a Framework for Socially Competent Robot Navigation. *ACM Transactions on Human-Robot Interaction, 11*(2), 1–37. [https://doi.org/10.1145/3495244](https://doi.org/10.1145/3495244) 
+The Titanium Dashboard is the analytics kernel living in `rosbags/post_processing/analysis_dashboard_robust.py`. It loads each Parquet file, truncates it based on success conditions, and renders a three-panel forensic board plus a textual report card.
+
+### Spatio-Temporal Debouncing
+Collision events are first detected whenever the robot enters a human's social ellipse (semi-major axis 1.2 m, semi-minor 0.6 m aligned with that human's heading). Each event stores robot/human positions, velocities, and a timestamp. `filter_events_spatial_temporal()` then merges events if they occur within **8 seconds** or **2 meters** of each other, keeping only the most severe frame (minimum separation). This "debouncing" prevents double-counting when the robot brushes the same pedestrian for multiple frames.
+
+### Global Success Cutoff
+`calculate_social_metrics()` computes the radial distance to the goal (9.0 m, 0.0 m). The very first frame within **35 cm** is treated as success and every downstream sample is discarded. Cutting the data at success time ensures we grade only the approach behavior. Post-goal idling, docking oscillations, or teleop nudges simply never enter jerk, PIR, or safety statistics, which keeps planners from gaming the metric by lingering in the goal zone.
+
+### Social Compliance (5–95 % Filtered Trend Line)
+To judge politeness, the dashboard samples the robot's linear velocity versus its nearest human distance. It removes the noisy lower and upper **5 %** tails on both axes, fits a linear regression, and classifies the slope: `>0.1` (POLITE – slows down when close), `<0.05` (RUDE – keeps speed regardless of spacing), or NEUTRAL otherwise. The scatter plot shows the cleaned samples plus the trend line color-coded by status, giving an instant read on "are we braking around people?".
+
+### Safety Monitor (Rolling Median TTC)
+A dual-axis chart plots nearest human distance (orange) and a **rolling-median Time-To-Collision (TTC)** trace (purple). TTC is computed as `distance / relative closing speed`, clipped to 10 s and median-filtered with a 5-sample centered window. Any window dipping below **2 s** paints the background red, while point markers flag distances below 0.45 m. This rolling median wipes out single-frame spikes and highlights sustained risks instead.
+
+## 5. How to Interpret the Output
+
+Each PNG dashboard generated per run contains:
+- **Global Map:** Robot path, human trajectories, and incident ellipses labeled `X1`, `X2`, ... . If no incidents occurred the panel still displays the traversed hallway for qualitative review.
+- **Safety Monitor:** Distance vs. time plus the TTC risk shading described above.
+- **Politeness Plot:** 5–95 % filtered scatter and the velocity–distance trend line.
+- **Collision Zoom-Ins:** Up to four subplots show the robot (blue) and human (red) discs at each merged event along with their velocity vectors, making it easy to diagnose if the planner cut in front or rear-ended.
+- **Textual Report Card:** Right-hand column lists duration, path length, **PIR**, **Avg Jerk**, social margins, TTC minimum, event count, passing side preference, politeness label, and an overall PASS/FAIL gate based on 0.45 m clearance and TTC>0.5 s.
+
+**Path Irregularity Ratio (PIR):** The ratio between the traversed path length and the straight-line distance from start to goal. A PIR of 1.0 is perfectly direct; values >1 indicate detours caused by crowd negotiations or oscillations.
+
+**Average Jerk:** Computed as the mean of the absolute jerk (derivative of acceleration) over the truncated dataset with a 10-sample rolling window. Values below 5 m/s³ indicate smooth, passenger-friendly acceleration profiles.
+
+The `rosbags/post_processing/<algo>/<run>.csv` mirrors the same metrics in machine-readable form for regression testing or comparison tables (`comparison_summary.csv`).
+
+## 6. Quick Start
+
+1. **Launch the Simulation (Gazebo + planner + actors).**
+   ```bash
+   cd /home/wim/Documents/social_momentum_venv/social_momentum_MPPI
+   ./scripts/rebuild_and_launch.sh
+   # or run a specific scenario:
+   ros2 launch sm_mppi_planner gazebo_relay_node_all_simulations.launch.py scenario_id:=4
+   ```
+
+2. **Start Logging (rosbag2 + MetricsLogger).** The `log_start.launch.py` launch description spawns both the rosbag recorder and the logger node so logs land inside `rosbags/raw/<scenario>/`.
+   ```bash
+   source install/setup.bash
+   ros2 launch sm_mppi_planner log_start.launch.py scenario_id:=4 use_sim_time:=true
+   ```
+   The logger writes `scenario_backup_<id>_<timestamp>.parquet` into the `rosbags/raw/<scenario>/` folder referenced by the launch file.
+
+3. **Post-Process a Folder with Titanium.** Point the dashboard at the raw directory and optionally restrict to one planner folder (e.g., `social_momentum`).
+   ```bash
+   python3 rosbags/post_processing/analysis_dashboard_robust.py rosbags/raw --folder social_momentum
+   ```
+   Dashboards (`.png`) and numeric summaries (`.csv`) will appear under `rosbags/post_processing/social_momentum/` with the same run naming convention.
+
+4. **Batch Multiple Runs (Optional).** To gather statistical samples or reproduce the scientific figures, use the automation script that repeatedly launches the simulator and logger.
+   ```bash
+   ./scripts/run_batch.sh
+   # respects RUN_DURATION, RUN_COUNT, SCENARIO_ID env vars
+   ```
+
+## Next Steps
+
+- Compare planners by running Titanium on different subfolders (`NAV2`, `social_momentum`) and aggregate the resulting CSVs (see `rosbags/post_processing/comparison_summary.csv`).
+- Submit new planner variants by dropping their launch automation into `scripts/` and writing to a new `rosbags/raw/<planner_name>/` folder. The rest of the pipeline works unchanged.
+
+Happy benchmarking.
