@@ -1,0 +1,2 @@
+filename,duration,path_length,pir,avg_jerk,min_human_dist,safety_margin,min_ttc,intrusion_count,passing_preference,politeness_slope,politeness_status
+metrics_data_2_20251114_142206.parquet,82.9,11.949115621883411,1.7562183036587886,2.229552272067692,-1,-99,999,0,N/A,0.0,N/A

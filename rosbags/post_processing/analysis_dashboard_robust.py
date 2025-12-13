@@ -424,7 +424,8 @@ def create_dashboard(df, stats, filename, output_dir):
             
             # --- TRANSPARENT CIRCLES & ARROWS ---
             # Human
-            ax_sub.add_patch(Circle((ev["hx"], ev["hy"]), 0.15, color='r', fill=True, alpha=0.3))
+            ax_sub.add_patch(Circle((ev["hx"], ev["hy"]), ROBOT_RADIUS, color='r', fill=True, alpha=0.3))
+            # ax_sub.add_patch(Circle((ev["hx"], ev["hy"]), 0.15, color='r', fill=True, alpha=0.3))
             ax_sub.arrow(ev["hx"], ev["hy"], ev["hvx"], ev["hvy"], head_width=0.2, color='r', length_includes_head=True)
             # Robot
             ax_sub.add_patch(Circle((ev["rx"], ev["ry"]), ROBOT_RADIUS, color='b', fill=True, alpha=0.3))
