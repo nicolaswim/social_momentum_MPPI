@@ -38,10 +38,9 @@ graph TD
     B -->|/tf human_i frames| C[ROS 2 Wrapper]
     C -->|Current State| D{MPPI Optimizer}
     D -->|Social Momentum Score| D
-    D -->|Optimal Velocity| E[/mobile_base_controller/cmd_vel_unstamped]
+    D -->|Optimal Velocity| E("/mobile_base_controller/cmd_vel_unstamped")
     E -->|Drive Wheels| A
     E -.->|Synchronized Logging| F[Forensic Logger]
-
 ```
 
 ### Integration Points
