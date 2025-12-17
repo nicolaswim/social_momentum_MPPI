@@ -1,11 +1,21 @@
 # Paltiago Social Navigation Benchmark Suite
+> A Forensic Evaluation Harness for the PAL TIAGo Robot.
 
-### A Forensic Evaluation Harness for the PAL TIAGo Robot
+![ROS 2 Humble](https://img.shields.io/badge/ROS%202-Humble-blue)
+![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-green)
+![Python](https://img.shields.io/badge/Python-3.10+-yellow)
+![Platform](https://img.shields.io/badge/Platform-PAL_TIAGo-orange)
 
-This repository contains a scientific instrument designed to profile robot navigation algorithms in dynamic, socially complex environments. Unlike standard evaluation scripts, this suite enforces a **forensic workflow**: it decouples simulation, data acquisition, and analytics to ensure that every metric is traceable back to immutable, synchronized ground-truth snapshots.
+## Gallery
+| Gazebo Simulation (Source) | RViz Visualization (Planner) |
+| :---: | :---: |
+| <img src="rosbags/post_processing/SM_Gazebo_Sub_01.gif" width="100%" style="vertical-align: middle" /> | <img src="rosbags/post_processing/SM_Rviz_Sub_01.gif" width="100%" style="vertical-align: middle" /> |
+> *Left: The PAL TIAGo robot navigating a dynamic crowd in Gazebo. Right: The corresponding MPPI trajectory rollouts and social costmap in RViz.*
 
-It is currently configured to benchmark the **Social Momentum MPPI** controller (adapted from Fluent Robotics Lab) against standard baselines like **Nav2** using the **PAL Robotics TIAGo** platform.
+## Overview
+The **Paltiago Social Navigation Benchmark** is a scientific instrument designed to profile robot navigation algorithms in dynamic, socially complex environments. Unlike standard evaluation scripts, this suite enforces a **forensic workflow**: it decouples simulation, data acquisition, and analytics to ensure that every metric—from Path Irregularity Ratio (PIR) to Social Compliance—is traceable back to immutable, synchronized ground-truth snapshots.
 
+It is currently configured to benchmark the **Social Momentum MPPI** controller (adapted from Fluent Robotics Lab) against standard baselines like **Nav2**.
 <p align="center">
   <img src="rosbags/post_processing/SM_Gazebo_Sub_01.gif" width="48%" alt="Gazebo Simulation View" style="vertical-align: middle;"/>
   <img src="rosbags/post_processing/SM_Rviz_Sub_01.gif" width="48%" alt="RViz Visualization View" style="vertical-align: middle;"/>
@@ -76,13 +86,17 @@ Instead of finding a single global path, the controller uses a sampling-based op
 
 ## 3. Benchmark Results & Analytics
 
-The suite transforms ROS 2 navigation stacks into quantifiable data through a three-stage pipeline: **Controlled Simulation** \rightarrow **Forensic Logging** \rightarrow **Automated Analytics**.
+The suite transforms ROS 2 navigation stacks into quantifiable data through a strictly enforced three-stage pipeline:
 
-### The Analytics Dashboard
+```mermaid
+graph LR
+    A[Controlled Simulation] -->|Generates Data| B(Forensic Logging)
+    B -->|Immutable Parquet| C{Automated Analytics}
+    C -->|Output| D[Report Card]
+```
 
-The post-processing engine generates a "Report Card" for every run, grading the robot on non-binary criteria such as Politeness and Comfort.
-
-*(Above: Sample output from the Analytics Dashboard. Note the "Politeness" graph (bottom left) which tracks whether the robot slows down as it approaches humans.)*
+![Analytics Dashboard](rosbags/post_processing/NAV2/scenario_backup_1_20251213_000401.png)
+> *Above: The automated "Forensic Report Card" generated for every run. It aggregates spatial telemetry (Global Trajectory Map), temporal safety data (TTC Monitor), social compliance metrics (Politeness Trend), and a high-level summary of performance indicators (Jerk, PIR, and Pass Side).*
 
 ### Standardized Metrics
 
@@ -170,7 +184,3 @@ The **ROS 2 Integration**, **Forensic Logger**, **Analytics Dashboard**, and **T
 
 **Simulation Assets**
 The simulation assets (`tiago_simulation`) are property of **PAL Robotics**.
-
-```
-
-```
