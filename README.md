@@ -1,37 +1,25 @@
-# Paltiago Social Navigation Benchmark Suite
-> A Forensic Evaluation Harness for the PAL TIAGo Robot.
+# From Moral Will to Moral Skill: Paltiago Social Navigation Module
+> A Forensic Evaluation Harness for the PAL Tiago Robot.
 
 ![ROS 2 Humble](https://img.shields.io/badge/ROS%202-Humble-blue)
 ![License: BSD 3-Clause](https://img.shields.io/badge/License-BSD_3--Clause-green)
-![Python](https://img.shields.io/badge/Python-3.10+-yellow)
-![Platform](https://img.shields.io/badge/Platform-PAL_TIAGo-orange)
+![Context: TU Delft Thesis](https://img.shields.io/badge/Context-MSc_Thesis-orange)
 
 ## Gallery
 | Gazebo Simulation (Source) | RViz Visualization (Planner) |
 | :---: | :---: |
 | <img src="rosbags/post_processing/SM_Gazebo_Sub_01.gif" width="100%" style="vertical-align: middle" /> | <img src="rosbags/post_processing/SM_Rviz_Sub_01.gif" width="100%" style="vertical-align: middle" /> |
-> *Left: The PAL TIAGo robot navigating a dynamic crowd in Gazebo. Right: The corresponding MPPI trajectory rollouts and social costmap in RViz.*
+> *Left: The PAL Tiago robot navigating a dynamic crowd in Gazebo. Right: The corresponding visualizations in RViz.*
 
 ## Overview
-The **Paltiago Social Navigation Benchmark** is a scientific instrument designed to profile robot navigation algorithms in dynamic, socially complex environments. Unlike standard evaluation scripts, this suite enforces a **forensic workflow**: it decouples simulation, data acquisition, and analytics to ensure that every metric—from Path Irregularity Ratio (PIR) to Social Compliance—is traceable back to immutable, synchronized ground-truth snapshots.
+This repository contains the technical artifacts for the MSc Thesis **"From Moral Will to Moral Skill."**
 
-It is currently configured to benchmark the **Social Momentum MPPI** controller (adapted from Fluent Robotics Lab) against standard baselines like **Nav2**.
-<p align="center">
-  <img src="rosbags/post_processing/SM_Gazebo_Sub_01.gif" width="48%" alt="Gazebo Simulation View" style="vertical-align: middle;"/>
-  <img src="rosbags/post_processing/SM_Rviz_Sub_01.gif" width="48%" alt="RViz Visualization View" style="vertical-align: middle;"/>
-</p>
-<p align="center">
-  <em>Figure 1: (Left) The PAL TIAGo robot navigating a dynamic crowd in Gazebo. (Right) The corresponding MPPI trajectory rollouts in RViz.</em>
-</p>
+The thesis argues that standard engineering tools possess a "Normative Void"—an ontological bias toward efficiency that ignores social care values. This codebase serves as the **Intermediate Level Knowledge (ILK)** required to bridge that gap. It implements a **Social Momentum** controller to operationalize the ethical value of "Reciprocity" and creates a forensic logging system to validate "Kinematic Legibility".
 
 ---
-## 1. System Architecture
+## 1. System Architecture: Bridging the "HRI Gap"
 
-This system bridges the high-level algorithmic logic with the physical control layer of the PAL TIAGo robot through a custom simulation bridge. It relies on the [PAL Robotics TIAGo Simulation](https://github.com/pal-robotics/tiago_simulation) stack for underlying physics and robot description.
-
-### The Control Loop
-The system operates in a closed-loop cycle at **20 Hz**, replacing the standard `Nav2` local planner while preserving the TIAGo's low-level hardware drivers.
-
+Standard simulations suffer from an **HRI Infrastructure Gap** where human actors are invisible to standard ROS sensors. To allow the robot to demonstrate **Attentiveness**, this system implements a custom relay bridge.
 ```mermaid
 graph TD
     A[Gazebo Simulation] -->|/model_states| B(GazeboActorRelay)
@@ -45,8 +33,8 @@ graph TD
 
 ### Integration Points
 
-* **Perception (The "Relay"):** The `gazebo_actor_relay` node intercepts Gazebo's ground truth (`/model_states`) and broadcasts live positions as standard TF frames (`human_0`, `human_1`). This isolates the planner performance from perception noise during algorithmic validation.
-* **Actuation (The TIAGo):** The optimal velocity from the MPPI solver is packaged into `geometry_msgs/Twist` and published to `/mobile_base_controller/cmd_vel_unstamped`, where the standard `ros_control` stack converts it to wheel motor currents.
+* **Perception (The Relay Node):** To address the "Ghost Human" problem where standard tools treat people as static obstacles, the `gazebo_actor_relay` node intercepts Gazebo's ground truth (`/model_states`). It broadcasts live positions as standard TF frames (`human_0`, `human_1`), forcing the robot to acknowledge social agents while isolating planner performance from perception noise.
+* **Actuation (The Control Loop):** Operating at **20 Hz**, this custom socially-aware controller replaces the standard efficiency-driven Nav2 planner. The MPPI solver packages optimal velocities into `geometry_msgs/Twist` and publishes them to `/mobile_base_controller/cmd_vel_unstamped`, where the standard `ros_control` stack converts the social intent into physical wheel motor currents.
 
 ---
 
@@ -68,6 +56,7 @@ Where:
 * $\mathbf{v}$ represents the velocity vectors of the agents.
 
 * **Behavioral Outcome:**
+
     * **Consistent Sign:** If the robot commits to passing on the left, the cross-product term yields a specific sign. Continuing to pass on the left reduces the cost (reward).
     * **Sign Flipping:** If the robot tries to switch to the right, the sign flips, causing a spike in cost. This effectively creates an "energy barrier" against hesitation or oscillation.
 
@@ -79,8 +68,7 @@ Instead of finding a single global path, the controller uses a sampling-based op
 
 * **Sampling:** 250 random trajectories generated every control cycle (0.05s).
 * **Horizon:** 3.0 seconds into the future (assuming a Constant Velocity Model for humans).
-* **Constraints:** The solver strictly adheres to TIAGo's kinematic limits (v_{max} = 0.4 m/s, w_{max} = 1.5 rad/s).
-
+* **Constraints:** The solver strictly adheres to TIAGo's kinematic limits ($v_{max} = 0.4$ m/s, $\omega_{max} = 1.5$ rad/s).
 ---
 
 ## 3. Benchmark Results & Analytics
@@ -127,7 +115,6 @@ Launch the logger to begin recording the "Forensic Run."
 
 ```bash
 ros2 launch sm_mppi_planner log_start.launch.py scenario_id:=4 use_sim_time:=true
-
 ```
 
 ### Generate Report Cards
@@ -174,12 +161,13 @@ social_momentum_MPPI/
 
 **Original Algorithm**
 The core **Social Momentum MPPI** implementation and the `pytorch_mppi` logic are the work of the **Fluent Robotics Lab**.
-
 * **Copyright:** (c) 2025, Fluent Robotics Lab
-* **License:** BSD 3-Clause (See `LICENSE` file)
 
-**Paltiago Extensions**
-The **ROS 2 Integration**, **Forensic Logger**, **Analytics Dashboard**, and **TIAGo specific adapters** were developed to facilitate benchmarking on the PAL Robotics platform.
+**Thesis Context & Paltiago Extensions**
+This code is part of a Master Thesis submitted to **TU Delft**. It represents the practical application of the **Operationalized CCVSD Framework**. The **ROS 2 Integration**, **Forensic Logger**, **Analytics Dashboard**, and **TIAGo specific adapters** were developed to facilitate benchmarking on the PAL Robotics platform.
 
 **Simulation Assets**
 The simulation assets (`tiago_simulation`) are property of **PAL Robotics**.
+
+**License**
+BSD 3-Clause (See `LICENSE` file).
